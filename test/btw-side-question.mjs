@@ -337,9 +337,15 @@ function rowsContainingQuestion(question) {
   const db = new sqlite.DatabaseSync(dbPath, { readOnly: true });
   try {
     const offenders = [];
+    // LIKE 的 `%` / `_` 是通配符：探针里带这两个字符会让查询过匹配 → 断言假失败。
+    // 而**假失败的真实代价是这个护栏被当成噪声删掉**（本计划反复点名的失效形态），
+    // 所以这里转义，而不是要求用户别在探针里写 `%`。
+    const pattern = `%${question.replace(/[\\%_]/gu, (char) => `\\${char}`)}%`;
     for (const table of TRANSCRIPT_TABLES) {
       try {
-        const rows = db.prepare(`select id from ${table} where data like ?`).all(`%${question}%`);
+        const rows = db
+          .prepare(`select id from ${table} where data like ? escape '\\'`)
+          .all(pattern);
         for (const row of rows) offenders.push(`${table}:${row.id}`);
       } catch {
         // 表不存在时跳过（见 readTableSnapshot 的同一条说明）。

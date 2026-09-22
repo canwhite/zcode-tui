@@ -305,6 +305,7 @@ Slash Commands:
       },
       help: "↑↓ scroll; Esc / Enter / Space close (the running task keeps going)",
       question: (question) => `Q: ${question}`,
+      failureDetail: (message) => `Reason: ${message}`,
       retryHint: "r retry",
       title: "Side question",
       unavailable: "This host does not provide the side-question capability.",

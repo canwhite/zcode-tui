@@ -255,6 +255,8 @@ export interface TuiCopy {
     };
     help: string;
     question(question: string): string;
+    /** 失败的具体原因（provider 原文），与泛化文案分开显示。 */
+    failureDetail(message: string): string;
     /** 失败态的重试键提示。 */
     retryHint: string;
     title: string;

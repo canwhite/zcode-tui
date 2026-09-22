@@ -1,5 +1,4 @@
 import { createChildTraceContext, runWithModelInvocationContext, traceContextToLogContext } from "../deps.js";
-import type { ModelUsage } from "../deps.js";
 import type { RuntimeMessageEntry } from "../../agent/message-history.js";
 import type { AgentRuntimeInternal } from "../internal.js";
 import { buildRuntimeProviderRequestMessages } from "../helpers/runtime-provider-request-messages.js";
@@ -25,7 +24,7 @@ import { createRuntimeModel } from "./runtime-model.js";
  * | 通道 | 落点 | 本模块的控制手段 |
  * |------|------|------------------|
  * | ① model-io | `~/.zcode/cli/{rollout,debug}` | 非流式 `generateText` + `metadata.skipTranscript` |
- * | ② 会话事件流 | `~/.zcode/cli/db/db.sqlite` → `session_events` | 不调用 `appendEvent` / `createEvent`，不提供 `statusSink` |
+ * | ② 会话事件流/转录 | `~/.zcode/cli/db/db.sqlite` → `session_entry` / `message` / `part` | 不调用 `appendEvent` / `createEvent`，不提供 `statusSink` |
  * | ③ 用量表 | `~/.zcode/cli/db/db.sqlite` → `model_usage` | 不调用 `recordModelUsageFact` |
  * | ④ JSONL 文件日志 | `~/.zcode/cli/log/` | 提问原文与答案不得作为任何 `logger.*` 的字段值 |
  *
@@ -46,6 +45,22 @@ export const BTW_QUERY_SOURCE = "btw";
 const BTW_DEFAULT_TIMEOUT_MS = 180_000;
 /** 侧问是「顺口一问」，输出必须有上界，否则单次花费与耗时无界（R-042）。 */
 const BTW_DEFAULT_MAX_OUTPUT_TOKENS = 2_048;
+
+/**
+ * 输出上限必须**同时**受模型自己声明的上限约束。
+ *
+ * `Model.prepareRequest` 会走 `validateOptions`，而它对超范围的 `maxOutputTokens`
+ * **直接抛 `invalidRequest`**（`adapters/src/model/model.ts`）。写死一个常数意味着：
+ * 只要某个模型的 spec 上限低于它，侧问就**整条失败**，报的还是
+ * 「maxOutputTokens is outside the model option range」这种与侧问毫不相干的错。
+ * `model/auxiliary-model-options.ts` 里已有同样的 `Math.min(..., spec.max)` 口径，
+ * 这里只借它的钳制、**不动 reasoningLevel**——已确认决策要求复用主会话模型，
+ * 擅自降推理档位会让答案质量与用户预期不符（R-042）。
+ */
+export function resolveBtwMaxOutputTokens(requested: number | undefined, specMax: number): number {
+  const bounded = Math.min(requested ?? BTW_DEFAULT_MAX_OUTPUT_TOKENS, specMax);
+  return Math.max(1, Math.floor(bounded));
+}
 
 /**
  * 侧问约束**追加在末尾**（拼进用户消息）而非重排消息序列：
@@ -97,8 +112,6 @@ export interface BtwModelResult {
    * **只记计数，不记内容**：埋点不得成为第二条「写入」通道。
    */
   toolCallCount: number;
-  /** 调用方可用于观测成本；侧问**故意不落盘**，所以这只是返回值，不是记录。 */
-  usage: ModelUsage;
 }
 
 export async function runBtwModelRequest(
@@ -145,7 +158,10 @@ export async function runBtwModelRequest(
     // 无工具是硬约束，不是提示词约定。
     tools: [],
     options: {
-      maxOutputTokens: input.maxOutputTokens ?? BTW_DEFAULT_MAX_OUTPUT_TOKENS,
+      maxOutputTokens: resolveBtwMaxOutputTokens(
+        input.maxOutputTokens,
+        model.optionSpecs.maxOutputTokens.max,
+      ),
     },
   };
 
@@ -172,12 +188,24 @@ export async function runBtwModelRequest(
     throw toBtwError(error, { cancelSignal, timeoutSignal });
   });
 
+  const toolCallCount = result.toolCalls?.length ?? 0;
+  if (toolCallCount > 0) {
+    // R-008：`tools: []` 是硬约束，模型本不该产出 tool call。真出现即说明约束在某处被
+    // 穿透，而症状是「答案被截断/为空」——比答案为空更早的预警。
+    // **只记计数与元数据，不记问题原文与答案**（R-034：日志是第四条落盘通道）。
+    this.logger?.warn("Side question produced tool calls", {
+      event: "btw.tool_calls_observed",
+      module: "core.runtime",
+      querySource: BTW_QUERY_SOURCE,
+      toolCallCount,
+      ...traceContextToLogContext(traceContext),
+    });
+  }
+
   return {
     finishReason: result.finishReason,
-    // 只计数、不取内容；非 0 说明 tools:[] 的硬约束被穿透。
-    toolCallCount: result.toolCalls?.length ?? 0,
     text: result.text.trim(),
-    usage: result.usage,
+    toolCallCount,
   };
 }
 

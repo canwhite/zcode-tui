@@ -18,6 +18,12 @@ export interface BtwEntry {
   answer: string;
   failureReason?: TuiSideQuestionFailureReason;
   /**
+   * 失败的真实原因（provider 报错、凭据缺失……）。**必须显示给用户**：只给一句泛化文案
+   * 等于让失败不可诊断，而「模型请求失败：<原文>」是本仓库既有的口径
+   * （见 `tui.model.requestFailed`）。
+   */
+  failureMessage?: string;
+  /**
    * 行窗口偏移（**不是 `scrollTop`**）——仓库里没有任何地方读写 `scrollTop`，
    * 三个既有窗口助手都是「钳制索引」口径，这里对齐同一形态。
    */
@@ -159,7 +165,13 @@ export function applyBtwResult(
     if (result.reason === "cancelled") return state;
     return {
       ...state,
-      entry: { ...state.entry, answer: "", failureReason: result.reason, status: "failed" },
+      entry: {
+        ...state.entry,
+        answer: "",
+        failureMessage: result.message,
+        failureReason: result.reason,
+        status: "failed",
+      },
     };
   }
   return { ...state, entry: { ...state.entry, answer: result.text, status: "ready" } };

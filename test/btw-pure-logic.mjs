@@ -13,7 +13,11 @@
 //
 // 放 `test/` 而不是各包里，是因为它跨 core 与 tui 两个包——放任何一边都要深引另一个包。
 
+import { MessageHistoryImpl } from "../apps/zcode-cli/packages/core/src/agent/message-history.js";
 import { withoutPendingTrailingToolCalls } from "../apps/zcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
+import { buildRuntimeProviderRequestMessages } from "../apps/zcode-cli/packages/core/src/runtime/helpers/runtime-provider-request-messages.js";
+import { resolveBtwMaxOutputTokens } from "../apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.js";
+import { createModel } from "../apps/zcode-cli/packages/adapters/src/model/model.js";
 import * as btw from "../apps/zcode-cli/packages/tui/src/app-btw.js";
 import * as keyboard from "../apps/zcode-cli/packages/tui/src/app-btw-keyboard.js";
 
@@ -306,6 +310,111 @@ const attachment = (text) => ({ content: text, kind: "attachment", metadata: {} 
     `${btw.resolveBtwPanelHeight(6)} / ${btw.resolveBtwPanelHeight(1)}`,
   );
   assert("几何：正文行数恒为正", btw.resolveBtwBodyRows(1) >= 1 && btw.resolveBtwBodyRows(10) >= 1);
+}
+
+
+// ---------------------------------------------------------------------------
+// PM-9：输出上限必须受模型 spec 约束，否则整条侧问被 validateOptions 拒绝
+// ---------------------------------------------------------------------------
+
+{
+  assert("PM-9 钳制：模型上限更小时取模型上限", resolveBtwMaxOutputTokens(undefined, 1024) === 1024);
+  assert("PM-9 钳制：模型上限更大时用自己的默认上界", resolveBtwMaxOutputTokens(undefined, 64_000) === 2048);
+  assert("PM-9 钳制：调用方显式指定且未越界时用调用方的", resolveBtwMaxOutputTokens(512, 64_000) === 512);
+  assert("PM-9 钳制：永远为正（下限 1）", resolveBtwMaxOutputTokens(undefined, 0) === 1);
+
+  // 真的拿一个「上限比侧问默认值小」的模型跑一遍 validateOptions：
+  // 断言钳制后的值**能过校验**，而写死的值过不了。只测算式证明不了这一条。
+  const makeModel = (specMax) =>
+    createModel({
+      providerId: "probe",
+      modelId: "small",
+      properties: {},
+      // reasoningLevel 是 validateOptions 的另一个必填项，必须给上；
+      // 否则失败原因会变成「档位缺失」，而不是我们要测的输出上限越界。
+      options: { reasoningLevel: "low" },
+      optionSpecs: {
+        maxOutputTokens: { max: specMax, min: 1 },
+        reasoningLevel: { values: ["low"] },
+      },
+      executor: {
+        generateText: async () => ({ finishReason: "stop", text: "ok", usage: {} }),
+        streamText: () => {},
+      },
+    });
+
+  const send = async (model, maxOutputTokens) => {
+    try {
+      await model.generateText({
+        messages: [{ content: "q", role: "user" }],
+        options: { maxOutputTokens },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  assert(
+    "PM-9 复现：写死的 2048 在 spec=1024 的模型上会被拒绝（证明这条测试能失败）",
+    (await send(makeModel(1024), 2048)) === false,
+  );
+  assert(
+    "PM-9 修复：钳制后的值能过同一个模型的校验",
+    (await send(makeModel(1024), resolveBtwMaxOutputTokens(undefined, 1024))) === true,
+  );
+}
+
+
+// ---------------------------------------------------------------------------
+// 端到端：真实 MessageHistory + 真实投影层，R-040 的裁剪必须成立
+// ---------------------------------------------------------------------------
+
+{
+  // 上面那些断言用的是手搓的 entry，**没有经过投影层**。这里用真的 MessageHistory
+  // 造出「工具执行中」的历史，再走一遍 `buildRuntimeProviderRequestMessages`，
+  // 直接检查投影结果满足 provider 的配对不变量——这才是发出去的那份消息。
+  const history = new MessageHistoryImpl();
+  history.init("SYSTEM PROMPT");
+  history.addUser("帮我把这个项目跑起来");
+  history.addAssistant("", [{ id: "t1", input: { command: "sleep 60" }, name: "Bash" }]);
+
+  const model = {
+    modelId: "probe",
+    optionSpecs: {},
+    options: {},
+    properties: { supportsMidConversationSystem: false },
+    providerId: "probe",
+  };
+  const entries = [
+    ...withoutPendingTrailingToolCalls([...history.borrowReadOnlyRuntimeEntries()]),
+    { message: { content: "刚才那条命令是干嘛的", role: "user" } },
+  ];
+  const projected = buildRuntimeProviderRequestMessages(
+    { config: { midConversationSystem: undefined } },
+    { applyCacheControl: true, entries, model },
+  ).messages;
+
+  const dangling = [];
+  projected.forEach((message, index) => {
+    if (message.role !== "assistant" || !message.toolCalls?.length) return;
+    const following = projected.slice(index + 1, index + 1 + message.toolCalls.length);
+    const paired =
+      following.length === message.toolCalls.length &&
+      following.every((next) => next.role === "tool");
+    if (!paired) dangling.push(index);
+  });
+
+  assert(
+    "R-040 端到端：真实历史 + 真实投影后，不存在未配对的 assistant tool_use",
+    dangling.length === 0,
+    `违规位置 ${JSON.stringify(dangling)}：${JSON.stringify(projected.map((m) => m.role))}`,
+  );
+  assert(
+    "R-040 端到端：系统提示与提问都还在（裁剪没有吃掉合法消息）",
+    projected[0]?.role === "system" && projected.at(-1)?.content === "刚才那条命令是干嘛的",
+    JSON.stringify(projected.map((m) => m.role)),
+  );
 }
 
 const failed = results.filter((result) => !result.ok);

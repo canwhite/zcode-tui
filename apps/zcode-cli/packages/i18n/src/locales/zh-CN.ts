@@ -303,6 +303,7 @@ Slash Commands:
       },
       help: "↑↓ 滚动；Esc / Enter / 空格 关闭（主任务不会停止）",
       question: (question) => `问：${question}`,
+      failureDetail: (message) => `原因：${message}`,
       retryHint: "r 重试",
       title: "侧问",
       unavailable: "当前宿主未接入侧问能力。",

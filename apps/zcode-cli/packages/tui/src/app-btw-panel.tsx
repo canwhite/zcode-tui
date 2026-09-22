@@ -45,8 +45,10 @@ export function BtwPanel({
 }): React.ReactElement {
   const { height: terminalHeight } = useTerminalDimensions();
   const bodyRows = resolveBtwBodyRows(terminalHeight);
-  // 抽屉铺满整宽；正文可用宽度要扣掉边框 2 + 左右 padding 2。
-  const bodyWidth = Math.max(8, normalizeContentWidth(contentWidth) - 4);
+  // 抽屉铺满整宽，所以换行宽度就是终端宽度减去边框 2 + 左右 padding 2。
+  // **不能在这里设一个「最小宽度」**：抽屉本身没有最小宽度，按 24 列算出来的行数
+  // 会比实际可用宽度少折几行，窄终端上窗口切片与「↓N」提示就都错位了（R-026）。
+  const bodyWidth = Math.max(8, Math.floor(contentWidth ?? 80) - 4);
   const body = entry.answer.trim();
   const lines = body.length > 0 ? wrapDisplayLines(body, bodyWidth) : [];
   const window = btwLineWindow(lines, entry.scroll, bodyRows);
@@ -113,7 +115,15 @@ function bodyContent(input: {
         { key: "failure", style: { fg: palette.danger, wrapMode: "word" } },
         btwFailureText(copy, entry.failureReason),
       ),
-    ];
+      // 真实原因单独一行：泛化文案负责「这是什么状态」，这一行负责「我该怎么办」。
+      entry.failureMessage
+        ? h(
+            "text",
+            { key: "failure-message", style: { fg: palette.muted, wrapMode: "word" } },
+            copy.btw.failureDetail(entry.failureMessage),
+          )
+        : null,
+    ].filter((child): child is React.ReactElement => Boolean(child));
   }
 
   if (entry.status === "waiting") {
@@ -215,7 +225,4 @@ function statusColor(entry: BtwEntry): string {
   return entry.status === "failed" ? palette.danger : palette.accent;
 }
 
-function normalizeContentWidth(contentWidth: number | undefined): number {
-  if (contentWidth === undefined || !Number.isFinite(contentWidth)) return 80;
-  return Math.max(24, Math.floor(contentWidth));
-}
+

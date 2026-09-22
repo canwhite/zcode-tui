@@ -71,6 +71,14 @@ export function providerIdFromBaseUrl(baseUrl: string): string {
 const DEFAULT_API_TYPE = "anthropic-messages";
 
 /**
+ * 默认档位。取值依据：内置 modelConfigRules 对通用模型的
+ * `optionSpecs.reasoningLevel.values` 为 `["disabled", "enabled"]`，
+ * 而 `completeNewModelSelection` 取 `.at(-1)` 作为最高档 —— 即 `enabled`。
+ * 选用完全相同的取值，保证与运行期的补全结果一致。
+ */
+const DEFAULT_REASONING_LEVEL = "enabled";
+
+/**
  * 写入或更新一条个人厂商记录。
  *
  * 幂等：按 providerId 命中已有条目则**覆盖**，命中不到才新建。
@@ -128,7 +136,17 @@ export async function writePersonalVendor(
     providerOrder: [...(current.providerOrder ?? []), ...(current.providerOrder?.includes(providerId) ? [] : [providerId])],
     // 必须改写生效指针指向刚写入的厂商：只写记录不改指针，用户会以为换成了新厂商，
     // 实际仍跑在旧厂商上，且整个过程不报错。
-    defaultModelSelection: { providerId, modelId: input.model },
+    //
+    // 且**必须带 options.reasoningLevel**：`validateModelSelectionOptions` 对缺失档位的
+    // selection 直接判 `reasoning-level-missing` 不可选，而启动时的
+    // `isSelectable` 正是走这条校验。写一条没有档位的 selection，等于写了一条
+    // 永远"不可选"的默认值——运行期会静默回退到别的厂商。
+    // 这里与运行期的 `completeNewModelSelection` 保持一致：取该模型支持档位的最高档。
+    defaultModelSelection: {
+      providerId,
+      modelId: input.model,
+      options: { reasoningLevel: DEFAULT_REASONING_LEVEL },
+    },
   } as Parameters<typeof encodeProviderConfigFile>[0]);
 
   // 写前先让 codec 解析一遍：格式不对就在这里失败，不落盘半成品。

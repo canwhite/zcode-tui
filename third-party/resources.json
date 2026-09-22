@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 1,
+  "description": "远程资源台账：本仓库除 npm 包之外需要从公网获取的全部资源。这是唯一真源——消费方脚本不得再内联 URL 与 sha256，一律从这里读。生成依据见 docs/painpoint-offline-vendoring.md §3.2 与 docs/plan-offline-vendoring.md Step 1。",
+  "scope": "构建期（build）+ 运行期（runtime）的远程获取点。npm 注册表与用户自行配置的厂商端点属于显式豁免项，登记在 exemptions 中而不做本地化。",
+  "protectedRoot": "third-party/vendored",
+  "protectedRootRationale": "Step 2.1 按断言而非美观选定：third-party/vendored/** 通过 git check-ignore（零命中），且不在 scripts/clean.mjs 的删除范围内。反例已实测：apps/zcode-cli/dependencies/vendor/** 被 apps/zcode-cli/.gitignore 的裸 vendor 规则静默忽略，故排除。",
+  "nodeVersion": "24.14.0",
+  "nodeVersionRationale": "发布工具链版本，以 mise.toml 为准（AGENTS.md：Node 版本以 mise.toml 为准）。注意 engines.node 已在提交 0189deb 中有意放宽为 >=22.13.0，那是运行兼容性下限，不是构建版本；重新收窄它属于推翻既有决定。build-sea.mjs 按 process.versions.node 选版本，因此用非 24.14.0 构建 SEA 会找不到本地归档——这正是本台账要消除的静默。",
+  "sizeNote": "sizeBytes 为实测值；null 表示该来源（codeload）动态生成、响应不含 content-length，实测值在首次下载时回填。",
+  "exemptions": [
+    {
+      "id": "npm-registry",
+      "detail": "https://registry.npmjs.org",
+      "hosts": ["registry.npmjs.org"],
+      "reason": "用户明确豁免：除 npm 包之外不要依赖远程资源。登记但不本地化。"
+    },
+    {
+      "id": "vendor-endpoints",
+      "detail": "由 .env 的 ZCODE_VENDOR / ZCODE_VENDOR_BASE_URL 决定",
+      "hosts": [
+        "zcode.z.ai",
+        "api.z.ai",
+        "open.bigmodel.cn",
+        "bigmodel.cn",
+        "chat.z.ai",
+        "zcode.ai",
+        "openrouter.ai",
+        "api.moonshot.cn",
+        "api.deepseek.com",
+        "api.minimaxi.com",
+        "platform.xiaomimimo.com",
+        "platform.kimi.com",
+        "platform.deepseek.com",
+        "platform.openai.com",
+        "x.ai"
+      ],
+      "reason": "用户自行配置的 LLM 端点，是产品的正常输入而非需要随仓库分发的资源。这些常量是「默认端点」与「厂商目录」，不是获取点。"
+    },
+    {
+      "id": "mise-toolchain",
+      "detail": "mise.toml 声明的 node 24.14.0 与 pnpm 10.33.2",
+      "hosts": [],
+      "reason": "包管理器自身的取物通道，属于 npm 豁免的同类。是否纳入本地化待定，见计划 Open Questions 4。"
+    }
+  ],
+  "nonResourceHosts": [
+    {
+      "host": "webfetch-allowlist",
+      "hosts": [
+        "developer.mozilla.org",
+        "docs.python.org",
+        "nodejs.org",
+        "www.apache.org",
+        "tc39.es",
+        "json-schema.org",
+        "tools.ietf.org",
+        "unicode.org",
+        "www.iso.org",
+        "www.currency-iso.org",
+        "unstats.un.org",
+        "static.crates.io",
+        "sourceware.org",
+        "blog.rust-lang.org"
+      ],
+      "reason": "webfetch 工具的预授权域名白名单、JSON Schema/ISO 等规范引用、以及第三方许可元数据里的出处链接。它们是「被允许访问的目标」或「文档出处」，不是本仓库的获取点——仓库不会去下载它们。"
+    },
+    {
+      "host": "loopback-and-placeholder",
+      "hosts": ["127.0.0.1", "localhost", "example.com", "a.example", "mcp.example.com", "user"],
+      "reason": "回环地址与占位域名，不产生外网请求。"
+    }
+  ],
+  "resources": [
+    {
+      "id": "node-runtime-24.14.0-darwin-arm64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "darwin-arm64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/node-v24.14.0-darwin-arm64.tar.gz",
+      "sha256": "a1a54f46a750d2523d628d924aab61758a51c9dad3e0238beb14141be9615dd3",
+      "sizeBytes": 51058258,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-darwin-arm64.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-runtime-24.14.0-darwin-x64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "darwin-x64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/node-v24.14.0-darwin-x64.tar.gz",
+      "sha256": "f2879eb810e25993a0578e5d878930266fd2eafcffe9f2839b3d8db354d4879e",
+      "sizeBytes": 52238343,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-darwin-x64.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-runtime-24.14.0-linux-arm64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "linux-arm64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-arm64.tar.xz",
+      "sha256": "e7adfca03d9173276114a6f2219df1a7d25e1bfd6bbd771d3f839118a2053094",
+      "sizeBytes": 29990440,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-linux-arm64.tar.xz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-runtime-24.14.0-linux-x64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "linux-x64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz",
+      "sha256": "41cd79bb7877c81605a9e68ec4c91547774f46a40c67a17e34d7179ef11729df",
+      "sizeBytes": 31039304,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-linux-x64.tar.xz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-runtime-24.14.0-win-arm64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "win-arm64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/win-arm64/node.exe",
+      "sha256": "8c5fd45a4a1fd3cc4a6f07da8803b05194108906cb6fb7d962448a12582a5922",
+      "sizeBytes": 80470176,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/win-arm64-node.exe",
+      "status": "pending",
+      "sizeWarning": "76.7 MiB——超过 GitHub 50MB 告警线",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-runtime-24.14.0-win-x64",
+      "kind": "runtime",
+      "scope": "build",
+      "platform": "win-x64",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/win-x64/node.exe",
+      "sha256": "63c259c81e5d472b5f11c8d506070130cb04a1ecf84b80377a34ed6ec9048088",
+      "sizeBytes": 91380224,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/win-x64-node.exe",
+      "status": "pending",
+      "sizeWarning": "87.1 MiB——距 GitHub 100MB 硬限仅 13 MiB，是本次体积门的主要风险项",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "ensureDownloadedArtifact"
+        }
+      ]
+    },
+    {
+      "id": "node-shasums-24.14.0",
+      "kind": "checksum-manifest",
+      "scope": "build",
+      "platform": "all",
+      "nodeVersion": "24.14.0",
+      "url": "https://nodejs.org/dist/v24.14.0/SHASUMS256.txt",
+      "sha256": "e340782342ed6265ce9e14e9caa81e2260a9b4415bbd2c8ad20cea0e59617d65",
+      "sha256Provenance": "TOFU：该文件官方未发布自校验值，此值于 2026-09-22 首次获取时本机计算。它只是防篡改的第二道锁——真正的信任锚是各 artifact 条目里独立记录的 sha256（来自官方发布）。",
+      "sizeBytes": 2256,
+      "vendoredPath": "third-party/vendored/node/v24.14.0/SHASUMS256.txt",
+      "status": "pending",
+      "whyNeeded": "sea-node-download.mjs:90 在下载任何 artifact 之前先取这份清单。漏掉它会让断网构建失败在「下载 SHASUMS」这一步，现象是「资源明明在本地却仍说下载失败」。",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+          "evidence": "SHASUMS256.txt"
+        }
+      ]
+    },
+    {
+      "id": "src-bfs",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "4.1.1",
+      "url": "https://codeload.github.com/tavianator/bfs/tar.gz/f220fb5afd8dd7f46b1d1a2ae9c36261eaccf3cd",
+      "sha256": "26a122dbafc81f42a60f32d842ca5b4f30c943ba2efff1d61db827bda5efe742",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/bfs-4.1.1.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "tavianator/bfs"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-ugrep",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "7.8.4",
+      "url": "https://codeload.github.com/Genivia/ugrep/tar.gz/550599a6434fc5315fb6ecd415a5d859e6d846a8",
+      "sha256": "0b3ed2dc7c3902d89f2ef8b66961db2e31a32f240fa2a2e0eb8d559827f36dab",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/ugrep-7.8.4.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "Genivia/ugrep"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-oniguruma",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "6.9.10",
+      "url": "https://github.com/kkos/oniguruma/releases/download/v6.9.10/onig-6.9.10.tar.gz",
+      "sha256": "2a5cfc5ae259e4e97f86b68dfffc152cdaffe94e2060b770cb827238d769fc05",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/oniguruma-6.9.10.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "kkos/oniguruma"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-pcre2",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "10.43",
+      "url": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.43/pcre2-10.43.tar.gz",
+      "sha256": "889d16be5abb8d05400b33c25e151638b8d4bac0e2d9c76e9d6923118ae8a34e",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/pcre2-10.43.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "PCRE2Project/pcre2"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-zlib",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.3.1",
+      "url": "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
+      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/zlib-1.3.1.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "madler/zlib"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-bzip2",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.0.8",
+      "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/bzip2-1.0.8.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "sourceware.org/pub/bzip2"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-zstd",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.5.6",
+      "url": "https://codeload.github.com/facebook/zstd/tar.gz/794ea1b0afca0f020f4e57b6732332231fb23c70",
+      "sha256": "33eaa5611d330dbc037e32554521d4e4a8edf2358df7d9b74d586c510a4bcec6",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/zstd-1.5.6.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "facebook/zstd"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "src-brotli",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.1.0",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/ed738e842d2fbdf2d6459e39267a633c4a9b2f5d",
+      "sha256": "aaa739962a45b508b2e783b915e6b2b57ed3b12bd4b0feac73acfb144dffa54f",
+      "sizeBytes": null,
+      "vendoredPath": "third-party/vendored/native-search-src/brotli-1.1.0.tar.gz",
+      "status": "pending",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "google/brotli"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ]
+    },
+    {
+      "id": "plugin-marketplace-manifest",
+      "kind": "marketplace-manifest",
+      "scope": "runtime",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/marketplace.json",
+      "sha256": null,
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "not-vendored",
+      "note": "Phase 1 不处理（属 F-006）。已有内置分片 bundled-marketplace.json 兜底，故断网不会得到空市场——但图标资产没有兜底，见下条。",
+      "consumers": [
+        {
+          "file": "packages/shared/src/plugin-marketplaces.ts",
+          "evidence": "cdn-zcode.z.ai/zcode/official-plugin/marketplace.json"
+        },
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts",
+          "evidence": "cdn-marketplace.json"
+        }
+      ]
+    },
+    {
+      "id": "plugin-asset-icons",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets",
+      "sha256": null,
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "not-vendored",
+      "note": "Phase 1 不处理（属 F-006）。该 URL 在 official-plugin-definitions.ts:58 被直接渲染，没有任何本地兜底。",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "plugin-install-github",
+      "kind": "plugin-source",
+      "scope": "runtime",
+      "url": "https://api.github.com/repos/{owner}/{repo}/zipball/{pin}",
+      "sha256": null,
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "not-vendored",
+      "note": "Phase 1 不处理（属 F-006）。任意第三方插件无法预置，只能降级。安全缺口已在痛点文档 §8 登记为独立 Issue：此路径不校验 sha256，而 type:zip 路径校验 64 位 sha256。",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/github-archive-source.ts",
+          "evidence": "api.github.com"
+        }
+      ]
+    }
+  ],
+  "alreadyLocal": [
+    {
+      "id": "native-search-prebuilts",
+      "kind": "prebuild",
+      "scope": "build",
+      "status": "ready",
+      "manifestPath": "apps/zcode-cli/dependencies/native-search/SHA256SUMS",
+      "trackedFiles": 19,
+      "note": "既有正确形态的范例：入库 + 逐条 sha256 + 全程不联网，且不在任何 .gitignore 下。本次本地化向它对齐，不另起一套。",
+      "sha256": null
+    },
+    {
+      "id": "builtin-provider-config",
+      "kind": "builtin-config",
+      "scope": "runtime",
+      "status": "ready",
+      "manifestPath": "config/provider/zcode-builtin.json",
+      "note": "构建期烘焙。远端版本（<endpointOrigin>/api/v1/client/configs → CDN）被明确定义为可丢弃缓存，且只带 revision 单调校验、不带 checksum。",
+      "sha256": null
+    },
+    {
+      "id": "license-texts-runtime",
+      "kind": "license-text",
+      "scope": "build",
+      "status": "ready",
+      "manifestPath": "third-party/runtime/sources.json",
+      "note": "Node 22.16.0 与 24.14.0 的许可原文，已逐条 sha256 校验。",
+      "sha256": null
+    },
+    {
+      "id": "license-texts-upstream",
+      "kind": "license-text",
+      "scope": "build",
+      "status": "ready",
+      "manifestPath": "third-party/upstream/",
+      "note": "上游许可原文，按内容 sha256 命名，由 scripts/third-party-notices.mjs 校验。",
+      "sha256": null
+    }
+  ],
+  "dynamicSites": [
+    {
+      "file": "scripts/vendor-resources.mjs",
+      "trigger": "fetch()",
+      "evidence": "resource.url",
+      "reason": "本地化工具自身：fetch 的目标 URL 直接来自本台账（resource.url），是台账的消费者而不是新的获取点。",
+      "coveredBy": [
+        "node-runtime-24.14.0-darwin-arm64",
+        "node-runtime-24.14.0-darwin-x64",
+        "node-runtime-24.14.0-linux-arm64",
+        "node-runtime-24.14.0-linux-x64",
+        "node-runtime-24.14.0-win-arm64",
+        "node-runtime-24.14.0-win-x64",
+        "node-shasums-24.14.0",
+        "src-bfs",
+        "src-ugrep",
+        "src-oniguruma",
+        "src-pcre2",
+        "src-zlib",
+        "src-bzip2",
+        "src-zstd",
+        "src-brotli"
+      ]
+    },
+    {
+      "file": "scripts/native-search-tools-process.mjs",
+      "trigger": "curl/wget",
+      "evidence": "source.url",
+      "reason": "8 个上游源码包的下载调用。URL 经变量 source.url 传入（来自配置模块），静态解析不出 host，但每一条都在 resources 里以 src-* 独立登记。",
+      "coveredBy": [
+        "src-bfs",
+        "src-ugrep",
+        "src-oniguruma",
+        "src-pcre2",
+        "src-zlib",
+        "src-bzip2",
+        "src-zstd",
+        "src-brotli"
+      ]
+    },
+    {
+      "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
+      "trigger": "fetch()",
+      "evidence": "fetch(url, {",
+      "reason": "downloadFile(url, dest) 通用下载助手内部的 fetch，url 是入参。真正的 host 由同文件调用方传入 nodejs.org，已由 node-runtime-* 与 node-shasums-* 登记。",
+      "coveredBy": [
+        "node-runtime-24.14.0-darwin-arm64",
+        "node-runtime-24.14.0-darwin-x64",
+        "node-runtime-24.14.0-linux-arm64",
+        "node-runtime-24.14.0-linux-x64",
+        "node-runtime-24.14.0-win-arm64",
+        "node-runtime-24.14.0-win-x64",
+        "node-shasums-24.14.0"
+      ]
+    },
+    {
+      "file": "apps/zcode-cli/packages/adapters/src/http/index.ts",
+      "trigger": "fetch()",
+      "evidence": "url.toString()",
+      "reason": "HttpClientPort 的唯一出口，URL 由调用方提供。它本身不指派任何固定远端，故不构成资源。",
+      "coveredBy": []
+    },
+    {
+      "file": "apps/zcode-cli/packages/adapters/src/model/model-option-map-fetch.ts",
+      "trigger": "fetch()",
+      "evidence": "input.fetch",
+      "reason": "请求体改写包装器，只把入参 fetch 转调一次（同文件 3 处）。不引入任何远端。",
+      "coveredBy": []
+    },
+    {
+      "file": "apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts",
+      "trigger": "fetch()",
+      "evidence": "options.fetch",
+      "reason": "Coding Plan 网关转调注入的 fetch（同文件 3 处）。目标端点是厂商端点，属 exemptions.vendor-endpoints。",
+      "coveredBy": []
+    },
+    {
+      "file": "apps/zcode-cli/packages/core/src/tool/handlers/generated/bash-command-registry.ts",
+      "trigger": "curl/wget",
+      "evidence": "BASH_COMMAND_REGISTRY",
+      "reason": "生成文件，内容是 bash 命令补全登记表；curl/wget 是作为命令名出现的字符串，不是调用点。",
+      "coveredBy": []
+    },
+    {
+      "file": "apps/zcode-cli/packages/debug/src/App.tsx",
+      "trigger": "fetch()",
+      "evidence": "fetch(url)",
+      "reason": "仅调试应用使用，不进入 CLI/SEA 产物。",
+      "coveredBy": []
+    },
+    {
+      "file": "apps/zcode-cli/tools/prompt-trajectory/src/openai-provider-proxy.ts",
+      "trigger": "fetch()",
+      "evidence": "resolveUpstreamURL",
+      "reason": "开发期提示轨迹代理，上游地址由使用者传入；不随 CLI 分发。",
+      "coveredBy": []
+    }
+  ]
+}

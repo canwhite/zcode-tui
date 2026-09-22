@@ -285,11 +285,32 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
       fix: "运行 zcode configure 预置默认模型，或在 TUI 中切换模型",
     };
   }
+  // 存储的选择可能指向一个**本版本已移除**的账号型 Provider（例如随 pp8 移除的
+  // start-plan / off-peak 平台套餐）。这种情况下运行时只会给出
+  // "Select a model before continuing"，不指名是哪个 Provider 失效 ——
+  // 用户无从判断。这里显式比对内置清单，把失效点名出来。
+  const selectedProviderId = selection.providerId;
+  if (selectedProviderId?.startsWith("account:")) {
+    const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+    const stillExists = vendors.some(
+      (vendor) => vendor.accountProviderId === selectedProviderId,
+    );
+    if (!stillExists) {
+      return {
+        id: "config.model",
+        label: "模型配置",
+        status: "warn",
+        detail: `${path} 的默认模型指向已不存在的 Provider：${selectedProviderId}`,
+        fix: "该 Provider 可能已随版本移除（如 start-plan / off-peak 平台套餐）。请运行 zcode configure 重新预置，或在 TUI 中切换模型",
+      };
+    }
+  }
+
   return {
     id: "config.model",
     label: "模型配置",
     status: "pass",
-    detail: `默认模型 ${selection.providerId ?? DEFAULT_PROVIDER_ID}/${selection.modelId}`,
+    detail: `默认模型 ${selectedProviderId ?? DEFAULT_PROVIDER_ID}/${selection.modelId}`,
   };
 }
 

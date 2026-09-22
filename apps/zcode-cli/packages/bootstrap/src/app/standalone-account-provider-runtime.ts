@@ -179,13 +179,22 @@ export function createStandaloneProviderRuntimeHeadersPort(
       const providerId = input.providerId.trim();
       const access = input.accountAccess;
       if (!access || access.mode !== "individual-coding-plan") {
-        throw new Error(`Standalone Account Provider 请求身份无效: ${providerId}`);
+        throw new Error(
+          `Provider ${providerId} 的套餐模式暂不支持（仅支持 individual-coding-plan）。` +
+            "请改用普通 API Key：在 .env 中设置 ZCODE_VENDOR / ZCODE_VENDOR_API_KEY / " +
+            "ZCODE_VENDOR_MODEL / ZCODE_VENDOR_BASE_URL，或运行 " +
+            "`zcode configure --provider <厂商> --api-key <key>`。",
+        );
       }
       const currentIdentity = (
         await credentialStore.load(standaloneAccountIdentityCredentialKey(providerId))
       )?.trim();
       if (!currentIdentity)
-        throw new Error(`Standalone Account Provider 凭据已经失效: ${providerId}`);
+        throw new Error(
+          `Provider ${providerId} 在凭据库中没有账号身份。` +
+            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key>` 写入凭据；" +
+            "或在 .env 中设置 ZCODE_VENDOR_* 四字段，改用普通 API Key。",
+        );
       const apiKey = (
         await credentialStore.load(
           standaloneAccountProviderCredentialKey({
@@ -195,7 +204,11 @@ export function createStandaloneProviderRuntimeHeadersPort(
         )
       )?.trim();
       if (!apiKey) {
-        throw new Error(`Standalone Account Provider 缺少请求凭据: ${providerId}`);
+        throw new Error(
+          `Provider ${providerId} 缺少请求凭据。` +
+            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key>` 写入 API Key；" +
+            "或在 .env 中设置 ZCODE_VENDOR_* 四字段。",
+        );
       }
       return {
         headersApplied: true,

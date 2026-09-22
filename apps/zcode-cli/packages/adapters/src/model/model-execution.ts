@@ -24,7 +24,6 @@ import { createAnthropicCompatFetch } from "./anthropic-stream-compat.js";
 import { createOpenAIResponsesJsonCompatFetch } from "./openai-responses-json-compat.js";
 import { createModelOptionMapFetch, type RawRequestBodyCapture } from "./model-option-map-fetch.js";
 import { createNetworkProxyFetch } from "../network/proxy-fetch.js";
-import { createOfficialCodingPlanGatewayFetch } from "./official-coding-plan-gateway.js";
 import { normalizeModelTlsFailure } from "./failure-tls.js";
 import { mergeModelRequestHeaders } from "./model-request-headers.js";
 
@@ -509,15 +508,20 @@ function createProviderProxyFetch(options: ProviderProxyFetchOptions): ProviderF
 }
 
 /**
- * 模型请求出口：官方 Coding Plan 端点经 ZCode 平台网关发送（做套餐权益校验等平台侧处理），
- * 其余 provider 直连；之后统一进入用户 HTTP 代理 fetch，httpProxy / noProxy 按实际发送地址判定。
- * 官方端点与网关端点的对应关系见 official-coding-plan-gateway.ts。
+ * 模型请求出口：所有 provider 一律直连，随后统一进入用户 HTTP 代理 fetch，
+ * httpProxy / noProxy 按实际发送地址判定。
+ *
+ * 历史沿革：此处曾把官方 Coding Plan 端点（`open.bigmodel.cn/api/anthropic`、
+ * `api.z.ai/api/anthropic`）改写为 ZCode 平台网关端点 `{endpoint}/api/v1/ultra[-zai]/anthropic/...`，
+ * 由平台侧完成套餐权益校验与内容安全校验（业务码 3007）。该改写已移除，
+ * 依据是实测直连可用、且用量元数据与经网关时一致 —— 见 `test/step0-gateway-necessity.md`。
+ *
+ * 移除带来的已知取舍（详见该证据文件第 6 节）：平台侧计费归属未经证实；
+ * 3007 安全校验不再触发，其相关错误路径退化为死代码。
+ * 如需恢复，见 git 历史中的 `official-coding-plan-gateway.ts`。
  */
 function createProviderTransportFetch(options: ProviderProxyFetchOptions): ProviderFetch {
-  return createOfficialCodingPlanGatewayFetch({
-    env: options.env,
-    fetch: createProviderProxyFetch(options),
-  });
+  return createProviderProxyFetch(options);
 }
 
 async function detectProviderBusinessError(

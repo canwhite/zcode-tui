@@ -161,6 +161,19 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 | `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts` | 同步 CLI 帮助文案（新增 `configure`，订正 `doctor` 描述）                            |
 | `.env.example`                                              | 改为 `ZCODE_VENDOR` 四字段驱动的厂商配置模板                                         |
 
+**断开模型请求的平台网关改写**（`painpoints/pp8.md`）
+
+模型请求原先会被改写为 ZCode 平台网关端点（`{endpoint}/api/v1/ultra[-zai]/anthropic/...`），由平台侧做套餐权益校验与内容安全校验。现改为**一律直连所配置厂商**。依据是 Step 0 实测：套餐 key 直连厂商端点可用，且用量元数据与经网关时一致 —— 见 [`test/step0-gateway-necessity.md`](test/step0-gateway-necessity.md)。
+
+| 文件                                                                         | 改动                                                                              |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts` | **删除**（原端点改写、fetch 包装与 `OFFICIAL_CODING_PLAN_GATEWAY_ROUTES` 路由表） |
+| `apps/zcode-cli/packages/adapters/src/model/model-execution.ts`              | 移除网关 fetch 包装；`createProviderTransportFetch` 改为纯直连出口；保留沿革注释  |
+| `apps/zcode-cli/packages/adapters/src/model/index.ts`                        | 移除网关模块的 barrel 导出                                                        |
+| `test/step0-gateway-necessity.md`（分支新增）                                | Step 0 判定证据记录（前提闭合情况、两种状态实测结果、已接受的取舍）               |
+
+> **四处行为变化**：① 请求不再经 `zcode.z.ai` 中转，少一跳；② HTTP 代理规则（`httpProxy` / `noProxy`）改为按**厂商端点**判定（原先按网关地址判定）——企业网络用户可感知；③ 平台侧 `3007` 内容安全校验不再触发，相关错误路径退化为死代码（待清理）；④ **平台侧计费归属未经证实**，如需确证须向平台侧确认。
+
 > `package.json` 与 `apps/zcode-cli/package.json` 亦有改动（`engines.node` 下限、`configure` 脚本等），但 **JSON 不支持注释**，无法在文件内标注 `Modified by ZCode:`——改动记录以本节为准。`pnpm-lock.yaml` 为生成物，同理不标注。
 
 其余为本分支自身的文档（`README*`、`AGENTS.md`、`docs/`）。

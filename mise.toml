@@ -1,0 +1,27 @@
+[tools]
+node = "24.14.0"
+pnpm = "10.33.2"
+
+[env]
+COREPACK_ENABLE_PROJECT_SPEC = "0"
+
+[tasks.install]
+description = "Install root workspace dependencies with the pinned pnpm."
+run = "mise exec -- node scripts/mise-run.mjs pnpm install"
+
+[tasks.bootstrap]
+description = "Run the repository bootstrap script after installing dependencies."
+depends = ["install"]
+run = "mise exec -- node scripts/mise-run.mjs pnpm bootstrap"
+
+[tasks.dev]
+description = "Start the Agent CLI / TUI from source."
+run = "mise exec -- node scripts/mise-run.mjs pnpm --filter @zcode/cli dev"
+
+[tasks.typecheck]
+description = "Run the root TypeScript project references check."
+run = "mise exec -- node scripts/mise-run.mjs pnpm typecheck"
+
+[tasks.lint]
+description = "Run the root linter."
+run = "mise exec -- node scripts/mise-run.mjs pnpm lint"

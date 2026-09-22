@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "workspaces": {
+    ".": {
+      "entry": [
+        ".release-it.mjs",
+        ".vscode/*.mjs",
+        "scripts/check-workspace-freshness.mjs",
+        "scripts/mise-run.mjs"
+      ]
+    },
+    "apps/zcode-cli/packages/browser-use-plugin": {
+      "entry": ["src/browser-client.ts"]
+    }
+  },
+  "ignore": [".agents/**", "docs/**"]
+}

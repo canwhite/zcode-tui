@@ -1,0 +1,27 @@
+version: 1
+
+# 存量模块先标记为 legacy；新模块或完成迁移的模块设置 managed: true。
+# 精简分支：仅保留 CLI/TUI 及其依赖闭包中的模块。
+modules:
+  - id: shared
+    roots: [packages/shared/src]
+    managed: false
+  - id: provider
+    roots: [packages/provider/src]
+    managed: false
+  - id: provider-node
+    roots: [packages/provider-node/src]
+    managed: false
+  - id: zcode-cli
+    roots: [apps/zcode-cli]
+    managed: false
+
+global:
+  maxFileLines: 400
+  maxContractLines: 300
+  maxPublicMethods: 12
+  forbidCycles: true
+  forbidDeepImports: true
+  managedOnly: true
+
+exceptions: []

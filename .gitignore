@@ -54,3 +54,6 @@ __pycache__/
 *.pyc
 
 .zcode-runtime/
+
+# 本地痛点记录，仅用于个人拆解流程，不入库。
+painpoints/

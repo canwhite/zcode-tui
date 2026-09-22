@@ -34,9 +34,6 @@ export interface SharedZCodeCredentialStore {
   readonly filePath: string;
   delete(key: string): Promise<void>;
   deleteIfValue(key: string, expectedValue: string): Promise<boolean>;
-  deleteIfValues(
-    expectedValues: Readonly<Record<string, string>>,
-  ): Promise<Record<string, boolean>>;
   deleteManyIfValue(
     guardKey: string,
     expectedGuardValue: string,
@@ -47,7 +44,6 @@ export interface SharedZCodeCredentialStore {
   onDidChange?(listener: () => void | Promise<void>): () => void;
   save(key: string, value: string): Promise<void>;
   saveMany(entries: Readonly<Record<string, string>>): Promise<void>;
-  saveReplacing(key: string, value: string, replacedKeys: readonly string[]): Promise<void>;
 }
 
 export function createSharedZCodeCredentialStore(
@@ -85,33 +81,6 @@ export function createSharedZCodeCredentialStore(
       return deleted;
     },
 
-    async deleteIfValues(
-      expectedValues: Readonly<Record<string, string>>,
-    ): Promise<Record<string, boolean>> {
-      const validatedEntries = Object.entries(expectedValues).map(
-        ([key, value]) => [validateCredentialKey(key), validateCredentialValue(value)] as const,
-      );
-      if (validatedEntries.length === 0) return {};
-      const deleted: Record<string, boolean> = {};
-      await mutateRawCredentialRecord(filePath, (rawCredentials) => {
-        for (const [key, expectedValue] of validatedEntries) {
-          const encryptedValue = rawCredentials[key];
-          const matches =
-            encryptedValue !== undefined && cipher.decrypt(encryptedValue) === expectedValue;
-          deleted[key] = matches;
-          if (matches) delete rawCredentials[key];
-        }
-      });
-      return deleted;
-    },
-
-    /**
-     * 条件事务：`guardKey` 当前值与期望值相等才删除 `keysToDelete` 全部 key，否则一个都不删。
-     *
-     * `deleteIfValues` 是逐 key 比较、逐 key 删除，无法表达「canonical generation 匹配
-     * 才整体失效」——canonical 比较失败时 legacy 镜像仍可能被删掉，反之亦然。OAuth 凭据失效必须
-     * 是整对的：stale 事务不能删掉 winner 的 canonical，也不能只删掉它的一半镜像。
-     */
     async deleteManyIfValue(
       guardKey: string,
       expectedGuardValue: string,
@@ -186,23 +155,7 @@ export function createSharedZCodeCredentialStore(
           rawCredentials[key] = encryptedValue;
         }
       });
-    },
-
-    async saveReplacing(
-      key: string,
-      value: string,
-      replacedKeys: readonly string[],
-    ): Promise<void> {
-      const validatedKey = validateCredentialKey(key);
-      const encryptedValue = cipher.encrypt(validateCredentialValue(value));
-      const validatedReplacedKeys = replacedKeys.map(validateCredentialKey);
-      await mutateRawCredentialRecord(filePath, (rawCredentials) => {
-        rawCredentials[validatedKey] = encryptedValue;
-        for (const replacedKey of validatedReplacedKeys) {
-          if (replacedKey !== validatedKey) delete rawCredentials[replacedKey];
-        }
-      });
-    },
+    }
 
   };
 }

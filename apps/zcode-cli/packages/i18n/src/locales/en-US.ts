@@ -94,7 +94,7 @@ Slash Commands:
       typePrompt: "Type a question and press Enter.",
     },
     providerSetupRequired: {
-      help: "Set the ZCODE_VENDOR_* fields in .env, or run `zcode configure --api-key <key>`, then restart.",
+      help: "Set the four ZCODE_VENDOR_* fields in .env, then restart.",
       message: "No available models. Configure a provider to continue.",
       status: "No available models. Configure a provider.",
       title: "provider setup required",

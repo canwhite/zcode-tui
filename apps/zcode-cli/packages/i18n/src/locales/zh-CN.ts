@@ -93,7 +93,7 @@ Slash Commands:
       typePrompt: "输入问题后按 Enter。",
     },
     providerSetupRequired: {
-      help: "在 .env 中填写 ZCODE_VENDOR_* 字段，或运行 `zcode configure --api-key <key>`，然后重启。",
+      help: "在 .env 中填写 ZCODE_VENDOR_* 四字段后重启。",
       message: "没有可用模型，请先配置 Provider。",
       status: "没有可用模型，请先配置 Provider。",
       title: "需要配置 Provider",

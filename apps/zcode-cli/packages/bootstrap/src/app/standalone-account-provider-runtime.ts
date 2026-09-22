@@ -155,16 +155,6 @@ export async function readStandaloneAccountProviderConfigSnapshot(
   return createAccountProviderConfigSnapshot(catalog.zcodeBuiltinRevision, providers);
 }
 
-export async function hasStandaloneCodingPlanAccess(
-  credentialStore: Pick<SharedZCodeCredentialStore, "loadMany">,
-  env: Readonly<Record<string, string | undefined>>,
-): Promise<boolean> {
-  return (await readStandaloneAccountProviderConfigSnapshot(credentialStore, env)).providers
-    .entries()
-    .some(([, provider]) =>
-      provider.access?.type === "zhipu-account" ? provider.access.entitled === true : false,
-    );
-}
 
 export function createStandaloneProviderRuntimeHeadersPort(
   credentialStore: Pick<SharedZCodeCredentialStore, "load" | "loadMany">,
@@ -183,7 +173,7 @@ export function createStandaloneProviderRuntimeHeadersPort(
           `Provider ${providerId} 的套餐模式暂不支持（仅支持 individual-coding-plan）。` +
             "请改用普通 API Key：在 .env 中设置 ZCODE_VENDOR / ZCODE_VENDOR_API_KEY / " +
             "ZCODE_VENDOR_MODEL / ZCODE_VENDOR_BASE_URL，或运行 " +
-            "`zcode configure --provider <厂商> --api-key <key>`。",
+            "`zcode configure --provider <厂商> --api-key <key> --configure-model <模型>`。",
         );
       }
       const currentIdentity = (
@@ -192,7 +182,7 @@ export function createStandaloneProviderRuntimeHeadersPort(
       if (!currentIdentity)
         throw new Error(
           `Provider ${providerId} 在凭据库中没有账号身份。` +
-            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key>` 写入凭据；" +
+            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key> --configure-model <模型>` 写入凭据；" +
             "或在 .env 中设置 ZCODE_VENDOR_* 四字段，改用普通 API Key。",
         );
       const apiKey = (
@@ -206,7 +196,7 @@ export function createStandaloneProviderRuntimeHeadersPort(
       if (!apiKey) {
         throw new Error(
           `Provider ${providerId} 缺少请求凭据。` +
-            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key>` 写入 API Key；" +
+            "请运行 `zcode configure --provider <厂商> --api-key <套餐 key> --configure-model <模型>` 写入 API Key；" +
             "或在 .env 中设置 ZCODE_VENDOR_* 四字段。",
         );
       }

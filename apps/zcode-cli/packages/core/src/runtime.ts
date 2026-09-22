@@ -3,6 +3,12 @@ export type {
   WorkspaceGenerateTextInput,
   WorkspaceGenerateTextResult,
 } from "./runtime/methods/workspace-generate-text.js";
+export type {
+  BtwFailureReason,
+  BtwModelRequestInput,
+  BtwModelResult,
+} from "./runtime/methods/btw-model-request.js";
+export { BTW_QUERY_SOURCE, BtwModelRequestError } from "./runtime/methods/btw-model-request.js";
 export type { StartSavedWorkflowRunResult } from "./runtime/methods/dynamic-workflow-run-start.js";
 export type {
   AmendWorkflowRunSettingsInput,

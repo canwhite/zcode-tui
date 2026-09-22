@@ -1,6 +1,12 @@
 export type SlashCommand =
   | {
       args: string;
+      name: "btw";
+      rawName: string;
+      type: "known";
+    }
+  | {
+      args: string;
       name: "compact";
       rawName: string;
       type: "known";

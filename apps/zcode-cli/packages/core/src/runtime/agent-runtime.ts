@@ -79,6 +79,7 @@ import type {
   WorkspaceGenerateTextInput,
   WorkspaceGenerateTextResult,
 } from "./methods/workspace-generate-text.js";
+import type { BtwModelRequestInput, BtwModelResult } from "./methods/btw-model-request.js";
 import type {
   RuntimeBackgroundStopOptions,
   RuntimeBackgroundStopResult,
@@ -652,6 +653,11 @@ export interface AgentRuntime {
     input: WorkspaceGenerateTextInput,
     options?: { abortSignal?: AbortSignal; traceContext?: TraceContext },
   ): Promise<WorkspaceGenerateTextResult>;
+  /**
+   * 运行中侧问（`/btw`）：只读当前会话上下文、无工具、单轮、**零持久化**的隔离模型调用。
+   * 不走主请求路径、不写转录、不发会话事件（理由见 `methods/btw-model-request.ts` 头注释）。
+   */
+  runBtwModelRequest(input: BtwModelRequestInput): Promise<BtwModelResult>;
   testModelConnectivity(
     input: ModelConnectivityTestInput,
     options?: { abortSignal?: AbortSignal; traceContext?: TraceContext },

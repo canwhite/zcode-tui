@@ -53,6 +53,7 @@ export const zhCN: ZCodeCopy = {
 
 Slash Commands:
   /help [command]       显示 slash command 帮助
+  /btw <question>       运行中侧问：只读当前对话作答，不打断主任务、不写入转录
   /compact [instructions]  压缩当前对话
   /expert [status|resume|stop|<task>]  运行或管理 expert workflow
   /dwf [list|cancel|resume]  列出、取消或恢复 dynamic workflow run
@@ -289,6 +290,24 @@ Slash Commands:
         interruptedNotice: ({ label, runId }) =>
           `工作流 ${label} 被打断，可恢复：/dwf resume ${runId}`,
       },
+    },
+    btw: {
+      awaitingQuestion: "输入侧问内容后回车；主任务继续运行。",
+      closedNotice: "侧问浮层已关闭——主任务仍在运行。",
+      failure: {
+        cancelled: "侧问已取消。",
+        contextExceeded: "会话过长，无法完整侧问。请先 /compact 再试。",
+        provider: "侧问请求失败。",
+        timeout: "侧问超时。",
+        unavailable: "当前宿主未接入侧问能力。",
+      },
+      help: "↑↓ 滚动；Esc / Enter / 空格 关闭（主任务不会停止）",
+      question: (question) => `问：${question}`,
+      refused: "上下文里没有这项信息——换普通提问再问一次。",
+      title: "侧问",
+      unavailable: "当前宿主未接入侧问能力。",
+      // 进行中态：非流式下答案整段返回，这里给的是**等待**进度而非流式渲染。
+      waiting: (elapsedSeconds) => `等待模型回答…（已等待 ${elapsedSeconds}s）`,
     },
     selection: {
       defaultHelp: "Enter 选择，Esc 取消",

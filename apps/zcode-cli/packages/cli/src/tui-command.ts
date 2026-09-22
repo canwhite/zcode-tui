@@ -89,6 +89,7 @@ export const runTuiCommand = async (
         version,
         workspaceDirectory,
         noColor: options.noColor,
+        askSideQuestion: promptHandler.askSideQuestion,
         readClipboardImage: deps.readClipboardImage ?? createNodeClipboardImageReader(),
         listModelOptions: promptHandler.listModelOptions,
         listWorkspacePathSuggestions: createWorkspacePathSuggestionProvider({

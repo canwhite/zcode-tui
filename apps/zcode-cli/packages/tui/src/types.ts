@@ -274,6 +274,28 @@ export type TuiGetMainSessionId = () => string | undefined;
 
 export type TuiListMcpServers = () => Promise<Record<string, McpServerStatus>>;
 
+/** 侧问失败态的分类；`unavailable` 表示宿主没接这条能力，不是请求本身失败。 */
+export type TuiSideQuestionFailureReason =
+  | "cancelled"
+  | "context_exceeded"
+  | "provider"
+  | "timeout"
+  | "unavailable";
+
+/**
+ * 侧问结果。**非流式**：答案整段返回，所以这里是 promise 而不是 delta 回调——
+ * 也就不会有「回调写向已关闭的浮层」这类跨异步写状态的问题。
+ */
+export type TuiSideQuestionResult =
+  | { kind: "answer"; refused: boolean; text: string }
+  | { kind: "failure"; message: string; reason: TuiSideQuestionFailureReason };
+
+/** 运行中侧问（`/btw`）。`signal` 只用于取消**这一次侧问**，与主任务的 turn signal 无关。 */
+export type TuiAskSideQuestion = (input: {
+  question: string;
+  signal?: AbortSignal;
+}) => Promise<TuiSideQuestionResult>;
+
 export type TuiSlashCommandSuggestion = {
   aliases?: readonly string[];
   name: string;
@@ -322,6 +344,8 @@ export type TuiOptions = {
   listWorkflowRuns?: TuiListWorkflowRuns;
   replayWorkflowRuns?: TuiReplayWorkflowRuns;
   getMainSessionId?: TuiGetMainSessionId;
+  /** 运行中侧问（`/btw`）。缺省时 `/btw` 报「宿主未接入」，不静默当成普通提问。 */
+  askSideQuestion?: TuiAskSideQuestion;
   readClipboardImage?: TuiReadClipboardImage;
   recallPreviousInput?: TuiRecallPreviousInput;
   sendInput?: TuiSendInput;

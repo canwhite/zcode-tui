@@ -30,6 +30,7 @@ import {
 import {
   currentCliMode,
   readTuiMode,
+  RUNNING_KNOWN_COMMANDS,
   TUI_TITLE_GENERATION_CONFIG,
   type TuiPromptHandler,
 } from "./tui-command-state.js";
@@ -318,9 +319,10 @@ export function createTuiSubmitPrompt(
     activeRequestPermission = options?.requestPermission;
 
     try {
-      // Model/effort changes configure subsequent requests, including during an active turn.
+      // 这些命令在主任务运行中也必须回到命令中心，否则会被当成排队输入吞掉
+      // （`/btw` 一旦进队列，侧问就永远等不到答案）。清单见 RUNNING_KNOWN_COMMANDS。
       const command = parseSlashCommand(typeof input === "string" ? input : input.text);
-      if (command?.type === "known" && (command.name === "model" || command.name === "effort")) {
+      if (command?.type === "known" && RUNNING_KNOWN_COMMANDS.has(command.name)) {
         return {
           kind: "command_result",
           result: await submitPrompt(input, {

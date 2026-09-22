@@ -100,6 +100,17 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
         };
       }
 
+      if (command.name === "btw") {
+        // 侧问由 **TUI 层**在排队判定之前截获（见 `tui/src/app-submit-controller.ts`），
+        // 从不应该走到这里：答案不写转录，所以它不能作为一次 submitPrompt 结果返回。
+        // 这条分支是防「落到文件末尾的 resume 兜底」——那样会把问题原文当成 sessionId
+        // 去恢复会话，是静默且错误的行为。这里只做显式拒绝，不重复实现侧问。
+        return {
+          mode: deps.getMode?.(),
+          response: "Side questions are not available through this entry point.",
+        };
+      }
+
       if (command.name === "compact") {
         const app = await deps.getApp();
         const prompt = command.args ? `/compact ${command.args}` : "/compact";

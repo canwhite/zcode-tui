@@ -238,6 +238,29 @@ export interface TuiCopy {
       interruptedNotice(input: { label: string; runId: string }): string;
     };
   };
+  btw: {
+    /** 浮层关闭后状态栏的提示：Esc 只关了浮层，不等于停了主任务。 */
+    closedNotice: string;
+    /** 无参数 `/btw` 后进入等待提问态的状态栏提示。 */
+    awaitingQuestion: string;
+    /** 桥未接线（旧宿主 / 嵌入式调用）时的提示。 */
+    unavailable: string;
+    /** 失败态文案必须与「无据拒答」可区分，且指引可修正的动作。 */
+    failure: {
+      cancelled: string;
+      contextExceeded: string;
+      provider: string;
+      timeout: string;
+      unavailable: string;
+    };
+    help: string;
+    question(question: string): string;
+    /** 拒答态与正常答案必须显著区分，不能长得像答案。 */
+    refused: string;
+    title: string;
+    /** 非流式：这里是**等待**进度，不是流式渲染。 */
+    waiting(elapsedSeconds: number): string;
+  };
   selection: {
     defaultHelp: string;
     disabled(reason: string): string;

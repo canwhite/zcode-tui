@@ -133,7 +133,8 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 | `third-party/resources.json`                                               | 远程资源台账（唯一真源）                                               |
 | `third-party/vendored/zhipu-official-plugin/**`                            | 随仓库分发的官方插件市场副本（清单 + 26 个插件包 + 图标，约 11 MiB）   |
 | `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | 官方 CDN URL → 本地副本的寻址原语                                      |
-| `test/zero-account-acceptance.mjs`                                         | 「零账号可用」验收关卡，8 条断言（见 pp8 一节）                        |
+| `test/zero-account-acceptance.mjs`                                         | 「零账号可用」验收关卡，10 条断言（见 pp8 一节）                       |
+| `test/repro-pp10-skill-command.mts`                                        | 一级 skill 命令的复现关卡（见 pp10 一节）                              |
 | `test/step0-gateway-necessity.md`                                          | 网关必需性判定的证据记录（前提闭合情况、两种状态实测结果、已接受取舍） |
 
 ### 修改的文件
@@ -151,17 +152,17 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 **厂商配置与安装**（`painpoints/done/pp4.md`、`pp5.md`、`pp8.md`）
 
-| 文件                                                        | 改动                                                                                 |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `apps/zcode-cli/packages/cli/src/run.ts`                    | 接入 `doctor` 自检与 CLI 入口级 `.env` 统一加载                                      |
-| `apps/zcode-cli/packages/cli/src/env.ts`                    | 抽出入口统一加载 `.env` 的实现（原先各命令各自加载）                                 |
-| `apps/zcode-cli/packages/cli/src/provider-runtime-env.ts`   | 让 `configure` 也先准备好内置与个人 Provider Config 的路径环境变量                   |
-| `apps/zcode-cli/packages/cli/src/arguments.ts`              | 新增 `configure` 的 `--api-key` / `--provider`，Key 可从环境变量读取以免出现在命令行 |
-| `apps/zcode-cli/packages/cli/src/doctor.ts`（分支新增）     | 新增「官方插件本地化」自检项，报出覆盖率；副本缺失或损坏时指名失败                   |
-| `apps/zcode-cli/packages/shared-types/src/index.ts`         | 新增 `configure` 非交互写入所需字段                                                  |
-| `packages/provider/src/model-selection-config.ts`           | 区分 registry 顺序兜底与「用户配置的模型已不可选」兜底，两种降级分开报告             |
-| `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts` | 同步 CLI 帮助文案（新增 `configure`，订正 `doctor` 描述）                            |
-| `.env.example`                                              | 改为 `ZCODE_VENDOR` 四字段驱动的厂商配置模板                                         |
+| 文件                                                        | 改动                                                                                                                                                                                                            |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/cli/src/run.ts`                    | 接入 `doctor` 自检与 CLI 入口级 `.env` 统一加载                                                                                                                                                                 |
+| `apps/zcode-cli/packages/cli/src/env.ts`                    | 抽出入口统一加载 `.env` 的实现（原先各命令各自加载）                                                                                                                                                            |
+| `apps/zcode-cli/packages/cli/src/provider-runtime-env.ts`   | 让 `configure` 也先准备好内置与个人 Provider Config 的路径环境变量                                                                                                                                              |
+| `apps/zcode-cli/packages/cli/src/arguments.ts`              | 新增 `configure` 的 `--api-key` / `--provider`，Key 可从环境变量读取以免出现在命令行                                                                                                                            |
+| `apps/zcode-cli/packages/cli/src/doctor.ts`（分支新增）     | 新增「官方插件本地化」自检项，报出覆盖率；副本缺失或损坏时指名失败。另于 pp8 post-mortem 新增「默认模型指向已移除 Provider」的 WARN（**指名**该 Provider，而非让运行时只报 `Select a model before continuing`） |
+| `apps/zcode-cli/packages/shared-types/src/index.ts`         | 新增 `configure` 非交互写入所需字段                                                                                                                                                                             |
+| `packages/provider/src/model-selection-config.ts`           | 区分 registry 顺序兜底与「用户配置的模型已不可选」兜底，两种降级分开报告                                                                                                                                        |
+| `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts` | 同步 CLI 帮助文案（新增 `configure`，订正 `doctor` 描述）                                                                                                                                                       |
+| `.env.example`                                              | 改为 `ZCODE_VENDOR` 四字段驱动的厂商配置模板                                                                                                                                                                    |
 
 **断开模型请求的平台网关改写**（`painpoints/pp8.md`）
 
@@ -175,6 +176,10 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 | `test/step0-gateway-necessity.md`（分支新增）                                | Step 0 判定证据记录（前提闭合情况、两种状态实测结果、已接受的取舍）               |
 
 > **四处行为变化**：① 请求不再经 `zcode.z.ai` 中转，少一跳；② HTTP 代理规则（`httpProxy` / `noProxy`）改为按**厂商端点**判定（原先按网关地址判定）——企业网络用户可感知；③ 平台侧 `3007` 内容安全校验不再触发，相关错误路径退化为死代码（待清理）；④ **平台侧计费归属未经证实**，如需确证须向平台侧确认。
+>
+> **内置配置同步清理**：`config/provider/zcode-builtin.json` 中原有 **7 条指向 `zcode.z.ai` 的条目** —— 4 条 `providerRules`（`start-plan` / `off-peak` 平台套餐）与 3 条 `providerSiteRules`（按 `baseUrlMatch` 为这些端点注入模型能力），外加引用它们的 10 条 `builtinProviderModelRules` —— 已全部移除。`revision` 由 30 提升至 32：该字段是账号型 Provider 快照的重建判据（`process-provider-registry-runtime.ts`），**不 bump 则改动不生效**。
+>
+> ⚠️ **连带后果（已确认接受）**：`start-plan` 与 `off-peak` 两条平台套餐自此**不可用**，其代码路径变为**不可达但不报错**（约 68 个文件涉 off-peak，含闲时任务工具）。这是静默行为变化，**代码层全量清理尚未进行**。
 
 **移除登录 / 鉴权 / 登出**（`painpoints/pp8.md`）
 
@@ -219,13 +224,30 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 >
 > ⚠️ **已知取舍**：移除 `/login` 后，TUI 内不再有任何配置厂商的入口（原 `/login *-api-key` 是唯一入口）。CLI 侧 `zcode configure --api-key` 不受影响，门禁文案已指向它。
 
-**验收关卡**：本仓库**没有任何单元测试**，拆除后最容易的失效形态是「上游同步把登录或隐式回连重新引进来，而没有东西会失败」。因此新增 `test/zero-account-acceptance.mjs`（8 条断言）作为唯一防线，并接入 `pnpm run verify:pre-push`：
+**验收关卡**：本仓库**没有任何单元测试**，拆除后最容易的失效形态是「上游同步把登录或隐式回连重新引进来，而没有东西会失败」。因此新增 `test/zero-account-acceptance.mjs`（10 条断言）作为唯一防线，并接入 `pnpm run verify:pre-push`：
 
 ```bash
 pnpm run test:zero-account     # 需要先 pnpm run build（该关卡不静默跳过）
 ```
 
-断言覆盖：命令面无 login/logout、`zcode login` 与 `/login` `logout` 报未知命令、构建产物不含平台网关改写路径、内置配置无端点指向 `zcode.z.ai`、仅凭 API Key 可完成厂商配置且落盘无登录态键。其中「网关改写路径」一条已验证**可失败**（注入标记后关卡确实 FAIL），不是空断言。
+断言覆盖（**10 条**）：命令面无 login/logout、`zcode login` 与 `/login` `/logout` 报未知命令、构建产物不含平台网关改写路径、**内置配置整份无任何 `zcode.z.ai` 引用**（递归扫描，同时覆盖 JSON 转义的 `zcode\.z\.ai` 写法；排除 `cdn-zcode.z.ai`）、仅凭 API Key 可完成**自建端点**与**套餐**两条分支的配置，且落盘无登录态键。
+
+两条关键断言已验证**可失败**，不是空断言：向产物注入网关路径串 → 关卡 FAIL；向 `providerSiteRules` 注入 `baseUrlMatch` 残留 → 关卡 FAIL。
+
+> ⚠️ **该关卡曾产生假绿**（post-mortem PM-1 / PM-2）：早期版本只扫 `providerConfigRules[*].config.api.baseUrl`，**不检查 `modelConfigRules`**，因此 3 处以 `baseUrlMatch` 形式残留的 `zcode.z.ai` 被放过、关卡报绿 —— 一个用来防「静默复发」的关卡自己产生了静默假绿。现改为递归扫描整份配置。
+> **教训**：断言「某物不存在」时，必须同时覆盖**字面量与转义**两种写法，并证明该断言能被一次反例证伪。
+
+**个人 skill 一级命令：大小写修复**（`painpoints/pp10.md`）
+
+**现象**：输入 `/pain-decomposition` 报 `Unknown command: /pain-decomposition`，**而同一条报错里列出的可用命令却包含 `/pain-decomposition`** —— 报错自相矛盾：它一边说"不认识"，一边把它列为可用。
+
+**根因**：一级 skill 命令的解析拿 `slashCommand.rawName` 去匹配 skill，而该值已被 `parseSlashCommand` **小写化**；skill 加载却是**大小写精确匹配**（adapters 的 `matchesSkillRequest` 用 `===`）。因此含大写的 skill 名（如 `no-useEffect`）永远匹配不上，径直落到「未知命令」分支 —— 尽管同一份 skill 清单已被用于生成那句报错里的可用列表。
+
+| 文件                                                | 改动                                                                                                                                           |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/cli/src/prompt-command.ts` | `resolveSkillCommandName` 改为回传 skill 的**规范名**（`findSkillEntry(...)?.name`）而非小写 `rawName`；移除随之冗余的 `isResolvableSkillName` |
+| `test/repro-pp10-skill-command.mts`（分支新增）     | 复现关卡：用**真实**的 skill 发现与自定义命令加载器（输入列表与 TUI 建议逐字节一致），验证一级 skill 命令确实到达 app                          |
+| `docs/plan-btw-side-question.md`                    | 计划文档更新                                                                                                                                   |
 
 > `package.json` 与 `apps/zcode-cli/package.json` 亦有改动（`engines.node` 下限、`configure` 脚本等），但 **JSON 不支持注释**，无法在文件内标注 `Modified by ZCode:`——改动记录以本节为准。`pnpm-lock.yaml` 为生成物，同理不标注。
 

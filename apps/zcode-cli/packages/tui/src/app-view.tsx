@@ -1,6 +1,8 @@
 import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
 import React from "react";
 import { ApprovalPanel } from "./app-approval-panel.js";
+import { BtwPanel } from "./app-btw-panel.js";
+import type { BtwState } from "./app-btw.js";
 import {
   actionPanelContentWidthForTerminal,
   AppShell,
@@ -54,6 +56,7 @@ export function AppView(props: {
   toggleSidebar?: () => boolean;
   activeTurnId?: TurnId;
   approvalQueue: ApprovalPrompt[];
+  btw?: BtwState;
   busy: boolean;
   cacheStats?: CacheStats;
   contextUsage: ContextUsage;
@@ -161,7 +164,19 @@ export function AppView(props: {
       })
     : null;
 
+  // 侧问与审批/选择面板互斥，且审批优先：用户在等待授权时不该被侧问浮层挡住。
+  // 与键盘层的 `readOnlyView > approval > selection > btw` 同一个口径。
+  const btwEntry =
+    props.btw?.focused && !props.approvalQueue[0] && !props.selection
+      ? props.btw.entry
+      : undefined;
+
+  // 浮层挂在 AppShell **外层**的整屏 box 上：AppShell 的主区带 `padding: 1`，
+  // 嵌在里面会让半透明背景少掉一圈边。挂在外面才能铺满整屏。
   return h(
+    "box",
+    { style: { flexDirection: "column", height: "100%", width: "100%" } },
+    h(
     AppShell,
     { onMouseUp: handleShellMouseUp, sidebar, sidebarLayout: props.sidebarLayout },
     readOnly && props.subagents
@@ -228,6 +243,14 @@ export function AppView(props: {
               thoughtLevel: props.thoughtLevel,
             }),
     ),
+    ),
+    btwEntry
+      ? h(BtwPanel, {
+          contentWidth: props.terminalWidth,
+          copy: props.copy,
+          entry: btwEntry,
+        })
+      : null,
   );
 }
 

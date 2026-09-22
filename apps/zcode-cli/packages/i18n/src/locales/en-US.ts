@@ -53,6 +53,7 @@ Options:
 
 Slash Commands:
   /help [command]       Show slash command help
+  /btw <question>       Ask a side question while a task runs; read-only, non-interrupting
   /compact [instructions]  Compact the current conversation
   /expert [status|resume|stop|<task>]  Run or manage the expert workflow
   /dwf [list|cancel|resume]  List, cancel, or resume dynamic workflow runs
@@ -290,6 +291,24 @@ Slash Commands:
         interruptedNotice: ({ label, runId }) =>
           `Workflow ${label} was interrupted and can be resumed: /dwf resume ${runId}`,
       },
+    },
+    btw: {
+      awaitingQuestion: "Type your side question and press Enter; the running task continues.",
+      closedNotice: "Side question overlay closed — the running task is still going.",
+      failure: {
+        cancelled: "Side question cancelled.",
+        contextExceeded:
+          "This conversation is too long for a full side question. Run /compact, then retry.",
+        provider: "The side question request failed.",
+        timeout: "The side question timed out.",
+        unavailable: "This host does not provide the side-question capability.",
+      },
+      help: "↑↓ scroll; Esc / Enter / Space close (the running task keeps going)",
+      question: (question) => `Q: ${question}`,
+      refused: "That is not in this conversation — ask it as a normal message instead.",
+      title: "Side question",
+      unavailable: "This host does not provide the side-question capability.",
+      waiting: (elapsedSeconds) => `Waiting for the model… (${elapsedSeconds}s)`,
     },
     selection: {
       defaultHelp: "Enter selects, Esc cancels",

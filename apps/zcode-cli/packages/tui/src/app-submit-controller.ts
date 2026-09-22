@@ -1,6 +1,7 @@
 import React from "react";
 import type { ModelSelection } from "@zcode/shared";
 import type { SessionEvent, TurnId } from "@zcode/contracts";
+import { resolveBtwSubmission, type BtwState, type BtwSubmission } from "./app-btw.js";
 import { submitDuringActiveTurn, submitIdleTurn } from "./app-submit.js";
 import type {
   DraftAttachment,
@@ -16,6 +17,7 @@ export function useSubmitValue(input: {
   activeTurnId?: TurnId;
   applyResult: (result: TuiSubmitPromptResult, preserveTurnState?: boolean) => void;
   applySessionEvent: (event: SessionEvent) => void;
+  btw: BtwState;
   busy: boolean;
   draftAttachmentsRef: React.MutableRefObject<DraftAttachment[]>;
   emptyPromptStatus: string;
@@ -35,6 +37,7 @@ export function useSubmitValue(input: {
   setSlashSelection: React.Dispatch<React.SetStateAction<SlashSelectionState | undefined>>;
   setStatus: (status: string) => void;
   setStatusDetails: React.Dispatch<React.SetStateAction<string[]>>;
+  submitBtw: (submission: BtwSubmission) => Promise<void>;
   turnRef: React.MutableRefObject<AbortController | undefined>;
 }): (submittedValue: string, options?: SubmitValueOptions) => Promise<void> {
   return React.useCallback(
@@ -44,6 +47,16 @@ export function useSubmitValue(input: {
       if (!text) {
         input.setStatus(input.emptyPromptStatus);
         return;
+      }
+
+      // 侧问必须在 `busy` 分支**之前**判定：运行中提交输入会走排队通道，
+      // `/btw` 一旦被塞进排队输入就永远等不到答案（这正是 F-003 要防的形态）。
+      const btwSubmission = resolveBtwSubmission(text, input.btw.awaitingQuestion);
+      if (btwSubmission) {
+        await input.submitBtw(btwSubmission);
+        // `cancel-await` 只撤销「等待侧问内容」态，这次输入仍是用户的命令，必须继续往下走。
+        // 在这里 return 会把用户敲的那条命令**静默吞掉**。
+        if (btwSubmission.kind !== "cancel-await") return;
       }
 
       if (input.busy) {

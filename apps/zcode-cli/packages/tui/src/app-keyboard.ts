@@ -4,6 +4,8 @@ import { useKeyboard } from "@mbears/opentui-react";
 import { useCallback, useRef } from "react";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { handleApprovalKey } from "./app-approval.js";
+import type { BtwState } from "./app-btw.js";
+import { handleBtwKey } from "./app-btw-keyboard.js";
 import { handleSelectionKey } from "./app-input.js";
 import {
   CTRL_C_EXIT_PROMPT,
@@ -75,6 +77,11 @@ type UseTuiKeyboardControlsOptions = {
   pasteClipboardImage: () => Promise<void>;
   recallNextInput: () => Promise<void>;
   recallPreviousInput: () => Promise<void>;
+  btw?: BtwState;
+  /** 浮层正文可见行数；页翻要用它。由 `resolveBtwBodyRows` 统一计算，不在这里重复。 */
+  btwVisibleLines: number;
+  closeBtw: () => void;
+  scrollBtw: (delta: number) => void;
   selection: SelectionState | undefined;
   setApprovalQueue: Dispatch<SetStateAction<ApprovalPrompt[]>>;
   setDraftAttachments: Dispatch<SetStateAction<DraftAttachment[]>>;
@@ -96,7 +103,10 @@ export function useTuiKeyboardControls({
   readOnlyView,
   abortControllerRef,
   approvalQueue,
+  btw,
+  btwVisibleLines,
   busy,
+  closeBtw,
   copyCurrentSelection,
   draftValue,
   workflowExpansion,
@@ -114,6 +124,7 @@ export function useTuiKeyboardControls({
   pasteClipboardImage,
   recallNextInput,
   recallPreviousInput,
+  scrollBtw,
   selection,
   setApprovalQueue,
   setDraftAttachments,
@@ -221,6 +232,15 @@ export function useTuiKeyboardControls({
           }
 
           setStatus(CTRL_C_EXIT_PROMPT);
+          return;
+        }
+
+        // 侧问浮层：排在 Ctrl+C 之后，**保证逃生口永不被浮层吞掉**——浮层若吞掉全部按键，
+        // 而侧问又卡住，用户就既关不掉浮层也停不掉主任务（见 app-btw-keyboard.ts）。
+        // 优先级与痛点拆解 §4.3 一致：readOnlyView > approval > selection > btw > 其余。
+        if (btw?.focused) {
+          consumeKey(key);
+          handleBtwKey(key, { close: closeBtw, scrollBy: scrollBtw }, btwVisibleLines);
           return;
         }
 
@@ -379,6 +399,10 @@ export function useTuiKeyboardControls({
         readOnlyView,
         abortControllerRef,
         approvalQueue,
+        btw,
+        btwVisibleLines,
+        closeBtw,
+        scrollBtw,
         workflowExpansion,
         busy,
         copyCurrentSelection,

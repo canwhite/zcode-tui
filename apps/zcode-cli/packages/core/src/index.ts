@@ -130,6 +130,9 @@ export type { PermissionConfig } from "./permission/index.js";
 
 // Runtime
 export { AgentRuntime } from "./runtime.js";
+// 侧问的失败分类要跨包映射成 UI 文案，所以错误类是公开面的一部分；
+// BTW_QUERY_SOURCE 是验收脚本做落盘「归属断言」的锚点。
+export { BTW_QUERY_SOURCE, BtwModelRequestError } from "./runtime.js";
 export { createExternalTurnFaultError } from "./runtime/helpers/turn-errors.js";
 export { repairPersistedRemoteSessionPaths } from "./runtime/helpers/persisted-remote-session-path-repair.js";
 // 「按值把一段转录复制进另一个会话」的克隆器。fork 之外的第二个消费者是 dwf 的 amend-resume

@@ -161,6 +161,44 @@ Scope rule: **Z.ai's own remote resources are kept locally; generic third-party 
 | `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts`      | Synced CLI help text (added `configure`, corrected the `doctor` description)                                                            |
 | `.env.example`                                                   | Reworked into a `ZCODE_VENDOR`-driven four-field vendor configuration template                                                          |
 
+**Disconnecting the platform gateway rewrite** (`painpoints/pp8.md`)
+
+Model requests used to be rewritten to a ZCode platform gateway endpoint (`{endpoint}/api/v1/ultra[-zai]/anthropic/...`), where the platform performed plan-entitlement and content-safety checks. They now go **straight to the configured vendor**. This is based on a Step 0 measurement: a plan key works when connected directly, and the usage metadata is identical either way — see [`test/step0-gateway-necessity.md`](test/step0-gateway-necessity.md).
+
+| File                                                                         | Change                                                                                                                                                                      |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts` | **Deleted** (endpoint rewrite, fetch wrapper, and the `OFFICIAL_CODING_PLAN_GATEWAY_ROUTES` route table)                                                                    |
+| `apps/zcode-cli/packages/adapters/src/model/model-execution.ts`              | Removed the gateway fetch wrapper; `createProviderTransportFetch` is now a plain direct connection                                                                          |
+| `apps/zcode-cli/packages/adapters/src/model/index.ts`                        | Removed the module's barrel export                                                                                                                                          |
+| `config/provider/zcode-builtin.json`                                         | **Removed all 7 entries pointing at `zcode.z.ai`** (4 `providerRules` + 3 `providerSiteRules`) plus the 10 `builtinProviderModelRules` referencing them; `revision` 30 → 32 |
+
+> **Four behaviour changes**: (1) one fewer network hop; (2) `httpProxy` / `noProxy` are now evaluated against the **vendor** endpoint instead of the gateway address — noticeable on corporate networks; (3) the platform-side `3007` content-safety check no longer fires and its error paths become dead code; (4) **platform-side billing attribution is unverified** and must be confirmed with the platform.
+>
+> **`revision` must be bumped** when this file changes: it is what forces account-provider snapshots to be rebuilt. Bumping it without a matching content change (or vice versa) silently makes the edit a no-op.
+
+**Removing login / authentication / logout** (`painpoints/pp8.md`)
+
+The account concept is gone entirely. The **non-login Coding Plan configuration path is preserved**: the user obtains a plan key from the plan console and writes it via `zcode configure --api-key`, with no sign-in at any point.
+
+- **Deleted (11 files)**: `auth-login*.ts`, `cli-oauth.ts`, `coding-plan-api-key.ts`, `bigmodel-oauth.ts`, `browser.ts`, `login-command.ts`, `tui-auth.ts`, `command-center/login-flow.ts`.
+- **Renamed / kept**: `auth-login.ts` → `coding-plan-config.ts` (only the non-login `configureCodingPlanApiKey` chain); `tui-auth.ts` → `tui-provider-config.ts`; `tui-login-state.ts` → `tui-provider-setup-state.ts`. The credential store (`shared-credentials.ts`, `credential-cipher.ts`, `localhost-callback.ts`) is **kept** — it is shared with MCP server OAuth.
+- **Modified**: the slash-command registry, `command-center/{slash-commands,slash-command-types,create,types,history}.ts`, `run.ts`, `prompt-command.ts`, the TUI gate rename (`loginRequired` → `providerSetupRequired`), and the i18n catalogs.
+
+> **Acceptance gate**: this repository has **no unit tests**, so the likeliest failure mode is silent reintroduction during an upstream sync. `test/zero-account-acceptance.mjs` (10 assertions) is the only guard, wired into `pnpm run verify:pre-push` via `pnpm run test:zero-account`. Several assertions have been proven **able to fail** (injecting a gateway path string, or a `baseUrlMatch` residue, does turn the gate red).
+>
+> **Known trade-off**: after removing `/login` the TUI has no in-app way to configure a provider. The CLI path (`zcode configure --api-key`) is unaffected and the gate message points at it.
+
+**First-class personal skill commands: case preservation** (`painpoints/pp10.md`)
+
+**Symptom**: `/pain-decomposition` reported `Unknown command: /pain-decomposition` — **while the same error message listed `/pain-decomposition` as available**. The error contradicted itself.
+
+**Root cause**: resolution used `slashCommand.rawName`, which `parseSlashCommand` has already **lower-cased**, but skill loading is **case-sensitive** (adapters' `matchesSkillRequest` uses `===`). Any mixed-case skill name (e.g. `no-useEffect`) therefore never matched and fell through to the "unknown command" branch.
+
+| File                                                | Change                                                                                                                                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/zcode-cli/packages/cli/src/prompt-command.ts` | `resolveSkillCommandName` now returns the skill's **canonical name** (`findSkillEntry(...)?.name`) instead of the lower-cased `rawName`; removed the now-redundant `isResolvableSkillName` |
+| `test/repro-pp10-skill-command.mts` (new)           | Repro gate using the **real** skill discovery and custom-command loader, so the input list is byte-identical to the TUI's                                                                  |
+
 > `package.json` and `apps/zcode-cli/package.json` also changed (the `engines.node` floor, the `configure` script, and so on), but **JSON cannot carry comments**, so no `Modified by ZCode:` header can be placed inside them — this section is the record for those. `pnpm-lock.yaml` is generated and likewise unannotated.
 
 The remainder are this branch's own documentation (`README*`, `AGENTS.md`, `docs/`).

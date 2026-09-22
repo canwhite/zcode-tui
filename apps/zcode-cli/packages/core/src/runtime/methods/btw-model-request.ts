@@ -7,7 +7,6 @@ import { isModelContextExceededError } from "../helpers/index.js";
 import { withoutPendingTrailingToolCalls } from "../helpers/pending-tool-calls.js";
 import { createRefreshRuntimeHeadersBeforeModelAttempt } from "./model-runtime-headers.js";
 import { createRuntimeModel } from "./runtime-model.js";
-import { assessBtwEvidence, type BtwEvidenceAssessment } from "./btw-evidence.js";
 
 /**
  * 运行中侧问（`/btw`）的隔离模型调用。
@@ -48,28 +47,21 @@ const BTW_DEFAULT_TIMEOUT_MS = 180_000;
 /** 侧问是「顺口一问」，输出必须有上界，否则单次花费与耗时无界（R-042）。 */
 const BTW_DEFAULT_MAX_OUTPUT_TOKENS = 2_048;
 
-/** 拒答哨兵：模型无据时以此开头作答，由本模块剥离并转成可判定的布尔标记。 */
-const BTW_NO_CONTEXT_SENTINEL = "ZCODE_BTW_NO_CONTEXT";
-
 /**
  * 侧问约束**追加在末尾**（拼进用户消息）而非重排消息序列：
  * `buildRuntimeProviderRequestMessages` 在 `midConversationSystem` force 模式下会产出
  * 对话中间的系统条目，另插一条 system 可能与之冲突并在部分厂商直接报错。
+ *
+ * **任何提问都要回答**：上下文里有的优先用上下文，没有的就正常作答并说明这是通用知识。
+ * 侧问不做「无据拒答」判定——那会让用户在一个只想顺口一问的地方收到一句「请改用普通提问」，
+ * 而拒答与否由模型自己权衡，不由本地规则闸门决定。
  */
 const BTW_CONTEXT_CONSTRAINT = [
   "You are answering a side question about the conversation above.",
-  "You may ONLY use information that literally appears in the conversation above (including tool results).",
+  "Prefer information from the conversation above (including tool results) when it covers the question.",
   "You have NO tools and cannot read files, run commands, or search the web.",
-  `If the conversation does not contain the information needed, reply with exactly \`${BTW_NO_CONTEXT_SENTINEL}\` on the first line, then one short sentence telling the user to ask it as a normal message instead.`,
-  "Never guess, never fill gaps with plausible-sounding content.",
+  "If the conversation does not cover it, still answer from your own knowledge and make it clear that this part is not from the conversation.",
   "Keep the answer short.",
-].join("\n");
-
-const BTW_LOW_CONFIDENCE_CLAUSE = [
-  "A lexical check found little overlap between the question and the conversation.",
-  "This does NOT by itself mean the information is absent (the question may be paraphrased or in another language).",
-  "Answer only if you can point at the specific part of the conversation that supports it, and state that basis explicitly.",
-  `Otherwise use the \`${BTW_NO_CONTEXT_SENTINEL}\` reply described above.`,
 ].join("\n");
 
 export type BtwFailureReason = "cancelled" | "context_exceeded" | "provider" | "timeout";
@@ -97,20 +89,15 @@ export interface BtwModelRequestInput {
 }
 
 export interface BtwModelResult {
-  /** 模型给出的答案；拒答时是那句指引，不是答案。 */
   text: string;
   finishReason: string;
-  /** 只记布尔与计数，**不记原文**——埋点不得成为第二条「写入」通道。 */
-  signals: {
-    evidence: BtwEvidenceAssessment;
-    refused: boolean;
-    /** `tools: []` 是硬约束；非 0 说明约束在某处被穿透，是比「答案为空」更早的预警。 */
-    toolCallCount: number;
-    usage: {
-      inputTokens: number;
-      outputTokens: number;
-    };
-  };
+  /**
+   * `tools: []` 是硬约束；非 0 说明约束在某处被穿透——模型本不该产出 tool call，
+   * 出现即说明这次答案不可信（截断/空），是比「答案为空」更早的预警。
+   * **只记计数，不记内容**：埋点不得成为第二条「写入」通道。
+   */
+  toolCallCount: number;
+  /** 调用方可用于观测成本；侧问**故意不落盘**，所以这只是返回值，不是记录。 */
   usage: ModelUsage;
 }
 
@@ -141,11 +128,10 @@ export async function runBtwModelRequest(
   const snapshot = withoutPendingTrailingToolCalls([
     ...this.messageHistory.borrowReadOnlyRuntimeEntries(),
   ]);
-  const evidence = assessBtwEvidence(question, snapshot);
 
   const entries: RuntimeMessageEntry[] = [
     ...snapshot,
-    { message: { content: buildBtwUserContent(question, evidence), role: "user" } },
+    { message: { content: buildBtwUserContent(question), role: "user" } },
   ];
   const messages = buildRuntimeProviderRequestMessages(this, {
     applyCacheControl: true,
@@ -186,42 +172,17 @@ export async function runBtwModelRequest(
     throw toBtwError(error, { cancelSignal, timeoutSignal });
   });
 
-  const { text, refused } = stripBtwNoContextSentinel(result.text);
   return {
     finishReason: result.finishReason,
-    signals: {
-      evidence,
-      refused,
-      // 只计数、不取内容；非 0 说明 tools:[] 的硬约束被穿透。
-      toolCallCount: result.toolCalls?.length ?? 0,
-      usage: {
-        inputTokens: result.usage.inputTokens ?? 0,
-        outputTokens: result.usage.outputTokens ?? 0,
-      },
-    },
-    text,
+    // 只计数、不取内容；非 0 说明 tools:[] 的硬约束被穿透。
+    toolCallCount: result.toolCalls?.length ?? 0,
+    text: result.text.trim(),
     usage: result.usage,
   };
 }
 
-function buildBtwUserContent(question: string, evidence: BtwEvidenceAssessment): string {
-  const parts = [BTW_CONTEXT_CONSTRAINT];
-  // 证据检查是**软信号**：命中直接作答；未命中不拒答，而是要求模型显式声明依据。
-  // 中文提问与英文/代码上下文几乎无字面重合，硬闸门会把合法问题一律打死。
-  if (evidence.level === "miss") parts.push(BTW_LOW_CONFIDENCE_CLAUSE);
-  parts.push(`Side question: ${question}`);
-  return parts.join("\n\n");
-}
-
-function stripBtwNoContextSentinel(text: string): { refused: boolean; text: string } {
-  const trimmed = text.trimStart();
-  if (!trimmed.startsWith(BTW_NO_CONTEXT_SENTINEL)) {
-    return { refused: false, text: text.trim() };
-  }
-  return {
-    refused: true,
-    text: trimmed.slice(BTW_NO_CONTEXT_SENTINEL.length).trim(),
-  };
+function buildBtwUserContent(question: string): string {
+  return [BTW_CONTEXT_CONSTRAINT, `Side question: ${question}`].join("\n\n");
 }
 
 function toBtwError(

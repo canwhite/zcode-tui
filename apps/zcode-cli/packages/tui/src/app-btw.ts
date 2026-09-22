@@ -6,7 +6,7 @@ import type { TuiSideQuestionFailureReason, TuiSideQuestionResult } from "./type
  *
  * **只存内存，不落盘**：这里的状态在会话重载后必须无残留（与 core 侧「零持久化」同一条约束）。
  */
-export type BtwStatus = "failed" | "ready" | "refused" | "waiting";
+export type BtwStatus = "failed" | "ready" | "waiting";
 
 export interface BtwEntry {
   /** 一次侧问请求的标识；过期回调靠它丢弃，不得写进已关闭/已替换的浮层。 */
@@ -162,10 +162,7 @@ export function applyBtwResult(
       entry: { ...state.entry, answer: "", failureReason: result.reason, status: "failed" },
     };
   }
-  return {
-    ...state,
-    entry: { ...state.entry, answer: result.text, status: result.refused ? "refused" : "ready" },
-  };
+  return { ...state, entry: { ...state.entry, answer: result.text, status: "ready" } };
 }
 
 /**

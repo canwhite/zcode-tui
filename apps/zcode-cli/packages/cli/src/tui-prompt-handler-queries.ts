@@ -91,7 +91,7 @@ export const attachTuiAppQueries = (
     }
     try {
       const result = await runtime.runBtwModelRequest({ abortSignal: signal, question });
-      return { kind: "answer", refused: result.signals.refused, text: result.text };
+      return { kind: "answer", text: result.text };
     } catch (error) {
       return {
         kind: "failure",
@@ -112,7 +112,7 @@ type BtwCapableRuntime = {
   runBtwModelRequest?: (input: {
     abortSignal?: AbortSignal;
     question: string;
-  }) => Promise<{ signals: { refused: boolean }; text: string }>;
+  }) => Promise<{ text: string }>;
 };
 
 const SIDE_QUESTION_FAILURE_REASONS: ReadonlySet<string> = new Set<TuiSideQuestionFailureReason>([

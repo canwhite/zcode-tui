@@ -303,7 +303,6 @@ Slash Commands:
       },
       help: "↑↓ 滚动；Esc / Enter / 空格 关闭（主任务不会停止）",
       question: (question) => `问：${question}`,
-      refused: "上下文里没有这项信息——换普通提问再问一次。",
       retryHint: "r 重试",
       title: "侧问",
       unavailable: "当前宿主未接入侧问能力。",

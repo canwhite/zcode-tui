@@ -121,25 +121,6 @@ function bodyContent(input: {
     return [];
   }
 
-  if (entry.status === "refused") {
-    // 拒答态必须与正常答案**显著区分**，不能长得像答案：警告色 + 固定文案，
-    // 模型那句指引降级为补充说明。
-    return [
-      h(
-        "text",
-        { key: "refused", style: { fg: palette.warning, wrapMode: "word" } },
-        copy.btw.refused,
-      ),
-      body.length > 0
-        ? h(
-            "text",
-            { key: "refused-detail", style: { fg: palette.muted, wrapMode: "word" } },
-            window.items.join("\n"),
-          )
-        : null,
-    ].filter((child): child is React.ReactElement => Boolean(child));
-  }
-
   if (body.length === 0) return [];
 
   // 短答案整段交给 markdown 渲染（保留格式）；长答案必须按行窗口切片，
@@ -231,9 +212,7 @@ function btwFailureText(copy: TuiCopy, reason: TuiSideQuestionFailureReason | un
 }
 
 function statusColor(entry: BtwEntry): string {
-  if (entry.status === "refused") return palette.warning;
-  if (entry.status === "failed") return palette.danger;
-  return palette.accent;
+  return entry.status === "failed" ? palette.danger : palette.accent;
 }
 
 function normalizeContentWidth(contentWidth: number | undefined): number {

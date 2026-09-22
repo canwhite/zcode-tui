@@ -305,7 +305,6 @@ Slash Commands:
       },
       help: "↑↓ scroll; Esc / Enter / Space close (the running task keeps going)",
       question: (question) => `Q: ${question}`,
-      refused: "That is not in this conversation — ask it as a normal message instead.",
       retryHint: "r retry",
       title: "Side question",
       unavailable: "This host does not provide the side-question capability.",

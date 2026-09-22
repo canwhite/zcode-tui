@@ -285,9 +285,12 @@ export type TuiSideQuestionFailureReason =
 /**
  * 侧问结果。**非流式**：答案整段返回，所以这里是 promise 而不是 delta 回调——
  * 也就不会有「回调写向已关闭的浮层」这类跨异步写状态的问题。
+ *
+ * 没有「拒答」分支：任何提问都要有答案。上下文没覆盖到时由模型自行说明这是通用知识，
+ * **不由本地规则闸门**替它决定答不答。
  */
 export type TuiSideQuestionResult =
-  | { kind: "answer"; refused: boolean; text: string }
+  | { kind: "answer"; text: string }
   | { kind: "failure"; message: string; reason: TuiSideQuestionFailureReason };
 
 /** 运行中侧问（`/btw`）。`signal` 只用于取消**这一次侧问**，与主任务的 turn signal 无关。 */

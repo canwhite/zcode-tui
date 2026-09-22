@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 侧问三块**纯逻辑**的行为断言（R-022）。
+// 侧问的**纯逻辑**行为断言（R-022）。
 //
 // 为什么需要它：本仓库没有测试框架，而侧问里最危险的三块——尾部 tool_use 配对裁剪、
 // 键位/窗口数学、结果归属——都只是纯函数。纯函数没有回归保护时，缓解方案会悄悄失效：
@@ -14,10 +14,6 @@
 // 放 `test/` 而不是各包里，是因为它跨 core 与 tui 两个包——放任何一边都要深引另一个包。
 
 import { withoutPendingTrailingToolCalls } from "../apps/zcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
-import {
-  assessBtwEvidence,
-  extractEvidenceTokens,
-} from "../apps/zcode-cli/packages/core/src/runtime/methods/btw-evidence.js";
 import * as btw from "../apps/zcode-cli/packages/tui/src/app-btw.js";
 import * as keyboard from "../apps/zcode-cli/packages/tui/src/app-btw-keyboard.js";
 
@@ -168,31 +164,14 @@ const attachment = (text) => ({ content: text, kind: "attachment", metadata: {} 
     focused: true,
     entry: { answer: "", id: "btw-1", question: "q", scroll: 0, startedAt: 0, status: "waiting" },
   };
-  const answered = btw.applyBtwResult(waiting, "btw-1", {
-    kind: "answer",
-    refused: false,
-    text: "答案",
-  });
+  const answered = btw.applyBtwResult(waiting, "btw-1", { kind: "answer", text: "答案" });
   assert(
     "结果归属：命中 id 时写入答案",
     answered.entry.status === "ready" && answered.entry.answer === "答案",
   );
 
-  const refused = btw.applyBtwResult(waiting, "btw-1", {
-    kind: "answer",
-    refused: true,
-    text: "指引",
-  });
-  assert(
-    "结果归属：拒答走独立的 refused 态（与正常答案可区分）",
-    refused.entry.status === "refused",
-  );
 
-  const stale = btw.applyBtwResult(waiting, "btw-9", {
-    kind: "answer",
-    refused: false,
-    text: "过期答案",
-  });
+  const stale = btw.applyBtwResult(waiting, "btw-9", { kind: "answer", text: "过期答案" });
   assert("结果归属：id 不匹配的过期回调被丢弃，不写任何状态", stale === waiting);
 
   const cancelled = btw.applyBtwResult(waiting, "btw-1", {
@@ -327,64 +306,6 @@ const attachment = (text) => ({ content: text, kind: "attachment", metadata: {} 
     `${btw.resolveBtwPanelHeight(6)} / ${btw.resolveBtwPanelHeight(1)}`,
   );
   assert("几何：正文行数恒为正", btw.resolveBtwBodyRows(1) >= 1 && btw.resolveBtwBodyRows(10) >= 1);
-}
-
-// ---------------------------------------------------------------------------
-// 无据证据检查（软信号）
-// ---------------------------------------------------------------------------
-
-{
-  // 证据检查是**软信号**：hit / miss 只决定要不要追加「请声明依据」那一段，
-  // 两者都不等于拒答（拒答只由模型按约束给出哨兵触发）。所以这里断言的是**分级行为**，
-  // 不是「必须命中」——后者正是 R-032 警告过的单向验收。
-  const englishContext = [
-    { message: { content: "function resolveBtwSubmission(text) { return null; }", role: "user" } },
-  ];
-  const cjkContext = [
-    {
-      message: {
-        content: "侧问的提交判定由 resolveBtwSubmission 负责，窗口偏移需要钳制。",
-        role: "user",
-      },
-    },
-  ];
-
-  const englishHit = assessBtwEvidence("resolveBtwSubmission 做了什么", englishContext);
-  assert(
-    "证据：英文标识符与上下文重合 → hit",
-    englishHit.level === "hit",
-    JSON.stringify(englishHit),
-  );
-
-  const cjkHit = assessBtwEvidence("侧问的提交判定和窗口偏移是怎么处理的", cjkContext);
-  assert(
-    "证据：中文提问 × 中文上下文 → hit（否则中文提问会被一律打成低置信）",
-    cjkHit.level === "hit",
-    JSON.stringify(cjkHit),
-  );
-
-  // 反过来：中文提问 × 纯英文/代码上下文，字面重合本就极少。
-  // 这里是 **miss 才是正确行为**——它只追加「请显式声明依据」，不拒答。
-  const crossLanguage = assessBtwEvidence("数据库迁移脚本在哪里", englishContext);
-  assert(
-    "证据：跨语言/无重合 → miss（低置信，**不是**直接拒答）",
-    crossLanguage.level === "miss",
-    JSON.stringify(crossLanguage),
-  );
-  assert(
-    "证据：miss 的返回里没有任何「拒答」字段（分级与拒答在结构上就分开了）",
-    !("refused" in crossLanguage) && !("refusal" in crossLanguage),
-  );
-
-  const empty = assessBtwEvidence("好", englishContext);
-  assert(
-    "证据：无可判定 token 时不制造低置信信号",
-    empty.level === "hit" && empty.tokenCount === 0,
-  );
-  assert(
-    "证据：中文按二字组切分（整句匹配会全不命中）",
-    extractEvidenceTokens("函数实现").has("函数"),
-  );
 }
 
 const failed = results.filter((result) => !result.ok);

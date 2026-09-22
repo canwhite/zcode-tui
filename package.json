@@ -33,7 +33,8 @@
     "architecture:report": "node scripts/architecture/architecture-check.mjs report",
     "architecture:baseline:update": "node scripts/architecture/architecture-check.mjs baseline:update",
     "architecture:context": "node scripts/architecture/architecture-check.mjs context",
-    "test:zero-account": "node test/zero-account-acceptance.mjs"
+    "test:zero-account": "node test/zero-account-acceptance.mjs",
+    "test:btw": "node test/btw-side-question.mjs && tsx test/btw-skip-transcript.mjs && tsx test/btw-pure-logic.mjs"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^10.0.6",

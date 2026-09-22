@@ -1,9 +1,12 @@
 export { runTui } from "./tui.js";
 export type {
+  TuiAskSideQuestion,
   TuiClipboardImage,
   TuiImageMediaType,
   TuiListMcpServers,
   TuiGetMainSessionId,
+  TuiSideQuestionFailureReason,
+  TuiSideQuestionResult,
   TuiListWorkflowRuns,
   TuiReplayWorkflowRuns,
   TuiListWorkspacePathSuggestions,

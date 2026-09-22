@@ -18,6 +18,17 @@ export const BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES: readonly BuiltinZCodeSlas
       usage: "/help [command]",
     },
     {
+      details: [
+        "Interactive TUI only; headless runs reject it without sending any model prompt.",
+        "Answers from the current conversation only, with no tools and a single turn.",
+        "The question and answer are never written to the transcript, the session database, or on-disk logs.",
+        "Usable while a task is running: it does not queue, cancel, or interrupt that task.",
+      ],
+      name: "btw",
+      summary: "Ask a side question about this conversation without interrupting the running task.",
+      usage: "/btw <question>",
+    },
+    {
       details: ["Runs the core manual compaction path and forwards optional summary instructions."],
       name: "compact",
       summary: "Compact the current conversation with optional instructions.",

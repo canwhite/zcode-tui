@@ -36,6 +36,7 @@ import type {
 } from "./deps.js";
 import type { BackgroundResultOriginMeta, ContextUsageBreakdownItem } from "@zcode/contracts";
 import type { RuntimeCommand, RuntimeCommandId } from "./command-queue.js";
+import type { BtwModelRequestInput, BtwModelResult } from "./methods/btw-model-request.js";
 import type { RuntimeMessageEntry } from "../agent/message-history.js";
 import type {
   ActiveTurnInfo,
@@ -280,6 +281,11 @@ export interface AgentRuntimeCoreMethods {
   extractToolCallsFromResult(result: any): ModelToolCall[];
   shouldStreamModelText(): boolean;
   runModelTextRequest(options: RunModelTextRequestOptions): Promise<RuntimeModelTextResult>;
+  /**
+   * 运行中侧问：隔离的、无工具的、单轮模型调用，**不写转录、不发会话事件、不落盘**。
+   * 形态说明与硬约束见 `methods/btw-model-request.ts` 头部注释。
+   */
+  runBtwModelRequest(input: BtwModelRequestInput): Promise<BtwModelResult>;
   logContextUsageSnapshot(
     options: RunModelTextRequestOptions,
     snapshot?: Record<string, unknown>,

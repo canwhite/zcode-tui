@@ -30,6 +30,15 @@ export function parseSlashCommand(input: string): SlashCommand | null {
   ).toLowerCase();
   const args = commandEnd === -1 ? "" : trimmed.slice(commandEnd + 1).trim();
 
+  if (rawName === "btw") {
+    return {
+      args,
+      name: "btw",
+      rawName,
+      type: "known",
+    };
+  }
+
   if (rawName === "compact") {
     return {
       args,

@@ -1,6 +1,8 @@
 import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
 import React from "react";
 import { ApprovalPanel } from "./app-approval-panel.js";
+import { BtwPanel } from "./app-btw-panel.js";
+import type { BtwState } from "./app-btw.js";
 import {
   actionPanelContentWidthForTerminal,
   AppShell,
@@ -54,6 +56,7 @@ export function AppView(props: {
   toggleSidebar?: () => boolean;
   activeTurnId?: TurnId;
   approvalQueue: ApprovalPrompt[];
+  btw?: BtwState;
   busy: boolean;
   cacheStats?: CacheStats;
   contextUsage: ContextUsage;
@@ -99,10 +102,20 @@ export function AppView(props: {
   expandedWorkflowRunIds?: ReadonlySet<string>;
 }): React.ReactElement {
   const readOnly = Boolean(props.subagents?.selected);
+  // 侧问与审批/选择面板互斥，且审批优先：用户在等待授权时不该被侧问浮层挡住。
+  // 与键盘层的 `readOnlyView > approval > selection > btw` 同一个口径。
+  const btwEntry =
+    props.btw?.focused && !props.approvalQueue[0] && !props.selection
+      ? props.btw.entry
+      : undefined;
   const handleShellMouseUp = React.useCallback(() => {
+    // 「选中即复制」是全屏语义：鼠标划选走的是 renderer 级别的选区，所以这个 handler
+    // 必须挂在**最外层**（见下方整屏 box），否则在侧问抽屉里划选不会触发复制。
     props.copyCurrentSelection();
-    if (!readOnly) props.editorRef.current?.focus();
-  }, [props.copyCurrentSelection, props.editorRef, readOnly]);
+    // 抽屉持有键盘焦点时不要把焦点抢回输入框：抢回来会让下一次按键打字进输入框，
+    // 而浮层还开着。
+    if (!readOnly && !btwEntry) props.editorRef.current?.focus();
+  }, [btwEntry, props.copyCurrentSelection, props.editorRef, readOnly]);
   const actionPanelContentWidth = actionPanelContentWidthForTerminal(
     props.terminalWidth,
     props.sidebarLayout.reservedWidth,
@@ -161,9 +174,19 @@ export function AppView(props: {
       })
     : null;
 
+  // 浮层挂在 AppShell **外层**的整屏 box 上：AppShell 的主区带 `padding: 1`；
+  // 抽屉是它的兄弟节点，也要在这里才铺满整屏。
   return h(
+    "box",
+    {
+      // onMouseUp 必须挂在**最外层**：抽屉是 AppShell 的兄弟节点，挂在 AppShell 里面
+      // 会让抽屉区域内的划选漏掉「选中即复制」。
+      onMouseUp: handleShellMouseUp,
+      style: { flexDirection: "column", height: "100%", width: "100%" },
+    },
+    h(
     AppShell,
-    { onMouseUp: handleShellMouseUp, sidebar, sidebarLayout: props.sidebarLayout },
+    { sidebar, sidebarLayout: props.sidebarLayout },
     readOnly && props.subagents
       ? h(SubagentView, {
           controller: props.subagents,
@@ -228,6 +251,14 @@ export function AppView(props: {
               thoughtLevel: props.thoughtLevel,
             }),
     ),
+    ),
+    btwEntry
+      ? h(BtwPanel, {
+          contentWidth: props.terminalWidth,
+          copy: props.copy,
+          entry: btwEntry,
+        })
+      : null,
   );
 }
 

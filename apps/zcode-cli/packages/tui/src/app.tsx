@@ -1,6 +1,9 @@
 import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
 import { getZCodeCopy } from "@zcode/i18n";
+import { useTerminalDimensions } from "@mbears/opentui-react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { resolveBtwBodyRows } from "./app-btw.js";
+import { useBtwController } from "./app-btw-controller.js";
 import { AppView } from "./app-view.js";
 import type { PromptInputEditor } from "./app-input-pane.js";
 import { selectionCopyStatus, type SelectionCopyResult } from "./app-copy.js";
@@ -243,10 +246,19 @@ export function TuiApp({
     [effortCommand, filteredSlashCommands, modeCommand, modelCommand, slashSelection],
   );
 
+  const { height: terminalHeight } = useTerminalDimensions();
+  const btw = useBtwController({
+    copy: copy.tui,
+    focusComposer: () => inputEditorRef.current?.focus(),
+    options,
+    setStatus,
+  });
+
   const submitValue = useSubmitValue({
     activeTurnId,
     applyResult,
     applySessionEvent,
+    btw: btw.state,
     busy,
     draftAttachmentsRef,
     emptyPromptStatus: copy.tui.input.typePrompt,
@@ -266,6 +278,7 @@ export function TuiApp({
     setSlashSelection,
     setStatus,
     setStatusDetails,
+    submitBtw: btw.submit,
     turnRef: abortControllerRef,
   });
 
@@ -332,7 +345,12 @@ export function TuiApp({
     readOnlyView: subagents.selected ? { back: subagents.back } : undefined,
     abortControllerRef,
     approvalQueue,
+    btw: btw.state,
+    btwVisibleLines: resolveBtwBodyRows(terminalHeight),
     busy,
+    closeBtw: btw.close,
+    retryBtw: btw.retry,
+    scrollBtw: btw.scroll,
     copyCurrentSelection,
     effortSelection: effortCommand.selection,
     filteredEffortOptions: effortCommand.filteredOptions,
@@ -372,6 +390,7 @@ export function TuiApp({
     toggleSidebar: sidebar.toggleSidebar,
     activeTurnId,
     approvalQueue,
+    btw: btw.state,
     busy,
     cacheStats,
     contextUsage,

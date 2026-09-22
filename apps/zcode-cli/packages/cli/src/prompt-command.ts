@@ -58,6 +58,8 @@ const MEMORY_BENCH_DISABLED_ERROR =
   "--memory-bench requires Project Memory to be enabled (features.memory=true and memory.use=true).";
 const TARGET_SELECTION_UNAVAILABLE_ERROR =
   "Headless goal commands cannot open an interactive replacement picker. Re-run with --target-replace or use /goal replace <objective>.";
+const BTW_TUI_ONLY_ERROR =
+  "/btw is only available in the interactive TUI: its answer is shown in an overlay and is deliberately never written to the transcript, the session database, or on-disk logs, so there is nothing to print here.";
 
 export const runPrompt = async (
   ctx: RunContext,
@@ -118,6 +120,15 @@ export const runPrompt = async (
   }
   if (slashCommand?.type === "known" && slashCommand.name === "skill" && !slashCommand.skillName) {
     return await runSkillsCommand(ctx, options, deps, []);
+  }
+  // `/btw` 是**交互式 TUI 专用**：headless 下没有浮层承载答案，而它的定位就是「不写入」。
+  // 不在这里早退的话，它会以 known 身份继续往下走、最终被当成普通 prompt 交给 agent ——
+  // 变成一次**带工具的普通 turn**：静默、有副作用，且恰好违背侧问存在的理由。
+  // 落点必须在这条**早于路由判断**的早退链里。不要改 `routesToPromptCommandCenter` 让它
+  // 放行 btw —— 那会把命令路由进 TUI 形态的命令中心，headless 下并不成立。
+  if (slashCommand?.type === "known" && slashCommand.name === "btw") {
+    ctx.stderr.write(`${BTW_TUI_ONLY_ERROR}\n`);
+    return 1;
   }
   const runtimePrompt =
     slashCommand?.type === "known" && slashCommand.name === "skill"

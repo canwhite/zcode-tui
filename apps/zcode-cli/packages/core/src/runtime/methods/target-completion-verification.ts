@@ -18,8 +18,8 @@ import type {
 } from "../deps.js";
 import { buildRuntimeProviderRequestMessages, throwIfTurnAborted } from "../helpers/index.js";
 import { projectMessagesForModelMediaPolicy } from "../helpers/media-budget.js";
+import { withoutPendingTrailingToolCalls } from "../helpers/pending-tool-calls.js";
 import type { AgentRuntimeInternal } from "../internal.js";
-import { isRuntimeAttachmentEntry, type RuntimeMessageEntry } from "../../agent/message-history.js";
 import { createRefreshRuntimeHeadersBeforeModelAttempt } from "./model-runtime-headers.js";
 import { resolveModelRequestSessionTypeFromTaskType } from "./model-request-session-type.js";
 import { createRuntimeModel } from "./runtime-model.js";
@@ -132,7 +132,7 @@ async function verifyTargetCompletion(
   );
   const providerMessages = buildRuntimeProviderRequestMessages(this, {
     entries: [
-      ...withoutTrailingPendingAssistantToolCallEntries(
+      ...withoutPendingTrailingToolCalls(
         this.messageHistory.borrowReadOnlyRuntimeEntries(),
       ),
       {
@@ -397,18 +397,3 @@ async function getNextTargetCompletionVerificationIteration(
   return latestIteration + 1;
 }
 
-function withoutTrailingPendingAssistantToolCallEntries(
-  entries: readonly RuntimeMessageEntry[],
-): readonly RuntimeMessageEntry[] {
-  const last = entries.at(-1);
-  if (
-    !last ||
-    isRuntimeAttachmentEntry(last) ||
-    last?.message.role !== "assistant" ||
-    !last.message.toolCalls ||
-    last.message.toolCalls.length === 0
-  ) {
-    return entries;
-  }
-  return entries.slice(0, -1);
-}

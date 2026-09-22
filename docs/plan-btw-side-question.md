@@ -64,11 +64,16 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
    - `tools: []` 写死。
    - 自己的 `AbortController`，与 turn 的 signal 无关（对齐 `core/src/memory/extraction.ts:96`）。
    - **必须带自己的超时**：`AbortSignal` 与超时组合，超时后进入失败态。没有超时的侧问会把浮层永久留在屏幕上（见 R-002）。
-   - **请求 metadata 必须带 `skipTranscript: true`**。`runner-generate.ts:89` 已支持该开关（`input.request.metadata?.skipTranscript !== true && shouldRecordModelIO(...)`），但 `runner-stream.ts:117` 只有 `shouldRecordModelIO(input.env)`，**没有这个开关**——不改它，侧问的完整会话快照与答案会被落盘到 `~/.zcode/cli/rollout`（见 R-001）。
-     **按 Pre-Mortem 的建议走非流式（`generateText`）**：退出口今天即生效、零 adapter 改动，R-001 立刻归零，也不需要承担 R-018。等 `runner-stream.ts` 对齐后再切流式是纯增量改动。
+   - **走非流式（`generateText`）+ `metadata: { skipTranscript: true }`**（Pre-Mortem 决策，R-001）。`runner-generate.ts:89` 今天即支持该开关（`input.request.metadata?.skipTranscript !== true && shouldRecordModelIO(...)`），而 `runner-stream.ts:117` 只有 `shouldRecordModelIO(input.env)`、**没有这个开关**——走流式就会把侧问的完整会话快照与答案落盘到 `~/.zcode/cli/rollout`。非流式让 R-001 归零、零 adapter 改动，并**自动继承 `runner-generate.ts` 的准入与重试**（`admitAttempt`、`retryBudgetAllows`、`calculateRetryDelay`），因此不必再自己实现 R-004/R-018 的恢复逻辑。等 `runner-stream.ts` 对齐后再切流式是纯增量改动。
+   - **`skipTranscript` 只关掉「model-io」一条通道，≠「不落盘」的全部（R-028 / R-030）**。侧问路径必须同时满足：
+     - **不提供 `statusSink`**。它在 `ModelInvocationContext` 里是**可选**字段（`contracts/src/model/invocation-context.ts`），而 `createModelStatusSink` 的 `publish` 会 `this.appendEvent(...)`（`methods/model-status.ts:20-33`）。
+     - **完全不调用 `this.appendEvent(...)` / `this.createEvent(...)`**——即**不要复制 `workspace-generate-text.ts:177-193` 的 `appendEvent(modelRequestEvent)` 段**。`appendEvent`（`methods/events.ts:81-147`）会执行 `eventStore.append` + `persistDurableSessionEvent` + `notifyEventSinks`：**落进 `~/.zcode/cli/db/db.sqlite`，并对 TUI 可见**。
+     - **不发任何 `SessionEventType.*`**：`ModelStreaming`（幽灵消息，见上文②）、`ModelRequest`、`ModelNetworkStatus`、`ModelComplete` 一个都不发。
+     - 形态上的真正先例是 **`project-memory-agent.ts:47-58`**（只构造 invocation context，不发任何会话事件），**不是** `workspace-generate-text.ts`（它发事件）。
+   - **不调 `recordModelUsageFact`**。它写的是 `runtime.sessionStore` 的 `model_usage` 表（`usage-observability.ts:55-129` → `~/.zcode/cli/db/db.sqlite`），属**持久化**，与「零持久化」硬约束直接冲突（R-021 已改判，见 R-029）。
+   - **`querySource` 必须是独特且可检索的值（如 `"btw"`）**。它是 A5 归属断言的**唯一锚点**（见 R-036/R-037）：`operation` 只能是封闭 enum 的既有成员，新 `querySource` 会落到 `default` → `ToolInternalModelCall`（`contracts/src/telemetry/index.ts:150-204`），**与别的调用撞车，不能用作锚点**。Phase 1 接受该观测口径偏差、不改 contracts（见 R-037）。
    - **运行时 header 刷新必须挂上**：对齐 `project-memory-agent.ts:55` 的 `createRefreshRuntimeHeadersBeforeModelAttempt(...)`，否则长会话里凭据过期后侧问 401 而主任务正常（见 R-019）。
-   - **需要一条失败回退路径**：对齐 `compact-summary-model-request.ts` 的做法，请求失败时不要让侧问裸失败（见 R-018）。
-   - **usage 记账：记 usage、不记内容**。`recordModelUsageFact` 是逐点显式调用的（`compact-active.ts:418,457`、`title-generation-sidecar.ts:158,185` 都调了），不调则 `/cost` 少报。显式调用它并在此处注释说明这是**故意**的（见 R-021）。
+   - **失败与超时都要有明确出口**：非流式虽自带重试预算，但在预算耗尽后仍是单次失败——必须进入浮层失败态并保留问题原文可重试，不要让侧问裸失败或静默（见 R-018 / R-002）。
 4. **暴露为 `AgentRuntime` 公开方法**。`runModelTextRequest` 声明在 `AgentRuntimeInternal`（`core/src/runtime/internal-methods.ts:282`）上，TUI 侧不可见，需在公开面上加一个方法（回调形态：`onDelta` / `onDone` / `onError`）。
 
 ### 阶段三：桥接到 TUI
@@ -127,18 +132,25 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 | # | 断言 | 为什么它能证伪 |
 |---|------|----------------|
 | A1 | `/help` 与命令清单中出现 `/btw` | 覆盖步骤 1 的四处清单，漏任何一处即 FAIL |
-| A2 | **源码级**：`btw-model-request.ts` 中不出现 `emitModelStreamingEvent`、`SessionEventType.ModelStreaming`、`runModelTextRequest` | 直接钉住幽灵消息陷阱；这是 A 类断言里唯一能自动化验证「不污染」的方式 |
+| A2 | **源码级**：`btw-model-request.ts` 中不出现 `emitModelStreamingEvent`、`SessionEventType.`（任意形态，含 `ModelStreaming` / `ModelRequest` / `ModelNetworkStatus` / `ModelComplete`）、`runModelTextRequest`、`appendEvent`、`createEvent`、`createModelStatusSink`、`recordModelUsageFact`、`streamText` | 直接钉住幽灵消息陷阱，并覆盖 R-028 的**会话事件通道**与 R-029 的**usage 表通道**——只禁 `ModelStreaming` 会漏掉这两条同样落库的路 |
 | A3 | **源码级**：`btw-model-request.ts` 中 `tools` 恒为空数组 | 钉住「无工具」硬约束 |
 | A4 | headless `zcode -p "/btw xxx"` 返回明确的「交互式 TUI 专用」提示，且**退出码与输出中不含模型响应内容** | 覆盖步骤 2；若被转发给 agent，输出中会出现模型生成的答案，断言即失败 |
-| A5 | **运行时**：跑一次侧问前后对 `~/.zcode/cli/{rollout,debug}` 做目录快照对比，断言无新增文件、或新增文件中不含侧问问题文本 | 唯一能证伪 R-001 的断言。这是**运行时**证据，补足了 A2/A3 源码断言证明不了的部分 |
-| A6 | **源码级**：`runner-stream.ts` 的 `recordModelIO` 计算已与 `runner-generate.ts:89` 对齐（含 `metadata?.skipTranscript` 判定） | 钉住 R-001 的修复不被回退；这是 A5 能通过的前提 |
+| A5 | **运行时**：跑一次侧问前后，对 `~/.zcode/cli/` 下的 **`rollout` / `debug` / `log` 三个目录** + **`db/db.sqlite` 的 `session_events` / `model_usage` 两张表**做快照对比。断言：① 三个目录无新增文件，或新增文件不含侧问问题原文；② 两张表**无归属于侧问的行** | 唯一能证伪 R-001 的断言。**范围按「落盘通道」枚举而非按「目录」拍脑袋**：`rollout`/`debug`（model-io）、`log`（JSONL 日志）、`db`（会话事件 + 用量）——它们是同一层级的**兄弟**，漏掉任一条都会「快照全绿而侧问已落库」（R-028/R-029/R-030/R-034） |
+| A6 | **源码级**：`btw-model-request.ts` 使用 `generateText`（且如上 A2 所钉，不出现 `streamText`），且请求 metadata 显式含 `skipTranscript: true` | 钉住 R-001 的落地形态（非流式是退出口生效的前提）；这是 A5 能通过的前提 |
 
 > A2/A3 是源码断言而非行为断言，这是**权衡后的选择**：本仓库无测试框架（无 `*.test.*`、无 test script），且「不污染」的唯一可靠运行时证据需要启动完整 TUI 会话。源码断言能捕获真实回归（后来者把侧问统一到主请求路径），代价是它不能证明运行时一定不污染——因此下面的手工清单不可省略。
+
+**验收脚本的三条实现口径（不遵守就会拆掉护栏，见 R-035 / R-036 / R-037）**
+
+1. **A2/A6 必须先剥离注释再匹配**（R-035）。步骤 3 **强制**在 `btw-model-request.ts` 文件头写「为什么不能走主请求路径」的注释，而这类注释天然会写出 `emitModelStreamingEvent` / `SessionEventType.ModelStreaming` / `streamText` 等符号名——直接对原始文本做子串匹配**必然误报**。正确做法：先去掉 `//` 行注释与 `/* */` 块注释，再匹配；或匹配**调用点形态**（`emitModelStreamingEvent(`、`this.appendEvent(`、`model.streamText(`）。**绝不允许用「删掉那条注释」来让断言变绿**——那正是 R-016/R-023 防回归守卫的载体。
+2. **A5 的 db 部分用「归属」而非「计数」**（R-036）。分两次跑：**空闲态**做严格「零新增」断言；**运行态**（主任务流式中）只做归属断言——因为主任务本身一直在写 `session_events` / `model_usage`，计数断言在运行态**必然假失败**，而假失败的结局就是护栏被以「太吵」为由删除。归属锚点用 **`querySource` 字符串**（`btw`），**不要用 `operation`**（R-037：它只能是 `ToolInternalModelCall`，会与别的调用撞车）。
+3. **A5 的三个目录同样优先断言「新增内容不含问题原文」而非「无新增文件」**——主任务的 model-io 与 JSONL 日志一直在写，`rollout`/`debug`/`log` 在运行态本就会有新文件（R-034 / R-036）。
 
 **手工 TUI 验证清单**（在真实终端跑 `pnpm --filter @zcode/cli dev`，逐条走）
 
 - [ ] 空闲时 `/btw <会话题内的问题>` → 浮层给出答案；`/context` 的数字**与问之前一致**。
-- [ ] **主任务流式中**输入 `/btw` → 浮层正常出现，且**主任务输出不出现停顿**（观察字符流连续性）。
+- [ ] **主任务流式中**输入 `/btw` → 浮层正常出现，且**主任务输出不出现停顿**（观察字符流连续性）。**注意：这条只验证 F-003 的"不打断"，不验证侧问本身能否成功——流式期间快照是干净的（见 R-040）。**
+- [ ] **工具执行中输入 `/btw`（R-040，必测）**：让主任务跑一条长命令（如 `sleep 60`，或会等待审批的工具），**在命令执行期间**输入侧问 → **必须能正常作答**。这是主任务"看起来在跑"的**大多数时刻**，也是快照尾部悬空（未兑现的 `tool_calls`）的唯一窗口——不测这条，等于没测运行中侧问。
 - [ ] 浮层内按 Esc → 只关闭浮层；**主任务仍在继续**（这是 F-003 的核心判据）。
 - [ ] 关闭后直接打字 → 能正常进入输入框（焦点已归还）。
 - [ ] **无据拒答压力测试**：准备 10 个「上下文里其实没有、但看起来像有」的问题（含诱导型，如上下文提到文件名 A 但没提内容，问"文件 A 里那个函数是怎么实现的"）→ 要求 **10/10 拒答**，任一编造即 F-005 失败（见 R-003）。只测 1 个明显 case 不算通过。
@@ -174,9 +186,20 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 **硬约束：侧问不得引入任何持久化。** 一旦侧问写进 session db / config / 日志原文，回滚就不再干净，且直接违反痛点 A 的解法。这条要写进代码注释。
 
+**「持久化」的完整口径（第 3/4 轮补全，此前只点了 model-io 一条）**——侧问不得写入以下**任何一条**：
+
+| # | 通道 | 落点 | 控制手段 |
+|---|------|------|----------|
+| ① | model-io（请求/响应原文） | `~/.zcode/cli/{rollout,debug}` | 非流式 + `metadata.skipTranscript: true` |
+| ② | 会话事件流 | `~/.zcode/cli/db/db.sqlite` → `session_events` | 不调用 `appendEvent` / `createEvent`；不提供 `statusSink` |
+| ③ | 用量表 | `~/.zcode/cli/db/db.sqlite` → `model_usage` | 不调用 `recordModelUsageFact`（**故意**的代价：`/cost` 少报，见 R-029） |
+| ④ | JSONL 文件日志 | `~/.zcode/cli/log/zcode-YYYY-MM-DD.jsonl`（保留 7 天） | 提问原文与答案**不得**作为任何 `logger.*` 调用的字段值（含 `[DEBUG-btw]` 调试日志） |
+
+> ②③④ 是前几轮**漏掉的**：第 1 轮只堵了 ①，因此「已收敛」的结论不成立（见 R-028/R-030）。**验证（A5）必须与这张表一一对应**——按通道枚举，而不是按目录枚举。
+
 **Global scan**（改完后逐条回答，不要只修一处）
 
-1. **同一形态的陷阱还有谁？** `emitModelStreamingEvent` 的「以主 sessionId 发布 → TUI 无条件并入转录」这一组合，对**任何**未来的带外调用都成立。本次除侧问外，检查是否还有其他调用点走主请求路径但语义上不该进转录；若有，把「隔离流」抽成共享形态而不是复制第二份。
+1. **同一形态的陷阱还有谁？** 第 3/4 轮已证明这不是「一个陷阱」而是**四条并列的落盘通道**：① model-io（`rollout`/`debug`，`shouldRecordModelIO`）；② 会话事件流（`appendEvent` → `db.sqlite` 的 `session_events`）；③ 用量表（`recordModelUsageFact` → `db.sqlite` 的 `model_usage`）；④ JSONL 文件日志（`~/.zcode/cli/log/`）。**任何未来的带外调用都要先回答「它会不会走这四条」**，而不是复制一份「隔离流」。本次除侧问外，检查是否还有其他调用点语义上不该进转录；若有，把「隔离流」**连同通道枚举表**抽成共享形态而不是复制第二份。
 2. **白名单是不是该泛化？** `tui-prompt-handler.ts:322-341` 目前硬编码 `model` / `effort`，本次再加 `btw`。若第三个「运行中可用」的命令出现，应改为按声明的元数据判定，而不是继续堆字面量——本次先记录，不重构。
 3. **busy 分支的其他出口**：`app-submit-controller.ts:49-68` 的排队逻辑是否还有别的路径能绕开拦截（例如 `sendInput` 的其他调用方）？
 4. **`/btw` 与用户自定义命令/skill 的遮蔽**：确认 `RESERVED_SLASH_COMMAND_NAMES` 生效且遮蔽是**可见的**（有提示），不是静默丢弃。
@@ -218,7 +241,12 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 > 评分口径：**Risk Score = Severity × Likelihood × (1 − Detectability)**。Detectability = 「早期就能发现它」的概率（越高越容易发现、风险越低）。
 >
-> 本轮找到 **3 个 HIGH RISK**（>12）与 13 个中低风险。三条 HIGH 里有两条会**直接摧毁功能的立身之本**（R-001 违反"不写入"，R-003 让答案不可信），且**计划原有的验证手段都抓不到**——它们的缓解方案已回写进 Plan 与 Do 章节。
+> **最终状态（第 5 轮收敛）**：累计 **42 个风险，其中 7 个 HIGH**（R-001 / R-002 / R-003 / R-028 / R-029 / R-030 / R-040），**7 个 HIGH 的残余分已全部降至 LOW**（见文末残余评估表）。全部风险均附缓解方案，并已回写进 Plan / Do / Adjust 章节。
+>
+> **阅读指引**：R-001–R-027 为第 1–2 轮；**R-028 起为第 3–5 轮复检**，其中三条**推翻或修正了前轮的结论**，建议优先阅读——
+> - **R-030**：「零持久化」此前只堵了**四条落盘通道中的一条**，第 2 轮的「已收敛」是**假收敛**。
+> - **R-029**：第 1 轮为 R-021 定的缓解方案「记 usage」**本身就是 HIGH RISK**（它写 session db）。
+> - **R-040**：手工清单的「主任务流式中」用例**恰好避开了唯一会失败的窗口**（工具执行期），是本次复检最重要的发现。
 
 ### R-001 侧问原文与答案被落盘到 `~/.zcode/cli/rollout`
 
@@ -237,11 +265,13 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 **为什么计划的验证抓不到**：断言 A2 只禁止 `emitModelStreamingEvent`（会话事件通道），而这是一条**完全不同的磁盘通道**。手工清单也没有任何一条会去看文件系统。这正是它 Detectability 只有 0.2 的原因。
 
+**决策（已定，第 3 轮）**：**走非流式 `generateText` + `metadata: { skipTranscript: true }`**。这是原「备选方案」，现采纳为唯一方案——退出口 `runner-generate.ts:89` **今天即生效、零 adapter 改动**，R-001 由此归零；代价只是答案整段出现而非逐字出现。
+
 **Mitigation**:
-- 把 `runner-stream.ts:117` 的 `recordModelIO` 计算**与 `runner-generate.ts:89` 对齐**，支持 `metadata?.skipTranscript`。这本就是两条路径应当具备的对称性，属顺手修掉的一个潜在缺陷。
-- `/btw` 请求显式设置 `metadata: { skipTranscript: true }`。
-- 新增**运行时**断言 A5（侧问前后对 `~/.zcode/cli/{rollout,debug}` 做目录快照对比）+ 源码断言 A6（钉住该修复不被回退）。
-- **备选方案**（不想动 adapter 时）：`/btw` 改用 `generateText`——退出口今天已生效、零改动，代价是失去流式浮层。这正好与 Open Questions 里「是否展示流式」是同一个决策，可一并定。
+- `/btw` 改用 `generateText` 并在请求 metadata 显式设置 `skipTranscript: true`（已回写进 Plan 步骤 3）。
+- **运行时**断言 A5：侧问前后对 `~/.zcode/cli/{rollout,debug}` **与 `~/.zcode/cli/db/db.sqlite`** 做快照对比（已扩展，见 R-028/R-029）。
+- **源码**断言 A6：钉住「走 `generateText` 且带 `skipTranscript`」，防止后来者为了浮层流式而改回 `streamText`——**那会立刻让 R-001 复活**（`runner-stream.ts:117` 至今无退出口）。
+- 若将来要切流式，**前置条件**是先把 `runner-stream.ts:117` 的 `recordModelIO` 与 `runner-generate.ts:89` 对齐（支持 `metadata?.skipTranscript`），并同步重跑 A5。**这是一条有前置条件的增量改动，不是平级选项。**
 
 ### R-002 侧问卡死 + 浮层吞掉按键 = 用户无法停止任何东西
 
@@ -329,6 +359,8 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 **Failure Scenario**：`tools: []` 是硬约束，但若中间层注入了工具描述，模型仍可能输出 tool_call；侧问 reducer 若不处理，会崩溃或静默截断答案。
 
 **Mitigation**: reducer 显式忽略非文本事件并计数；配合源码断言 A3 与运行时日志，出现即暴露。
+
+**第 3 轮更新——风险面已缩小（非流式决策的副产品）**：改走 `generateText` 后**不再有「流 reducer」**，原失效形态（消费 `AsyncIterable` 时漏处理 `text_delta` 之外的事件）**随之消失**。剩余的部分是：`ModelResult` 里可能带有 `toolCalls`，取值时必须**只取文本内容、忽略 `toolCalls`**，并在发现 `toolCalls` 非空时**计数告警**（说明 `tools: []` 的硬约束在某处被穿透——这是比"答案为空"更早的预警）。源码断言 A3 保留。
 
 ### R-009 主任务状态栏 / `liveModelText` 串台
 
@@ -430,9 +462,14 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 **Risk Score**: 3 × 4 × (1 − 0.4) = **7.2**
 **判定**：🟡 MEDIUM
 
-**Failure Scenario**：计划要求直调 `model.streamText`（为隔离流）。但主路径经过 `runner-stream.ts` 的完整恢复机制（retryBudget、`signatureRepairAttempted`、`emptyCompletionRetryCount`）。直调若不继承这些，偶发的 provider 抖动会让侧问失败，而同样的抖动主任务能自愈——用户感受为「侧问怎么老失败」。
+**Failure Scenario**：侧问以隔离形态直调模型，不经过主路径的完整恢复机制。偶发的 provider 抖动会让侧问失败，而同样的抖动主任务能自愈——用户感受为「侧问怎么老失败」。
 
-**Mitigation**: 对齐 `compact-summary-model-request.ts` 的做法——它有显式的失败回退（stream 失败改走 `generateText`）。侧问同样需要一条失败回退路径，而不是裸调一次就放弃。
+**第 3 轮更新：风险已大幅下降，但**不是**归零。** 走非流式 `generateText` 后，侧问请求同样经过 `runner-generate.ts`，**自动继承其准入与重试栈**（`admitAttempt`（`:58`）、`retryBudgetAllows` / `retryBudgetMaxAttempts`（`:60-63`）、`calculateRetryDelay`（`:36`）、`scheduleEmptyCompletionRetry`（`:34`））——原文担心的「直调 `streamText` 绕过这些」不再成立。剩余缺口只有两处：**重试预算耗尽后的终态**，以及 `runner-stream.ts` 特有的 `signatureRepairAttempted` 一类**流式专属**修复（非流式路径本就不适用，无损失）。
+
+**Mitigation**:
+- 重试交给 `runner-generate.ts` 的既有预算，**不要自己再包一层重试**（会与准入/预算叠加，放大 429，见 R-004）。
+- 预算耗尽后必须进入**浮层失败态**并保留问题原文，提供一次**手动重试**——这是「裸失败」与「可恢复」的分界。
+- 失败态文案要与「无据拒答」态**可区分**（两者都可能被用户当成同一件事）。
 
 ### R-019 侧问未处理运行时凭据刷新
 
@@ -462,7 +499,16 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 **Failure Scenario**：`recordModelUsageFact` 是**逐点显式调用**的（`compact-active.ts:418,457`、`title-generation-sidecar.ts:158,185` 都调了），不是自动的。计划没决定侧问记不记：记了侧问会出现在 `/cost`（与「纯临时」的直觉冲突）；不记则 `/cost` 少报、用户实际花了钱却看不到。两种都需要一个**故意做出的决定**，而不是默认。
 
-**Mitigation**: 在计划里显式定：**记 usage、不记内容**——既让 `/cost` 诚实，又不违反「不写入内容」。并把这一点写进步骤 3 的注释，避免后来者顺手删掉。
+**第 3 轮改判：原缓解方案（「记 usage、不记内容」）被证伪，它自己就是一条 HIGH RISK（R-029）。**
+
+原方案错在把「内容」当成了唯一的持久化形态：`recordModelUsageFact` 写的是 `runtime.sessionStore`（`usage-observability.ts:55-129`），落点是 **`~/.zcode/cli/db/db.sqlite` 的 `model_usage` 表**，带 `session_id`、`query_source`、token 数与错误码，**30 天保留**（`repositories/usage.ts:19-20`）。那正是 Adjust 硬约束点名的「写进 session db」，也违反 Goal 2「重载后无残留」。**「不记内容」不等于「不写入」。**
+
+**决策（已定，第 3 轮）：不记 usage。** 理由：本功能的立身之本是「完全不写入、纯临时」（已确认决策 5），而 usage 行是**用户重载后仍可见**的残留；为一项「顺口一问」放弃这一定位不划算。
+
+**Mitigation**:
+- 步骤 3 **不调用 `recordModelUsageFact`**，并在文件头注释写明这是**故意**的代价（防后来者「顺手补上」而破坏零持久化）。
+- **诚实对待副作用**：`/cost` 会**少报**侧问的花费。必须在「Open Questions / 已知限制」里显式记录，并让 A5 的 db 断言成立（见 R-029）。
+- **备选（需放宽约束才能采纳）**：若后续决定「侧问也要计入 `/cost`」，则必须**同时**：① 改写 Adjust 硬约束为「不写内容、可写用量」；② 改写 Goal 2 的口径；③ 把 A5 的 db 断言从「零新增行」改为「`model_usage` 至多 +1 行且不含问题原文」。**三项缺一不可，否则约束与验证自相矛盾。**
 
 ### R-022 新增的纯逻辑模块没有任何回归保护
 
@@ -526,33 +572,264 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 ---
 
-### 残余风险评估（应用缓解方案后）
+### R-028 侧问经会话事件通道落库：`appendEvent` 把事件写进 `db.sqlite`，A2 与 A5 都看不见
+
+**Severity**: 5 | **Likelihood**: 4 | **Detectability**: 0.15
+**Risk Score**: 5 × 4 × (1 − 0.15) = **17**
+**判定**：🔴 HIGH
+
+**Failure Scenario**：实现者按仓库里**最接近的非流式先例** `workspace-generate-text.ts` 来写侧问——它调 `this.appendEvent(modelRequestEvent, ...)`（`:177-193`）并传 `statusSink: this.createModelStatusSink(...)`（`:211`）。而 `createModelStatusSink` 的 `publish` 内部也调 `this.appendEvent(...)`（`methods/model-status.ts:20-33`）。`appendEvent`（`methods/events.ts:81-147`）会执行 `eventStore.append` + `persistDurableSessionEvent` + `notifyEventSinks`：**`ModelRequest` / `ModelNetworkStatus` / `ModelComplete` 事件被持久化进 `~/.zcode/cli/db/db.sqlite`，并推送给 TUI**（`createEvent` 用的是 `this.sessionId`，即主会话 id）。于是侧问在**用户完全不可见**的情况下写进了主会话的持久化事件流，违反「不写入、纯临时」，且会污染 `sequenceNumber` 序列。
+
+**为什么计划的验证抓不到**：A2 只禁 `emitModelStreamingEvent` / `SessionEventType.ModelStreaming` / `runModelTextRequest`——**它禁的是「流式」这一条，不是「会话事件」这一类**；`appendEvent` 走的是同一个 `eventStore` 的另一条入口。A5 则只快照 `rollout`/`debug`，而 `db/` 是它们的**兄弟目录**（`adapters/src/storage/session-store/paths.ts:7`）。**两条断言同时全绿，落库照常发生**——与 R-001 是同一种失效形态，只是换了个通道。
+
+**Mitigation**:
+- 步骤 3 明写：**不提供 `statusSink`**（该字段在 `ModelInvocationContext` 里是**可选**的，省略即可，无需 adapter 改动）。
+- 步骤 3 明写：**不调用 `appendEvent` / `createEvent`，不发任何 `SessionEventType.*`**；把 `workspace-generate-text.ts` 的 `appendEvent` 段标为**反面**示例，把 `project-memory-agent.ts` 标为**正面**先例（已回写进 Plan 步骤 3）。
+- **A2 扩展禁用符号清单**：加 `appendEvent`、`createEvent`、`createModelStatusSink`、`SessionEventType.`（任意形态）、`recordModelUsageFact`、`streamText`（已回写进 Do）。
+- **A5 扩展快照范围**：加 `~/.zcode/cli/db/db.sqlite` 的 `session_events` 行数/最大 `sequenceNumber`（已回写进 Do）。
+
+### R-029 R-021 的「记 usage」缓解方案本身违反本计划的硬约束
+
+**Severity**: 4 | **Likelihood**: 5 | **Detectability**: 0.2
+**Risk Score**: 4 × 5 × (1 − 0.2) = **16**
+**判定**：🔴 HIGH
+
+**Failure Scenario**：第 1 轮为 R-021 定下的缓解方案是「**记 usage、不记内容**」并**已写进 Plan 步骤 3**——也就是说，只要按计划实现，这条**必然发生**（Likelihood 5 的来源）。但 `recordModelUsageFact` 写的是 `runtime.sessionStore`（`usage-observability.ts:55-129`），落点是 **`~/.zcode/cli/db/db.sqlite` 的 `model_usage` 表**，含 `session_id`、`query_source`、token 用量与错误码，**30 天保留**（`repositories/usage.ts:19-20`）。这与本计划 Adjust 的硬约束（「侧问不得引入任何持久化。一旦侧问写进 session db……回滚就不再干净」）**直接冲突**，也违反 Goal 2「会话重载后无残留」。原缓解方案错在把「不记内容」等同于「不写入」——**usage 行不含原文，但它照样是一条持久化记录**。
+
+**Mitigation**:
+- **改判为「不记 usage」**（已回写进 R-021 与 Plan 步骤 3），理由：本功能的立身之本是「完全不写入、纯临时」（已确认决策 5）。
+- 在文件头注释写明这是**故意**的代价，防止后来者「顺手补上」而破坏零持久化。
+- **诚实记录副作用**：`/cost` 会少报侧问花费 → 写入「已知限制」，并让 A5 的 db 断言显式断言 `model_usage` **零新增行**。
+- **备选（需同时改三处才自洽）**：若要计入 `/cost`，必须同步 ① 改写 Adjust 硬约束为「不写内容、可写用量」；② 改写 Goal 2 口径；③ 把 A5 的 db 断言改为「`model_usage` 至多 +1 行且不含问题原文」。**只改其中一处 = 约束与验证自相矛盾。**
+
+### R-030 「零持久化」缺一份完整通道清单，修复是打地鼠
+
+**Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.2
+**Risk Score**: 4 × 4 × (1 − 0.2) = **12.8**
+**判定**：🔴 HIGH
+
+**Failure Scenario**：第 1 轮把「侧问会落盘」定位为**一条通道**（model-io 的 `recordModelIO`），修复也只修那一条。但本仓库把一次模型调用落盘的路至少有**三条**：① model-io（`rollout`/`debug`，由 `shouldRecordModelIO` 控制）；② 会话事件流（`db.sqlite` 的 `session_events`，由 `appendEvent` 写入）；③ 用量表（`db.sqlite` 的 `model_usage`，由 `recordModelUsageFact` 显式写入）。**第 2 轮的「已收敛」结论正建立在这个不完整的通道清单上**——它之所以看起来收敛，是因为当时的验证手段（A2/A5）只覆盖了第 ① 条。凡「以文件/表为单位」断言的功能，都会栽在同一处。
+
+**Mitigation**:
+- 在 Plan 步骤 3 里把**三条通道并列写全**（已回写），并把「禁发会话事件」列为与「禁落 model-io」同级的硬约束。
+- A2 从「禁三个符号」升级为「**禁一类符号**」（`SessionEventType.` 全形态 + `appendEvent`/`createEvent`/`createModelStatusSink`/`recordModelUsageFact`/`streamText`，已回写）。
+- A5 从「两个目录」升级为「**两个目录 + 一个库的两张表**」（已回写）。
+- Global scan 第 1 条同步改写为**通道枚举**问题：任何未来的带外调用，都要先回答「它会不会走这三条通道」，而不是复制一份「隔离流」。
+
+### R-031 非流式下长上下文首字节等待久，浮层无进度反馈会被误判为卡死
+
+**Severity**: 3 | **Likelihood**: 4 | **Detectability**: 0.5
+**Risk Score**: 3 × 4 × (1 − 0.5) = **6**
+**判定**：🟡 MEDIUM
+
+**Failure Scenario**：走非流式后，答案**整段出现**——`generateText` 返回前浮层没有任何内容变化。而快照是「完整会话含工具结果」（已确认决策 3），长会话下请求可能数十秒才有响应，用户看到的是一个**不动的浮层**，会判定为卡死，进而触发 R-002 的逃生动作（Ctrl+C / Esc），或在超时前放弃。这与 R-002 的超时缓解形成**交互**：超时设短了误杀正常请求，设长了加剧「像卡死」。
+
+**Mitigation**:
+- 浮层必须有**显式的进行中态**（i18n 键 `tui.btw.流式中` 已在步骤 11 列出），显示已等待时长；**非流式不等于没有进度反馈**。
+- 超时值要**按上下文规模**给足余量并写进计划（不要沿用 `workspace-generate-text.ts` 的 60s——那是给最小 prompt 的探测/短生成用的）；建议先实测再定阈值，与 R-005 的成本实测同批做。
+- 手工清单补一条：>100k token 会话下发侧问，观察等待期间**有进行中态**、且不被误超时。
+
+### R-032 无据拒答的证据检查会误伤 CJK：字面关键词匹配几乎必然不命中
+
+**Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.4
+**Risk Score**: 4 × 4 × (1 − 0.4) = **9.6**
+**判定**：🟡 MEDIUM（接近 HIGH）
+
+**Failure Scenario**：R-003 的缓解方案是「装配快照时对问题关键词做一次『是否出现在上下文中』的检查，无证据时主动降级为拒答」。但中文侧问与上下文之间**几乎没有字面重合**：上下文是代码/英文标识符，侧问是「刚才那个函数是怎么实现的」。朴素的分词/字面匹配会大面积**判定为无据**，于是**合法问题被拒答**。更糟的是——**现有验收断言抓不到这个方向**：手工清单只要求「10 个无据问题 10/10 拒答」，一个「无脑全拒」的实现会**满分通过**，而功能实际上已经废掉。这是「缓解方案自己制造新失败」的典型形态（与 R-029 同源）。
+
+**Mitigation**:
+- **验收必须双向**：在 10 个诱导型无据问题（要求 10/10 拒答）之外，**另加 N 个「确实在上下文内」的问题，要求 N/N 正常作答**（建议同量级，含中文提问）。**单向验收不算通过。**
+- 证据检查定位为**软信号，不是硬闸门**：命中→正常作答；未命中→**不直接拒答**，而是走「低置信」路径（系统约束要求模型显式声明依据，仍答不出才拒答），避免把中文提问一律打死。
+- 阈值与匹配策略要**可调且留档**（对齐 R-005 的「可调参数而非写死」），并记录一次实测的**误拒率**作为基线。
+- 拒答判定口径本身就是未决项（见 Open Questions）——**本风险说明：口径会同时决定漏拒与误拒，不能再只按「漏拒」单向评估。**
+
+### R-033 非流式使浮层的流式渲染能力失去用武之地，留下误导性实现
+
+**Severity**: 2 | **Likelihood**: 3 | **Detectability**: 0.5
+**Risk Score**: 2 × 3 × (1 − 0.5) = **3**
+**判定**：🟢 LOW
+
+**Failure Scenario**：计划多处（步骤 8 的 `MarkdownText`、步骤 11 的 `流式中` 文案、Open Questions）是按**流式**写的。改为非流式后，`MarkdownText` 的 `streaming` 参数与「流式中」文案会**失去对应状态**，实现者可能照抄一个用不上的流式管线（`onDelta` 回调形态的 runtime 方法，见步骤 4），留下一套永远不会被触发的代码。
+
+**Mitigation**:
+- 步骤 4 的公开方法形态随之调整：**非流式下不需要 `onDelta`**，`onDone` / `onError` 即可，**除非**要保留将来切流式的接缝（若要保留，必须在注释里写明「非流式期间不会被调用」）。
+- 明确「进行中态」的文案语义是**等待**而非**流式渲染**（与 R-031 同一处），避免 `MarkdownText` 的 `streaming` 被误用。
+
+### R-034 第四条持久化通道：JSONL 文件日志（`~/.zcode/cli/log/`），A5 同样不覆盖
+
+**Severity**: 4 | **Likelihood**: 3 | **Detectability**: 0.3
+**Risk Score**: 4 × 3 × (1 − 0.3) = **8.4**
+**判定**：🟡 MEDIUM
+
+**Failure Scenario**：除 model-io（`rollout`/`debug`）与会话库（`db.sqlite`）之外，本仓库还有**第四条**落盘通道：`NodeFileLogger` 写 JSONL 到 **`~/.zcode/cli/log/zcode-YYYY-MM-DD.jsonl`**（`debug/server/sources.ts:18-20`），**保留 7 天**（`logging/retention.ts:7`）。它在**生产 CLI 路径上确实被构造**（`cli/src/run.ts:671`、`bootstrap/src/app/create-app.ts:168`），不是测试专有。只要侧问路径的任何一次 `logger.*` 调用带上了问题原文（或 provider 错误里回显了请求片段），答案与提问就进了这个目录——而 **A5 只快照 `rollout`/`debug`，看不到 `log`**。`DefaultLogRedactor` **不构成保护**：它只按**键名**匹配 `api[-_]?key|authorization|cookie|credential|password|secret|token`（`logging/serialize.ts:16-17`）做遮蔽，**对任意内容值明文放行**。
+
+**为什么难以发现**：与前三条同源——验证按「目录/表」枚举，而不是按「落盘通道」枚举（R-030）。`log` 是 `rollout`/`debug` 的**第三个兄弟目录**，最容易在枚举时被漏掉。
+
+**Mitigation**:
+- **A5 的快照范围补上 `~/.zcode/cli/log/`**（断言该目录下当日 JSONL 不含侧问问题文本）。至此 A5 覆盖**三个兄弟目录 + 会话库两张表**。
+- 步骤 3 加一条硬约束：**侧问的提问原文与答案，不得作为任何 `logger.*` 调用的字段值**（只在注释与代码里传 `querySource`、`tools.length` 一类元数据）。
+- Plan 的 Think 章节已定 `[DEBUG-btw]` 前缀日志——**收尾时必须 `grep` 清干净**（该节已写），补一句：**这些调试日志同样不得包含提问原文**，否则调试验证本身就会把内容写进 `log/`。
+
+### R-035 A2/A6 的禁用符号清单与「必须写理由注释」硬要求自相矛盾
+
+**Severity**: 3 | **Likelihood**: 5 | **Detectability**: 0.3
+**Risk Score**: 3 × 5 × (1 − 0.3) = **10.5**
+**判定**：🟡 MEDIUM（接近 HIGH）
+
+**Failure Scenario**：步骤 3 **强制**要求在 `btw-model-request.ts` 文件头写注释说明「为什么不能走主请求路径」（幽灵 assistant 消息那一节），R-016 与 R-023 也要求把这些结论落进代码注释——这类注释**天然会写出 `emitModelStreamingEvent`、`SessionEventType.ModelStreaming`、`streamText` 这些符号名**。而 A2/A6 是**源码级字符串断言**：断言「文件中不出现 X」，而注释里恰恰有 X。于是断言**必然失败**。
+
+**真正的危害不是断言失败本身，而是失败的「修法」**：实现者只会二选一——① 删掉注释 → **R-016/R-023 的防回归守卫失效**；② 放宽断言（改成匹配更宽松的形态或直接跳过）→ **R-028/R-029 唯一的自动化守卫失效**。两条路都在**静默地拆掉本计划的护栏**，而 CI 仍然是绿的（因为护栏被拆掉了）。
+
+**Mitigation**:
+- **A2/A6 断言前先剥离注释**：匹配**可执行代码**而非原始文本——先去掉 `//...` 行注释与 `/* ... */` 块注释，再做子串匹配；或改为匹配**调用点形态**（带左括号/点的形式，如 `emitModelStreamingEvent(`、`this.appendEvent(`、`model.streamText(`）。
+- 在 Do 章节**显式写明这条冲突及其正确解法**，避免实现者「用删注释的方式让测试变绿」——这是本风险最可能的落地形态。
+- 验收脚本对「剥离注释后仍命中」与「仅在注释中命中」要能**区分报告**（后者不算违规）。
+
+### R-036 A5 的 db 断言在主任务运行中会被正常流量击穿，导致「假失败 → 拆护栏」
+
+**Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.4
+**Risk Score**: 4 × 4 × (1 − 0.4) = **9.6**
+**判定**：🟡 MEDIUM（接近 HIGH）
+
+**Failure Scenario**：侧问**最有价值的场景就是主任务运行中**——而主任务运行时会**持续写库**：每一步模型调用都会 `appendEvent`（`methods/events.ts:81-147`）写入 `session_events`，`recordModelUsageFact` 写入 `model_usage`。因此 A5 若按**「前后行数不变」**这种最自然的写法实现，在运行中跑侧问时**必然假失败**。假失败的真实代价不是「测试红了」，而是**它会被当成噪声删掉或放宽**——而 A5 是 R-028 / R-029 / R-034 这**三个 HIGH 的唯一运行时证据**。护栏一旦以「太吵」为由被拆，落库就重新变成不可观测。（这与 R-035 是同一类失效：**验证本身的脆弱，最终以静默移除护栏收场**。）
+
+**Mitigation**:
+- **分两次跑，口径不同**（这是本风险的核心解法，必须写进 Do）：
+  - **① 空闲态**：空闲时发起一次侧问 → 做**严格**的「零新增」断言（此时无主任务噪声，是最干净的判据）。
+  - **② 运行态**：主任务流式中发起侧问 → 只做**归属断言**，不做计数断言。
+- **归属断言的锚点**：断言库中**不存在**「`model_usage` 有行且其 `query_source` 为侧问专用值」，以及**不存在**「`session_events` 的 payload 含侧问问题原文的行」。这就要求步骤 3 **必须给侧问设一个可检索的独特 `querySource`（如 `btw`）与 `modelCall.operation`**——否则归属断言**没有锚点**，只能退回计数，重新落入本风险。
+- 三个目录（`rollout`/`debug`/`log`）同理：**优先断言「新增文件不含问题原文」**，而不是「无新增文件」——后者在主任务运行中同样会假失败（主任务的 model-io 一直在写）。
+
+### R-037 侧问的 `querySource` 会落进 `default` 分支，被记成「工具内部调用」
+
+**Severity**: 2 | **Likelihood**: 4 | **Detectability**: 0.6
+**Risk Score**: 2 × 4 × (1 − 0.6) = **3.2**
+**判定**：🟢 LOW
+
+**Failure Scenario**：`ModelApiOperation` 是**封闭 enum**（`contracts/src/telemetry/index.ts:114-126`），`operation` 只能取既有成员。`mapQuerySourceToModelApiOperation`（`:150-204`）只对**枚举过的** querySource 做映射，其余一律落到 `default` → `{ operation: ToolInternalModelCall, actorKind: System }`。因此侧问会被观测面**记成「工具内部发起的模型调用」**——语义错误（侧问既非工具调用也非系统发起，而是**用户发起**），且会稀释 `ToolInternalModelCall` 的统计口径。
+
+**Mitigation**:
+- **Phase 1 接受 `default` 映射，不改 contracts**：`querySource: "btw"` 已经提供了 A5 归属断言需要的锚点（见 R-036），而新增 enum 成员会扩大改动面、削弱本计划「纯增量、回滚干净」的定位。**明确记录**这是已知的观测口径偏差，而不是听任它悄悄发生。
+- 若后续要把侧问计入观测/成本口径（与 R-029 的备选决策耦合），**那时再一并加 enum 成员与映射分支**——两件事同批做，避免改两次 contracts。
+- **注意 A5 的锚点选择**：既然 `operation` 不可自定义，归属断言应以 **`querySource` 字符串**为准，不要以 `operation` 为准（后者是 `ToolInternalModelCall`，与别的调用撞车）。
+
+### R-038 关闭浮层不取消在途请求，回调写向已关闭的浮层
+
+**Severity**: 2 | **Likelihood**: 4 | **Detectability**: 0.5
+**Risk Score**: 2 × 4 × (1 − 0.5) = **4**
+**判定**：🟢 LOW
+
+**Failure Scenario**：步骤 9 定义 `Esc` 关闭浮层，但**没有定义关闭时是否取消在途的侧问请求**。非流式下答案整段返回，用户等待期间按 `Esc` 关掉浮层是很自然的动作。若不取消：① 一个 `AbortController` 与请求被泄漏到结束（白花 token）；② 请求完成后 `onDone` 回调**向已关闭的浮层写状态**——轻则触发一次无意义的重渲染，重则把条目重新插回 `entries`（浮层「自己又开了」），或对已清空的 state 做写入而抛错。这与「`Esc` 关掉就是不闻不问」的用户预期直接冲突。
+
+**Mitigation**:
+- **关闭浮层时 abort 在途请求**（侧问本就有自己的 `AbortController`，见步骤 3）——这是一行接线，不是新机制。
+- `onDone` / `onError` 回调必须**先检查该次请求是否仍是当前活跃项**（对齐 `AbortSignal.aborted` 或一个 request id），过期回调**直接丢弃**，不得写状态。
+- 手工清单补一条：发起侧问后**立即** `Esc` 关闭，确认不报错、不复活、且不再产生后续渲染。
+
+### R-039 会话接近上下文上限时，完整快照的侧问会直接 context_exceeded 失败
+
+**Severity**: 4 | **Likelihood**: 3 | **Detectability**: 0.35
+**Risk Score**: 4 × 3 × (1 − 0.35) = **7.8**
+**判定**：🟡 MEDIUM
+
+**Failure Scenario**：快照是「**完整会话含工具结果**」（已确认决策 3）。R-005 已识别「长会话下又慢又贵」，但把它框定为**成本/体验**问题——漏掉了同源的**功能失败**：长会话越接近上下文上限，侧问越可能直接 `context_exceeded` 报错。而主任务能继续跑，是因为它有自己的压缩/裁剪链路；**侧问绕开了那套链路**（这正是它的隔离性的代价）。于是失败恰好集中在**长任务 + 长会话——侧问最有价值的场景**：用户看到的是「侧问又坏了」，而不是「会话太长了」。
+
+**Mitigation**:
+- `context_exceeded` 必须有**专门的失败文案**（如「会话过长，请先 `/compact` 再侧问」），**不要**与网络失败/超时共用一条泛化文案——否则用户无从修正。
+- 与 R-005 的「最近 N 轮 + 系统提示」降级策略**共用同一个可调参数**（R-005 已要求参数化而非写死）：一旦触发 `context_exceeded`，可按该参数**自动重试一次裁剪后的快照**，而不是直接失败。这样 R-005 的降级路径同时成为本风险的缓解。
+- 手工清单把「长会话」用例拆成两条：**>100k token**（R-005 的成本观测）与**接近上限**（本风险的失败路径），后者要求观察到**明确文案**而非泛化报错。
+
+### R-040 【高危】工具执行期间取快照，尾部是「未兑现的 tool_calls」，请求被 provider 拒绝
+
+**Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.2
+**Risk Score**: 4 × 4 × (1 − 0.2) = **12.8**
+**判定**：🔴 HIGH ——**本轮最重要的发现**
+
+**Failure Scenario**：主任务运行中，**history 的尾部在「工具执行期间」是一条带 `toolCalls` 的 assistant 条目**，而对应的工具结果**尚未追加**。此时用户输入 `/btw`（**这恰恰是最常见的时机——长任务之所以"在跑"，多数时候是卡在一条 bash 命令 / MCP 调用 / 审批等待上**），快照被原样装配后发给 provider：assistant 消息带 `tool_use` 块却没有紧随其后的 `tool_result` 块 → **provider 直接拒绝请求**（Anthropic：tool_use 后必须紧跟 tool_result；OpenAI 同族约束）。侧问在**最有价值的场景下必然失败**，而用户看到的是一个令人费解的厂商报错。
+
+**证据（源码，逐跳可核）**：
+- `turn-model-step.ts:721` — `commitAssistantToTurnRequest(...)` 在**执行工具之前**把 assistant（含 `toolCalls`）提交进 canonical history。紧邻注释（`:719-720`）写明该顺序是**有意**的：只写 canonical history 会让紧随其后的工具结果失去对应 assistant tool-call。
+- `turn-output-token-continuation.ts:98-106` → `messageHistory.addEntries(entries)`（`agent/message-history.ts:174-177`）；assistant 条目的 `message.toolCalls` 见 `message-history.ts:368-372`。
+- `agent/message-history.ts:220-222` — `borrowReadOnlyRuntimeEntries()` **按引用返回** `this.entries`，因此读取方**立即**看到那条悬空的 assistant 作为尾部。
+- `turn-model-step.ts:724-731` → `turn-tools.ts:180` `await this.executeTools(...)` — **窗口 = 整个工具执行耗时的 await**（数秒到数分钟，含权限等待）。
+- `turn-tools.ts:281`、`:359-366` — 工具结果在**执行全部返回之后**才逐条追加。
+- **无任何修复**：`provider-request-messages.ts`（全文 333 行）与 `runtime-provider-request-messages.ts` 只做附件重排 / mid-conversation system 投影 / 渲染 / cache-control，**没有任何 tool-call 与 tool-result 的配对校验**；全仓库唯一的配对处理是 `target-completion-verification.ts:400-413` 的 `withoutTrailingPendingAssistantToolCallEntries`，且**只被 goal 验证器用一次**（`:135`），**不适用于普通 turn 与任何其他请求**。
+
+**为什么计划的验证抓不到（Detectability 0.2 的来源）**：手工清单写的是「**主任务流式中**输入 `/btw`」。但**流式期间 assistant 条目尚未提交进 history**（提交发生在 model step 结束后的 `:721`）——**那个窗口的快照是干净的，测试必然通过**。真正会失败的是**工具执行期间**，而计划没有任何一条用例打在这个窗口上。**测试恰好选在了唯一不出问题的时刻。**
+
+**Mitigation**:
+- **装配快照时做「尾部落尾」**：丢弃尾部那条带 `toolCalls` 的 assistant 条目。**复用仓库已有的 `withoutTrailingPendingAssistantToolCallEntries`**——把它从 `target-completion-verification.ts` **提取到 `core/src/runtime/helpers/` 并导出**（当前是模块内私有），供侧问与 goal 验证器**共用**。**不要复制一份**：复制会与 goal 验证器分叉，正是 Global scan 第 1 条要防的形态。
+- **必须补上该 helper 覆盖不到的「部分结果」窗口**（**只看尾部一条是不够的**）：`turn-tools.ts:359-366` 是**逐条**追加结果的循环，若在其中途取快照，尾部是**某条 tool result**，盲删 helper **不会触发**，但 assistant 的 `tool_use` 数与已追加的结果数**不匹配**，同样会被 provider 拒绝。因此正确形态是**按 `toolCallId` 配对裁剪**：丢弃所有没有对应结果的尾部 `tool_use`（必要时整体丢弃该 assistant 条目）。**这是一个需要新写的纯函数**——对齐 R-022 的要求，**写成纯函数并导出**，便于将来接测试。
+- **手工清单的用例必须改窗口**：把「主任务流式中输入 `/btw`」改为「**工具执行中**输入 `/btw`」——制造方式：让主任务跑一条长命令（如 `sleep 60`，或一个会等待审批的工具），**在命令执行期间**输入 `/btw`。**保留**流式用例，但只用于验证「主任务输出不停顿」（F-003），**不要**把它当作本风险的验证。
+- **验收脚本补运行时断言**：工具执行中发起侧问 → 不出现 400 / `InvalidModelRequest`，且浮层能给出答案。（这条可自动化：`sleep` 命令 + 定时触发侧问。）
+
+### R-041 步骤 3 已膨胀为「六项必须同时正确」的巨石，任一处漏掉都表现为「侧问偶尔失败」
+
+**Severity**: 3 | **Likelihood**: 3 | **Detectability**: 0.6
+**Risk Score**: 3 × 3 × (1 − 0.6) = **3.6**
+**判定**：🟢 LOW
+
+**Failure Scenario**：经过 3 轮加固，步骤 3 现在必须**同时**做对六件事：① 走 `generateText`；② 带 `skipTranscript: true`；③ 不提供 `statusSink`；④ 不调用 `appendEvent`/`createEvent`；⑤ 不调用 `recordModelUsageFact`；⑥ 装配快照时做**按 `toolCallId` 配对的尾部裁剪**（R-040）。其中任意一条单独漏掉，症状都**收敛为同一句话**——「侧问有时候不好使」，而六种的根因与修法完全不同（落盘 / 400 / 记账）。这会让排障退化成猜谜，也是 R-024「先做独立切片」要防的形态**在新条件下的升级版**。
+
+**Mitigation**:
+- **把步骤 3 的独立切片定义成一张六项 checklist**（上列 ①–⑥），**逐条勾选**，不允许「跑通了就都算对」。
+- **切片的验收 = 两件事**：ⓐ **主任务跑长命令期间**发起侧问能正常作答（R-040 的窗口）；ⓑ **A5 双快照干净**（三目录 + 两表）。
+- 给这六项各留一条 `[DEBUG-btw]` 日志（**只记元数据、不记原文**，见 R-034），让切片阶段能一眼看出是六项里的哪一项没生效——**这正是 Think 章节「框架边界立刻加日志」的落点**。
+
+### R-042 侧问未设输出上限，单个「顺口一问」的花费与耗时无上界
+
+**Severity**: 2 | **Likelihood**: 3 | **Detectability**: 0.5
+**Risk Score**: 2 × 3 × (1 − 0.5) = **3**
+**判定**：🟢 LOW
+
+**Failure Scenario**：计划给侧问定了「无工具、单轮、复用主会话模型」，但**没有定 `maxOutputTokens`**。侧问的定位是「顺口一问、要短」，而主会话模型往往配置了很高的输出预算（甚至开启高推理档位）。不设上限时，一个开放式问题可能换来数千 token 的长篇回答：**成本无上界**（与 R-005 叠加）、**但非流式下首字节等待更久**（与 R-031 叠加）、**且浮层的行窗口要滚动很久**（与步骤 8 的 UI 设计叠加）。三处放大的是同一个未受约束的量。
+
+**Mitigation**:
+- 给侧问设一个**适度的输出上限**（对齐 `workspace-generate-text.ts` 的 `auxiliaryModelOptions` 一类的辅助调用口径），并把它作为**可调参数**而非写死——与 R-005 的「最近 N 轮」同属一组可调项。
+- **不要**顺手降推理档位：已确认决策是「复用当前主会话模型」，擅自降档会让答案质量与用户预期不符；**只限输出长度**，不动模型身份。
+- 手工清单的 >100k 会话用例**同时记录**耗时与 token（R-005 已要求），把上限调参建立在实测上。
+
+### 已核验并排除的假设（记录以免重复提出）
+
+- **「侧问装配消息时会改写共享 entry、污染主会话或缓存前缀」——不成立。** `renderProjectedEntryToModelMessage`（`provider-request-messages.ts:184-203`）对普通条目返回 **`cloneModelInputMessage(entry.message)`**，对附件条目**新建对象**；`clearNonSystemMessageCacheControl`（`:326-333`）也只**替换数组槽位**（解构产生新对象），**不原地修改**。因此 `buildRuntimeProviderRequestMessages` 不会改写 `messageHistory` 持有的 entry。**结论**：跨会话污染不来自这条路径；缓存前缀问题仍按 Open Questions 走**实测**（不要假设命中，也不必无谓担心被改写）。
+
+---
+
+### 残余风险评估（应用缓解方案后，第 5 轮 / 最终）
 
 | 风险 | 原始分 | 残余分 | 残余判定 |
 |------|--------|--------|----------|
-| R-001 落盘 | 20 | **待定** | 🔴 **仍为 HIGH，直到做出下面的决策** |
+| R-001 落盘（model-io） | 20 | **1.5** | 🟢 LOW（决策已定：非流式 + `skipTranscript`） |
 | R-002 死锁无逃生 | 14 | 1.5 | 🟢 LOW |
 | R-003 拒答不可靠 | 14 | 5 | 🟢 LOW-MEDIUM |
+| R-028 会话事件通道落库 | 17 | **2** | 🟢 LOW（步骤 3 禁令 + A2 扩清单 + A5 覆盖 db） |
+| R-029 usage 表落库 | 16 | **1.5** | 🟢 LOW（决策已定：不记 usage） |
+| R-030 通道清单不完整 | 12.8 | **2.5** | 🟢 LOW（四通道并列写全 + A2/A5 升级为「一类」而非「一条」） |
+| **R-040 工具执行中快照尾部悬空 → 400** | **12.8** | **2** | 🟢 LOW（配对裁剪 + 复用既有 helper + **测试窗口改到工具执行期**） |
 
-R-002 残余降低来自「侧问自带超时 + Ctrl+C 明确排除 + 逃生演练」三条**已写进 Plan 步骤 3/9 与手工清单**的具体动作，它们互相独立，任一条生效即可解锁死锁。
-R-003 残余降低来自「证据检查强制降级」这条**不依赖模型自评**的硬路径，配合 10/10 压力测试。
+**残余为何能降到 LOW（而非乐观）**：
+- R-001 / R-028 / R-029 / R-030 是**同一根因**（以点代面地断言持久化）的不同表现，缓解方案互相加固：步骤 3 给出**正面先例**（`project-memory-agent.ts`）与**反面示例**（`workspace-generate-text.ts` 的 `appendEvent` 段）；A2 从「禁三个符号」升级为「禁一类符号」；A5 从「两个目录」升级为「**按通道枚举**的四通道」。
+- R-040 的残余分能压到 LOW，靠的是**三件事同时成立**：① 复用仓库已有的 `withoutTrailingPendingAssistantToolCallEntries`（不重新发明）；② 补上它覆盖不到的**部分结果**窗口（按 `toolCallId` 配对）；③ **把测试窗口从"流式"移到"工具执行期"**——③ 是降低 Detectability 的关键，因为原清单测的恰好是唯一不出问题的窗口。
 
-**R-001 无法靠缓解方案单方面归零，因为它卡在一个尚未做出的决策上**：
-
-> 若走**流式**且不做 `runner-stream.ts` 的修复 → 残余分仍是 **20**（HIGH，未变）。
-> 若走**流式 + 修 `runner-stream.ts:117`** → 残余 **1.5**（LOW）。
-> 若走**非流式（`generateText`）** → 残余 **1.5**（LOW），且**零 adapter 改动**，退出口今天即可用。
-
-**建议**：**先按非流式落地**。代价只是答案整段出现而非逐字出现——对一个「顺口一问」而言完全可以接受；换来的是 R-001 立刻归零、不需要动 `adapters` 这个更底层的包、也不需要额外承担 R-018（绕过流恢复机制）的风险。等 `runner-stream.ts` 的 `skipTranscript` 对齐做完，再切流式是一个纯粹的增量改动。**这一步做完，本计划就没有 HIGH RISK 了。**
-
----
-
-**Pre-mortem 完成（第 2 轮）**：
-
-- **本轮新增 11 个风险，其中 0 个 HIGH** → 按停止条件（一整轮无新增 HIGH）**循环收敛**。
-- 累计 **3 个 HIGH RISK、24 个中低风险**，全部附缓解方案，并已回写进 Plan / Do 章节。
-- 3 个 HIGH 中，**R-002 / R-003 的残余风险已降至 LOW**；**R-001 是唯一未归零项，卡在「流式 vs 非流式」这个决策上**。建议按上面的建议定为非流式，即可清零。
+**仍未归零的部分（诚实记录，不粉饰）**：
+- `/cost` **会少报**侧问的花费（R-029 决策的已知代价）。
+- **误拒率没有基线数据**（R-032）：缓解方案是加双向验收（N/N 应答 + 10/10 拒答），但基线要实测才有。
+- **超时阈值与输出上限未经实测**（R-031 / R-042）：写进计划的是「实测后定值 + 可调参数」，不是具体数字。
+- **缓存前缀是否命中仍是未决的实测项**（Open Questions）：本次只排除了「被改写」，**没有**证明「会命中」。
 
 ---
 
-> Next step: 按建议把 R-001 定为**非流式**，同步更新步骤 3（去掉 `metadata.skipTranscript` 与 `runner-stream.ts` 修改，改为 `generateText` + `skipTranscript: true`，后者今天已生效）与 Open Questions 里的「是否展示流式」；随后即可开工。
+**Pre-mortem 完成（第 5 轮，收敛）**：
+
+- **第 3 轮**：新增 6 个风险（R-028–R-033），其中 **3 个 HIGH**（R-028 / R-029 / R-030）→ **未收敛**。
+- **第 4 轮**：新增 7 个风险（R-034–R-040），其中 **1 个 HIGH**（R-040，工具执行期快照尾部悬空）→ **未收敛**。
+- **第 5 轮**：新增 2 个风险（R-041 / R-042）+ 1 条已排除假设，**0 个 HIGH** → 按停止条件（**一整轮无新增 HIGH**）**循环收敛**。
+- **累计 7 个 HIGH RISK**（R-001 / R-002 / R-003 / R-028 / R-029 / R-030 / R-040）、**37 个中低风险**，全部附缓解方案，并已回写进 Plan / Do / Adjust 章节。
+- 7 个 HIGH 的残余分**已全部降至 LOW**（见上表）。
+
+**本轮（第 3–5 轮）推翻的两项历史结论**——这是本次复检的主要价值：
+1. 第 1 轮「R-001 做完就没有 HIGH RISK」**不成立**：它只堵住了**四条落盘通道中的一条**（R-028 / R-029 / R-030 / R-034）。
+2. 第 1 轮为 R-021 定的缓解方案「**记 usage**」**本身就是一条 HIGH RISK**——它写 session db（R-029）。
+3. 第 2 轮的「已收敛」是**假收敛**：当时的验证手段（A2 禁三个符号 + A5 只看两目录）覆盖不到未被枚举的通道，且手工清单的「流式中」用例恰好避开了真正会失败的**工具执行窗口**（R-040）。
+
+> Next step: 按步骤 3 的**六项 checklist**（R-041）先做独立切片：`generateText` + `skipTranscript` + 无 `statusSink` + 无 `appendEvent` + 不记 usage + **按 `toolCallId` 配对裁剪**；以「**长命令执行中发起侧问能作答**」+「**A5 四通道快照干净**」两者同时通过为切片完成判据，再推进步骤 4 起的 UI 工作（对齐 R-024）。

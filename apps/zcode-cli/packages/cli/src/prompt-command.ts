@@ -597,19 +597,6 @@ async function listSkillSuggestionsForPrompt(deps: RunDependencies) {
 }
 
 /**
- * 该名字是否命中一个可加载的个人 skill？
- *
- * 与 `isResolvableCustomCommand` 的判据对齐：**只有「不存在」算未命中**；
- * 读盘失败、frontmatter 非法等必须继续冒泡，否则会被一句「未知命令」盖掉真正原因。
- * 注意这里**不套用自定义命令的保留名检查** —— 保留名是给自定义命令用的闸门，
- * 用它挡 skill 会让一个名叫 `/compress` 的 skill 永远不可达。
- */
-async function isResolvableSkillName(deps: RunDependencies, name: string): Promise<boolean> {
-  const outcome = await listSkillSuggestionsForPrompt(deps);
-  return findSkillEntry(name, outcome) !== undefined;
-}
-
-/**
  * 把 `type === "unknown"` 的一级命令解析成一个 skill 名。
  *
  * 返回 `undefined` 的两种情况语义不同，务必区分：
@@ -617,6 +604,16 @@ async function isResolvableSkillName(deps: RunDependencies, name: string): Promi
  * - 什么都不匹配 —— 保持 `unknown` 语义，继续走 command-center 的「未知命令」提示。
  *
  * 自定义命令优先于 skill，与 `listSlashCommandSuggestions` 的呈现顺序一致。
+ *
+ * 命中时回传 `skill.name`（frontmatter 规范名），**不是** `slashCommand.rawName`：
+ * 后者已被 `parseSlashCommand` 小写化，而 skill 加载是大小写精确匹配
+ * （adapters skills `matchesSkillRequest` 用 `===`）—— 拿小写名去加载 `no-useEffect`
+ * 会得到 "Skill not found" 而不是走到这里就该拿到的 skill 内容。
+ *
+ * 探测侧的判据与 `isResolvableCustomCommand` 对齐：**只有「不存在」算未命中**；
+ * 读盘失败、frontmatter 非法等必须继续冒泡（见下面 catch 注释），否则会被一句
+ * 「未知命令」盖掉真正原因。注意这里**不套用自定义命令的保留名检查** —— 保留名是给
+ * 自定义命令用的闸门，用它挡 skill 会让一个名叫 `/compress` 的 skill 永远不可达。
  */
 async function resolveSkillCommandName(
   deps: RunDependencies,
@@ -630,9 +627,8 @@ async function resolveSkillCommandName(
   // 正好就是那条契约要防的事：用一句 "Unknown command" 盖掉真实错误。
   if (await isResolvableCustomCommand(deps, slashCommand.rawName)) return undefined;
 
-  return (await isResolvableSkillName(deps, slashCommand.rawName))
-    ? slashCommand.rawName
-    : undefined;
+  const outcome = await listSkillSuggestionsForPrompt(deps);
+  return findSkillEntry(slashCommand.rawName, outcome)?.name;
 }
 
 async function loadCustomCommandForPrompt(deps: RunDependencies, name: string) {

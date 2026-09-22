@@ -325,6 +325,97 @@ start-plan 涉及 14 个文件。**"只删 4 条"做不到** —— 删后 off-p
 
 ---
 
+## Post-Mortem 发现（对已完成实现的验证）
+
+> 对 Steps 0-10 的实际产出做验证式复核。**重点结论：我自己的两处"已验证"是假绿。**
+
+### PM-1. 【已修】Step 8 的验证是假绿 —— 转义形式漏检
+
+Step 8 提交信息写「配置变更后 `zcode-builtin.json` 内 `zcode.z.ai` 残留 = 0」。
+**该结论错误。** 依据是对原始文本做 `count('zcode.z.ai')`，而文件中这些字符串以
+**正则转义形式** `zcode\.z\.ai` 存储 —— 字面量计数天然为 0。
+
+实际残留 **3 处 `providerSiteRules`**（[28][35][36]），`baseUrlMatch` 指向
+`zcode.z.ai/api/v1/zcode-plan/anthropic` 与 `/off-peak/anthropic`，用于注入模型能力覆盖。
+对应 Provider 已在 Step 8 删除，故为死配置。已移除（52 → 49 条），revision 31 → 32。
+
+**教训**：断言"某字符串不存在"时，必须同时覆盖**字面量与转义**两种写法；
+且计数式验证必须能被一次注入证伪。
+
+### PM-2. 【已修】验收关卡存在同类漏检（假绿的成因）
+
+F-007 的关卡原断言只遍历 `providerConfigRules[*].config.api.baseUrl`，
+**从不检查 `modelConfigRules`** —— 这正是 PM-1 那 3 处残留被放过、关卡却报绿的原因。
+**本是用来防"静默复发"的关卡，自己产生了假绿。**
+
+已改为**递归扫描整份配置**，字符串去转义后匹配主机名（同时命中两种写法），
+并排除 `cdn-zcode.z.ai`。**防假绿已复验**：注入一条 `baseUrlMatch` 残留 → 关卡 FAIL（7/8）；
+旧断言对该注入无反应。恢复后 8/8。
+
+### PM-3. 【已修】门禁给出的修复命令本身会失败
+
+`providerSetupRequired.help` 让用户运行 `zcode configure --api-key <key>`，
+但门禁**恰恰在没有任何 `ZCODE_VENDOR*` 配置时触发**，该状态下这条命令以
+`需要 ZCODE_VENDOR 或 ZCODE_VENDOR_BASE_URL 至少其一` 失败；补 `--provider` 后
+仍因缺 `ZCODE_VENDOR_MODEL` 失败（三条命令的成败均已实测）。
+
+已改为**必然可用**的 `.env` 路径并缩短文案（面板 `app-components.tsx:214` 固定
+`height: 5`，原长文案在窄终端有裁切风险）。另三处运行时指引补上必需的 `--configure-model`。
+
+### PM-4. 【已修】Step 5 提交信息不准确
+
+Step 5 声称保留 `deleteIfValues` / `saveReplacing` 是因为「MCP OAuth 依赖它们」。
+**实测不成立**：MCP 用的是 `deleteIfValue`（单数）与 `deleteManyIfValue`，
+这两个是零调用。已删除，并把引用它们的注释改为不指名已删方法。
+另删除 `hasStandaloneCodingPlanAccess`（Step 9 的清单漏了它）。
+
+### PM-5. 【已修】回滚承诺未经验证
+
+见上「回滚承诺已订正」——`git revert 10cf430` 实测冲突。
+
+### PM-6. 【复发】E16 的教训我没有应用
+
+本次又用"正则找下一个成员"的启发式边界删除 `shared-credentials.ts` 的两个方法，
+边界再次切错、文件语法损坏（`build=2`，`TS1005`）。已 `git checkout` 恢复并改用
+**精确的下一个成员签名 / 对象字面量结束位置**作锚点。**同一类错误犯了两次** —— 说明
+"记录教训"不等于"应用教训"；下次删除多行结构时，**先写下右边界的具体文本再动手**。
+
+### PM-7. 【仅记录，本仓库无法修】宿主路径上的两处条件性硬失败
+
+1. `process-provider-registry-runtime.ts:206-217`：`isBuiltinModelProviderId` 对**已删除的**
+   start-plan id 仍返回 `true`，因此若宿主（桌面端，**不在本仓库**）送来一份仍含该 id 且
+   `entitled` 的账号信封，会抛 `Account State 缺少 current`。本仓库自身的路径
+   （`readStandaloneAccountProviderConfigSnapshot` 从内置配置构建）看不到这些 id，
+   **CLI 路径不可达**。
+2. `packages/provider/src/registry-service.ts:205-213`：revision 不匹配且**尚无快照**时，
+   waiter 可能不被 resolve（首次加载挂起）。CLI 路径有
+   `process-provider-registry-runtime.ts:125-132` 的恢复钩子；**宿主路径在本仓库没有等价钩子**。
+
+**判定为 MEDIUM 而非 HIGH**：两者都只在宿主路径、且需要仓库外的特定状态才成立，本仓库
+既无法验证也无法正确修复。真正的解法与 E12 的"两条产品线全量移除"是同一件事（收窄
+`BUILTIN_MODEL_PROVIDER_IDS` 会级联 15+ 处）。**记入待办，随该清理一并处理。**
+
+### PM-8. 【仅记录，既存】`rejectedConfiguredDefault` 生产但无消费者
+
+`packages/provider/src/model-selection-config.ts` 定义了「用户配置的默认模型已不可选时
+必须可见地告警」的契约并生产 `rejectedConfiguredDefault`，但
+`runtime-config.ts:239-246` 把它**丢弃**，全仓库无消费者。PM-1 之外的连带后果：
+存储的选择失效时用户看不到任何解释（我已用 doctor 检查部分补上，见下）。
+
+### PM-9. 【既存】doctor 忽略 `ZCODE_DATA_BASE_DIR`
+
+`doctor.ts:256-257` 用 `homedir()` 解析个人 Provider 配置路径，**忽略该变量**，
+而凭据库（`shared-credentials.ts`）会读它 —— 设置该变量时两者读的不是同一份文件。
+真实用户通常不设，影响有限。已记入 commit `c2a5f35`。
+
+### 已补的诊断能力
+
+`doctor` 的 `checkProviderSelection` 现在会在内置清单中比对 `account:` 前缀的
+`providerId`，**不存在时 WARN 并指名**（三种情形实测：已移除 → WARN；有效 → PASS；
+自建 `personal:` → PASS 不误伤）。这使 PM-8 的后果对用户**可发现**。
+
+---
+
 ## Think — Debug Methodology
 
 - **先读源码再假设**。本仓库大量关键行为写在注释里且与直觉相悖（如 `vendor.ts:173-176` 明说 `zhipu-coding-plan-api-key` 型模板归为 `api-key`、`run.ts:347-350` 明说"分流判据是端点不是厂商类型"）。任何"应该走 X 分支"的判断，先读对应函数。

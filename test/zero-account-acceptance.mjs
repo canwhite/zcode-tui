@@ -176,6 +176,53 @@ function collectZcodeHostRefs(node, path, out) {
       );
     }
     assert("凭据落盘无登录态键", loginKeys.length === 0, `仍写入：${loginKeys.join(", ")}`);
+
+    // 上面走的是**自建/普通厂商**分支（写个人 Provider 配置）。
+    // 门禁文案指向的是**套餐**分支（写加密凭据库的 account-provider:*）——
+    // 那条路径此前无任何自动化覆盖，而它正是 F-005 要保住的东西。
+    const planStorage = mkdtempSync(join(tmpdir(), "zcode-plan-cfg-"));
+    try {
+      const plan = runCli(
+        [
+          "configure",
+          "--provider",
+          "bigmodel",
+          "--api-key",
+          "acceptance-plan-probe",
+          "--configure-model",
+          "GLM-5.3",
+        ],
+        {
+          env: {
+            ZCODE_DATA_BASE_DIR: planStorage,
+            // 隔离宿主机 .env：该分支要求厂商名与端点自洽，宿主的 BASE_URL 会冲突。
+            ZCODE_VENDOR: "",
+            ZCODE_VENDOR_BASE_URL: "",
+            ZCODE_VENDOR_MODEL: "",
+            ZCODE_VENDOR_API_KEY: "",
+          },
+        },
+      );
+      const planOut = `${plan.stdout}${plan.stderr}`;
+      assert(
+        "套餐分支：仅凭 API Key 即可配置（无需账号）",
+        plan.status === 0 && !mentionsLogin(planOut),
+        `exit=${plan.status} 输出：${planOut.trim().slice(0, 200)}`,
+      );
+      const planCred = join(planStorage, ".zcode", "v2", "credentials.json");
+      const planKeys = existsSync(planCred)
+        ? Object.keys(JSON.parse(readFileSync(planCred, "utf8")))
+        : [];
+      assert(
+        "套餐分支：凭据落在 account-provider:* 且无登录态键",
+        planKeys.length > 0 &&
+          planKeys.every((k) => k.startsWith("account-provider:")) &&
+          planKeys.every((k) => !k.startsWith("oauth:") && k !== "zcodejwttoken"),
+        `落盘键：${planKeys.join(", ") || "(无)"}`,
+      );
+    } finally {
+      rmSync(planStorage, { recursive: true, force: true });
+    }
   } finally {
     rmSync(storage, { recursive: true, force: true });
   }

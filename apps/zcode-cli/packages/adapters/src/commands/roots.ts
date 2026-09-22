@@ -31,9 +31,8 @@ export async function resolveDefaultCustomCommandRoots(
   const roots: CustomCommandRoot[] = [];
   const includeZcode = options.includeZcodeCommands ?? true;
   const env = options.env ?? process.env;
-  // 用户级根走配置家目录，必须经 getUserConfigHome 解析（承载 ZCODE_CONFIG_HOME 覆盖）。
-  // `homeDirectory` 仍作为显式参数保留，供测试直接指定家目录。
-  const home = options.homeDirectory ?? resolveUserHomeDir(env);
+  // 使用者家目录与配置家目录是**两个独立解析**（见 userCommandRoots 注释）。
+  const userHome = options.homeDirectory ?? resolveUserHomeDir(env);
   const userConfigHome = options.homeDirectory
     ? join(resolve(options.homeDirectory), CONFIG_HOME_DIR)
     : getUserConfigHome(env);
@@ -46,7 +45,7 @@ export async function resolveDefaultCustomCommandRoots(
   for (const extraRoot of options.extraRoots ?? []) {
     roots.push(
       root(
-        resolveConfiguredRoot(extraRoot, resolvedWorkingDirectory, home),
+        resolveConfiguredRoot(extraRoot, resolvedWorkingDirectory, userHome),
         "project",
         "zcode",
         nextPriority(),
@@ -55,7 +54,7 @@ export async function resolveDefaultCustomCommandRoots(
   }
 
   if (includeZcode) {
-    roots.push(...userCommandRoots(userConfigHome, nextPriority));
+    roots.push(...userCommandRoots(userConfigHome, userHome, nextPriority));
   }
 
   const projectDirectories = await resolveProjectDirectories(resolvedWorkingDirectory);
@@ -106,17 +105,24 @@ async function pathExists(path: string): Promise<boolean> {
 /**
  * 用户级自定义命令根。
  *
- * `configHome` 是**配置家目录本身**（`~/.claude`，可被 `ZCODE_CONFIG_HOME` 覆盖），
- * 不是包含它的家目录 —— 与项目级不同，务必区分。
+ * 两个入参各有独立来源，**不要用一个推导另一个**：
+ * - `configHome` 是配置家目录（`~/.claude`），可被 `ZCODE_CONFIG_HOME` 覆盖；
+ * - `userHome` 是**使用者家目录**，`.agents` 必须挂在它下面。
+ *
+ * 用 `dirname(configHome)` 推导 `.agents` 会在自定义落点下静默读错目录。
  *
  * 不读 `~/.zcode/commands`：用户级配置面已统一到 `.claude`。
  * 与 `skills/roots.ts` 的 `userSkillRoots` 保持**相同的形状与理由**，
  * 二者若不同步就会出现「skill 接轨了、命令没接轨」的分裂。
  */
-function userCommandRoots(configHome: string, nextPriority: () => number): CustomCommandRoot[] {
+function userCommandRoots(
+  configHome: string,
+  userHome: string,
+  nextPriority: () => number,
+): CustomCommandRoot[] {
   return [
     root(join(configHome, COMMANDS_DIR), "user", "claude", nextPriority()),
-    root(join(dirname(configHome), AGENTS_DIR, COMMANDS_DIR), "user", "agents", nextPriority()),
+    root(join(userHome, AGENTS_DIR, COMMANDS_DIR), "user", "agents", nextPriority()),
   ];
 }
 

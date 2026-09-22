@@ -15,6 +15,7 @@ import {
   CONFIG_HOME_INSTRUCTION_FILE,
   CONFIG_HOME_SKILLS_DIR,
   getUserConfigHome,
+  resolveUserHomeDir,
   isZhipuOfficialAssetUrl,
   readVendoredOfficialAsset,
   resolveVendoredOfficialAssetPath,
@@ -514,7 +515,7 @@ function checkConfigHome(env: CliEnv): DoctorCheck[] {
       id: "confighome.contents",
       label: "用户级配置",
       status: "pass",
-      detail: `skill ${countSkillEntries(skillsDir)} 个，自定义命令 ${countSkillEntries(commandsDir)} 个，指令文件 ${existsSync(instructionFile) ? CONFIG_HOME_INSTRUCTION_FILE : "无"}`,
+      detail: `skill ${countSkillEntries(skillsDir)} 个，自定义命令 ${countCommandEntries(commandsDir)} 个，指令文件 ${existsSync(instructionFile) ? CONFIG_HOME_INSTRUCTION_FILE : "无"}`,
     });
   } else {
     // 缺失是**正常状态**（不用个人配置的人很多），不是故障 —— 故 PASS 而非 WARN。
@@ -534,7 +535,10 @@ function checkConfigHome(env: CliEnv): DoctorCheck[] {
   // 又从未建过 `~/.claude` 的用户，正是受影响最严重的一群 ——
   // 若把提示塞进 `homeExists === true` 分支里，他们恰好收不到迁移提示，
   // skill 会静默消失，且表现与「接轨逻辑写错了」完全一致。
-  const legacySkills = join(homedir(), ".zcode", CONFIG_HOME_SKILLS_DIR);
+  // 用 env 感知的解析，而不是 `homedir()`：本项要与「skill 实际从哪读」同源，
+  // 否则在 HOME 被覆盖的环境（测试、容器、launchd）会指向真实机器家目录，
+  // 报出与本次运行无关的迁移提示。
+  const legacySkills = join(resolveUserHomeDir(env), ".zcode", CONFIG_HOME_SKILLS_DIR);
   if (countSkillEntries(legacySkills) > 0) {
     checks.push({
       id: "confighome.legacySkills",
@@ -566,6 +570,23 @@ function countSkillEntries(directory: string): number {
     return readdirSync(directory)
       .filter((name) => !name.startsWith("."))
       .filter((name) => existsSync(join(directory, name, "SKILL.md"))).length;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * 统计目录下的自定义命令文件数；目录不存在或不可读时返回 0。
+ *
+ * 与 skill **判据不同**：命令是**平铺的 `.md` 文件**，不是「含 SKILL.md 的目录」。
+ * 早先误用 `countSkillEntries` 统计命令目录，导致 `doctor` 恒报「自定义命令 0 个」，
+ * 而 `zcode commands list` 同时能列出命令 —— 自检与实况矛盾，比不报更误导。
+ */
+function countCommandEntries(directory: string): number {
+  try {
+    return readdirSync(directory).filter(
+      (name) => !name.startsWith(".") && name.toLowerCase().endsWith(".md"),
+    ).length;
   } catch {
     return 0;
   }

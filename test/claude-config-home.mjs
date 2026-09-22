@@ -14,7 +14,7 @@
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -192,6 +192,14 @@ if (!existsSync(cliPath)) {
 const fixture = mkdtempSync(join(tmpdir(), "zcode-config-home-"));
 writeSkill(fixture, PROBE_SKILL, "Probe skill used to verify config home resolution.");
 writeSkill(fixture, SHADOW_SKILL, "Probe skill that collides with a builtin command name.");
+// 一个自定义命令：命令是**平铺的 .md 文件**，与 skill 的「目录含 SKILL.md」判据不同。
+// 混用两种计数会让 doctor 恒报「自定义命令 0 个」，故在此固定住这个断言。
+mkdirSync(join(fixture, "commands"), { recursive: true });
+writeFileSync(
+  join(fixture, "commands", "probe-command.md"),
+  "---\ndescription: probe command\n---\n\nDo the thing.\n",
+  "utf8",
+);
 
 console.log(`\n配置家目录接轨验收（fixture: ${fixture}）\n`);
 
@@ -212,7 +220,6 @@ try {
   );
 
   // 这是本组改动最核心的否定断言：真实家目录里的 skill 不得泄漏进来。
-  const realHome = process.env.HOME;
   const leaked = (isolated?.skills ?? []).filter(
     (s) => s.scope === "user" && s.source === "claude" && !s.path.startsWith(fixture),
   );
@@ -288,6 +295,13 @@ try {
     "doctor 报出配置家目录与 skill 数",
     doctor.stdout.includes(fixture) && /skill 2 个/.test(doctor.stdout),
     `实际: ${doctor.stdout.split("\n").filter((l) => /用户级/.test(l)).join(" / ")}`,
+  );
+  // 命令数与 skill 数用的是**两套判据**；混用会让命令数恒为 0 而 skill 数正常，
+  // 自检与 `commands list` 互相矛盾。
+  assert(
+    "doctor 的自定义命令计数非 0（判据与 skill 不同）",
+    /自定义命令 1 个/.test(doctor.stdout),
+    `实际: ${doctor.stdout.split("\n").filter((l) => /用户级配置:/.test(l)).join(" / ")}`,
   );
 
   // 旧位置仍有 skill 时必须提醒 —— 否则那些 skill 会静默消失，
@@ -370,15 +384,19 @@ try {
 
   // --- 隔离性回归 -----------------------------------------------------------
 
+  // 默认落点必须来自 OS 家目录解析，**不能**拿 process.env.HOME 直接比字符串：
+  // 在 HOME 带尾斜杠、未设置、或与 OS 解析不一致的机器上，
+  // 前缀比较会误报失败 —— 那是测试的脆弱，不是产品的缺陷。
   const realHomeResult = runCli(["skills", "list", "--json"]);
   const realHomeSkills = JSON.parse(
     realHomeResult.stdout.slice(realHomeResult.stdout.indexOf("{")),
   );
+  const osHome = homedir();
   assert(
     "未设 ZCODE_CONFIG_HOME 时仍读取真实家目录（默认路径未被破坏）",
     realHomeSkills.skills.length > 0 &&
-      realHomeSkills.skills.every((s) => s.path.startsWith(realHome)),
-    `实际: ${JSON.stringify(realHomeSkills.skills.slice(0, 3).map((s) => s.path))}`,
+      realHomeSkills.skills.every((s) => s.path.startsWith(osHome)),
+    `osHome=${osHome} 实际: ${JSON.stringify(realHomeSkills.skills.slice(0, 3).map((s) => s.path))}`,
   );
 } finally {
   rmSync(fixture, { recursive: true, force: true });

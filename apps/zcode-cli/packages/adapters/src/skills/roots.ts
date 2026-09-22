@@ -27,9 +27,11 @@ export async function resolveDefaultSkillRoots(
   const roots: SkillRoot[] = [];
   const includeZcode = options.includeZcodeSkills ?? true;
   const env = options.env ?? process.env;
-  // 用户级根走 `~/.claude`，必须经 getUserConfigHome 解析 ——
-  // 它承载 ZCODE_CONFIG_HOME 覆盖；直接用 homeDirectory 拼 `.claude` 会让覆盖失效。
-  // `homeDirectory` 仍作为显式参数保留，供测试直接指定家目录。
+  // 使用者家目录与配置家目录是**两个独立解析**，不要互相推导：
+  // 前者用于 `.agents`，后者用于 `.claude`。ZCODE_CONFIG_HOME 只该影响后者。
+  const userHome = options.homeDirectory ?? resolveUserHomeDir(env);
+  // 配置家目录走 getUserConfigHome —— 它承载 ZCODE_CONFIG_HOME 覆盖；
+  // 直接用 userHome 拼 `.claude` 会让覆盖失效。
   const userConfigHome = options.homeDirectory
     ? join(resolve(options.homeDirectory), CONFIG_HOME_DIR)
     : getUserConfigHome(env);
@@ -51,7 +53,7 @@ export async function resolveDefaultSkillRoots(
   }
 
   if (includeZcode) {
-    roots.push(...userSkillRoots(userConfigHome, nextPriority));
+    roots.push(...userSkillRoots(userConfigHome, userHome, nextPriority));
   }
 
   const projectDirectories = await resolveProjectSkillDirectories(resolvedWorkingDirectory);
@@ -102,16 +104,25 @@ async function pathExists(path: string): Promise<boolean> {
 /**
  * 用户级 skill 根。
  *
- * `configHome` 是**配置家目录本身**（`~/.claude`，可能被 `ZCODE_CONFIG_HOME` 覆盖），
- * 不是包含它的家目录 —— 这一点与项目级不同，务必区分。
+ * 两个入参各有独立来源，**不要用一个推导另一个**：
+ * - `configHome` 是配置家目录（`~/.claude`），可被 `ZCODE_CONFIG_HOME` 覆盖；
+ * - `userHome` 是**使用者家目录**，`.agents` 必须挂在它下面。
+ *
+ * 早期版本用 `dirname(configHome)` 推导 `.agents`，在
+ * `ZCODE_CONFIG_HOME=/opt/x/cfg` 这类自定义落点下会静默指向 `/opt/x/.agents`
+ * —— 换了落点就读错地方，且没有任何报错。两者必须分开解析。
  *
  * 不读 `~/.zcode/skills`：用户级配置面已统一到 `.claude`。
  */
-function userSkillRoots(configHome: string, nextPriority: () => number): SkillRoot[] {
+function userSkillRoots(
+  configHome: string,
+  userHome: string,
+  nextPriority: () => number,
+): SkillRoot[] {
   return [
     root(join(configHome, SKILLS_DIR), "user", "claude", nextPriority()),
     // `.agents` 是 Claude/Codex/Cursor 的跨工具约定，属互操作面，保留为次优先。
-    root(join(dirname(configHome), AGENTS_DIR, SKILLS_DIR), "user", "agents", nextPriority()),
+    root(join(userHome, AGENTS_DIR, SKILLS_DIR), "user", "agents", nextPriority()),
   ];
 }
 

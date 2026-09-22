@@ -234,6 +234,80 @@
 
 ---
 
+## Post-Mortem（2026-09-22）
+
+对已实现部分做通读审计，**以「能否在任意一台 macOS 上开箱可用」为主判据**。
+共发现并修复 3 个缺陷，全部已回归测试锁定。
+
+### [BUG-1] `.agents` 由 `dirname(configHome)` 推导，自定义落点下静默读错目录
+
+**位置**：`adapters/src/skills/roots.ts`、`adapters/src/commands/roots.ts`
+**严重度**：High ｜ **类型**：Hardcoded Assumption
+
+**问题**：`.agents` 根用 `join(dirname(configHome), ".agents", ...)` 推导，隐含假设
+「configHome 一定是 `<home>/.claude`」。当 `ZCODE_CONFIG_HOME=/opt/acme/cfg` 时，
+`.agents` 被解析到 `/opt/acme/.agents` —— **换一个落点就读错地方，且没有任何报错**。
+两个文件各有一份，同一 bug 出现两次（正是 Pre-Mortem 里「skill 接了、命令没接」的形状）。
+
+**修复**：`configHome` 与 `userHome` 拆成两个独立入参，各自由其正主解析
+（`getUserConfigHome` / `resolveUserHomeDir`）。函数注释里写明「不要用一个推导另一个」。
+
+**回归**：`test/claude-config-home.mjs` 的隔离断言 + 手工用例（三种 `ZCODE_CONFIG_HOME` 取值下
+`.agents` 均落在 `$HOME` 下）。
+
+### [BUG-2] `doctor` 的自定义命令计数恒为 0
+
+**位置**：`cli/src/doctor.ts`（`countSkillEntries` 被复用于命令目录）
+**严重度**：Medium ｜ **类型**：Copy-paste Error / 判据错用
+
+**问题**：skill 的判据是「目录内含 `SKILL.md`」，而命令是**平铺的 `.md` 文件**。
+同一函数拿来数命令目录，结果永远为 0。表现为 `doctor` 报「自定义命令 0 个」，
+而 `zcode commands list` 同时列出命令 —— **自检与实况互相矛盾，比不报更误导**。
+本机恰好没有命令文件，所以此 bug 不会在开发机上暴露；是在模拟一台「另一台 macOS」时才现形。
+
+**修复**：新增 `countCommandEntries`，按 `.md` 文件计数。注释写明两种判据为何不同。
+
+**回归**：fixture 里放一个命令文件，断言 `doctor` 输出「自定义命令 1 个」。
+
+### [BUG-3] `doctor` 的迁移检查用 `homedir()`，忽略传入 env
+
+**位置**：`cli/src/doctor.ts`（`legacySkills` 行）
+**严重度**：Low ｜ **类型**：Hardcoded Assumption
+
+**问题**：同一函数里其余路径都经 env 解析，唯独迁移检查用裸 `homedir()`。
+在 HOME 被覆盖的环境（测试、容器、launchd）会指向**真实机器家目录**，
+报出与本次运行无关的迁移提示。
+
+**修复**：改用 `resolveUserHomeDir(env)`，与「skill 实际从哪读」同源。
+
+### 已确认**不是**缺陷（审计后排除）
+
+| 疑点 | 结论 |
+|------|------|
+| `enabled: false` 的 server 是否仍被连接 | 否。`mcp/index.ts:320` 与 `mcp/pool.ts:316` 均有 `enabled !== false` 判定下传。 |
+| 非法条目报错时是否会带出 `env` 中的密钥 | 否。`skipped.reason` 只由 Zod 的 issue **路径**拼成，不含 message，从设计上无法带出值。已用含密钥的用例实测。 |
+| `ZCODE_CONFIG_HOME` 带尾斜杠 | 否。`getUserConfigHome` 经 `resolve()`，尾斜杠与相对路径均已规范化。 |
+| `HOME` 为空 / 未设置 | 否。回落到 `homedir()`（OS 级解析），非硬编码。 |
+| 源码中是否有绝对路径硬编码 | 无。全部改动文件扫描无 `/Users/`、`/var/folders`、`/tmp` 等字面量。 |
+
+### 记录但不修（超出本次范围）
+
+- **`mcpServerSchema` 对非法 `type` 偏宽松**：`type: 123` 不会被拒，而是因
+  `typeof server.type !== "string"` 回退为按 `command` 推断出的 `stdio`。
+  这是 `config.json` 路径**既有**的行为，两条入口共用同一 schema；
+  收紧它属于独立变更，且会改变存量配置的接受范围。此处仅记录。
+- **`adapter` 其余 ~18 处 `join(homedir(), ".zcode", ...)`**：属运行时数据面，本次不涉及。
+
+### 根因
+
+1. **用「另一个变量的派生值」当坐标**（BUG-1）—— `dirname(configHome)` 看似等价于家目录，
+   但它只在默认落点下等价。凡是「A 通常长这样」的假设，都要问一句「A 不这样时呢」。
+2. **两套实体复用一套判据**（BUG-2）—— skill 与命令是不同形态的实体，共用计数函数必然出错；
+   且失败值（0）是**合法且常见**的取值，所以不会引起怀疑。
+3. **同一个函数里混用两种路径来源**（BUG-3）—— 一处 `homedir()`、其余 `env`，肉眼很难发现。
+
+---
+
 ## Pre-Mortem Risks
 
 <!-- AUTO-GENERATED: New risks will be appended below -->

@@ -30,6 +30,7 @@
     "@zcode/core": "workspace:*",
     "@zcode/dynamic-workflow-runtime": "workspace:*",
     "@zcode/i18n": "workspace:*",
+    "@zcode/provider": "workspace:*",
     "@zcode/provider-node": "workspace:*",
     "@zcode/shared": "workspace:*",
     "@zcode/shared-types": "workspace:*",

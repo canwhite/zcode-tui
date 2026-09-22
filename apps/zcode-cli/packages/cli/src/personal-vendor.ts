@@ -8,6 +8,14 @@ import {
   decodeProviderConfigFile,
   encodeProviderConfigFile,
 } from "@zcode/provider-node";
+import {
+  ApiKeyAccessConfig,
+  ModelConfigRules,
+  ProviderApiConfig,
+  ProviderConfig,
+  ProviderConfigMap,
+  type ProviderApiType,
+} from "@zcode/provider";
 import { atomicWritePrivateTextFile } from "@zcode/shared/node";
 import type { CliEnv } from "./env.js";
 
@@ -74,55 +82,54 @@ export async function writePersonalVendor(
   const configPath = resolvePersonalConfigPath(input.env);
   const providerId = providerIdFromBaseUrl(input.baseUrl);
 
+  // 文件不存在时用 codec 亲手生成一份空文档，而不是手写 JSON 常量——
+  // modelConfigRules 必须同时含 providerModelRules 与 manualProviderModelRules 两个数组，
+  // 少一个就会让整份文件解码失败。
   const raw = existsSync(configPath)
     ? (JSON.parse(readFileSync(configPath, "utf8")) as unknown)
-    : { schemaVersion: 1, config: { providerConfigRules: { providerRules: [] } } };
+    : encodeProviderConfigFile({
+        providers: ProviderConfigMap.empty(),
+        models: ModelConfigRules.empty(),
+        providerOrder: [],
+      } as Parameters<typeof encodeProviderConfigFile>[0]);
 
   // 复用同一个 codec 解码，保证我们看到的与运行期看到的结构一致。
   const current = decodeProviderConfigFile(raw);
-  const currentRules = current.providers.toJSON() as unknown as Array<Record<string, unknown>> | [];
-  const rules = Array.isArray(currentRules) ? currentRules : [];
-  const existing = rules.find((rule) => rule.providerId === providerId);
+  const existing = current.providers.getRule(providerId);
 
   // 模型清单取并集而非覆盖：用户先配了 A 模型、后配 B，A 不应被抹掉。
-  const existingModels =
-    ((existing?.config as Record<string, unknown> | undefined)?.personalModelIds as
-      | string[]
-      | undefined) ?? [];
+  const existingModels = (existing?.config.personalModelIds ?? []) as readonly string[];
   const personalModelIds = Array.from(new Set([...existingModels, input.model]));
 
-  const nextRule = {
+  const personalConfig = new ProviderConfig({
+    group: "standard-personal",
+    access: new ApiKeyAccessConfig({ type: "api-key", apiKey: input.apiKey }),
+    api: new ProviderApiConfig({
+      type: (input.apiType ?? DEFAULT_API_TYPE) as ProviderApiType,
+      baseUrl: input.baseUrl,
+    }),
+    // 个人层承载模型清单的字段是 personalModelIds——builtinModelIds 会被 schema 拒绝。
+    personalModelIds,
+    modelOrder: personalModelIds,
+  });
+
+  const providers = current.providers.setRule({
     providerId,
     providerName: existing?.providerName ?? providerId.replace(/^personal:/, ""),
-    config: {
-      group: "standard-personal",
-      access: { type: "api-key", apiKey: input.apiKey },
-      api: { type: input.apiType ?? DEFAULT_API_TYPE, baseUrl: input.baseUrl },
-      // 个人层承载模型清单的字段是 personalModelIds——builtinModelIds 会被 schema 拒绝。
-      personalModelIds,
-      modelOrder: personalModelIds,
-    },
-  };
-
-  const nextRules = existing
-    ? rules.map((rule) => (rule.providerId === providerId ? { ...rule, ...nextRule } : rule))
-    : [...rules, nextRule];
-
-  const snapshot = encodeProviderConfigFile({
-    providers: current.providers,
-    models: current.models,
-    providerOrder: current.providerOrder,
-    // 必须改写生效指针指向刚写入的厂商：只写记录不改指针，用户会以为换成了新厂商，
-    // 实际仍跑在旧厂商上，且整个过程不报错——这是本功能最难发现的一类失败。
-    defaultModelSelection: { providerId, modelId: input.model },
+    config: personalConfig,
   });
-  const nextFile = {
-    ...snapshot,
-    config: {
-      ...snapshot.config,
-      providerConfigRules: { providerRules: nextRules },
-    },
-  };
+
+  // 必须交给 codec 编码，而不是手拼 JSON：它负责把领域对象规范化为磁盘格式。
+  // 手工拼装会绕过这层规范化，产出解码不了的文档——repository 遇到解码失败会
+  // **静默降级为空配置**，表现为"写入成功但运行期完全看不到这个厂商"。
+  const nextFile = encodeProviderConfigFile({
+    providers,
+    models: current.models,
+    providerOrder: [...(current.providerOrder ?? []), ...(current.providerOrder?.includes(providerId) ? [] : [providerId])],
+    // 必须改写生效指针指向刚写入的厂商：只写记录不改指针，用户会以为换成了新厂商，
+    // 实际仍跑在旧厂商上，且整个过程不报错。
+    defaultModelSelection: { providerId, modelId: input.model },
+  } as Parameters<typeof encodeProviderConfigFile>[0]);
 
   // 写前先让 codec 解析一遍：格式不对就在这里失败，不落盘半成品。
   decodeProviderConfigFile(nextFile);

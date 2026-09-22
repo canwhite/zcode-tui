@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 30,
+  "revision": 31,
   "config": {
     "providerConfigRules": {
       "templateRules": [
@@ -732,27 +732,6 @@
           }
         },
         {
-          "providerId": "account:zai-start-plan",
-          "providerName": "Start Plan",
-          "config": {
-            "group": "zai-family",
-            "builtinModelIds": ["GLM-5.3-Flash", "GLM-5.2", "GLM-5-Turbo"],
-            "access": {
-              "type": "zhipu-account",
-              "mode": "start-plan",
-              "accountType": "zai"
-            },
-            "api": {
-              "type": "anthropic-messages",
-              "baseUrl": "https://zcode.z.ai/api/v1/zcode-plan/anthropic"
-            },
-            "logo": {
-              "type": "builtin",
-              "key": "start-plan"
-            }
-          }
-        },
-        {
           "providerId": "account:bigmodel-individual-coding-plan",
           "providerName": "BigModel Individual Coding Plan",
           "config": {
@@ -787,71 +766,6 @@
             "api": {
               "type": "anthropic-messages",
               "baseUrl": "https://open.bigmodel.cn/api/anthropic"
-            },
-            "logo": {
-              "type": "builtin",
-              "key": "bigmodel"
-            }
-          }
-        },
-        {
-          "providerId": "account:bigmodel-start-plan",
-          "providerName": "Start Plan",
-          "config": {
-            "group": "bigmodel-family",
-            "builtinModelIds": ["GLM-5.3-Flash", "GLM-5.2", "GLM-5-Turbo"],
-            "access": {
-              "type": "zhipu-account",
-              "mode": "start-plan",
-              "accountType": "bigmodel"
-            },
-            "api": {
-              "type": "anthropic-messages",
-              "baseUrl": "https://zcode.z.ai/api/v1/zcode-plan/anthropic"
-            },
-            "logo": {
-              "type": "builtin",
-              "key": "start-plan"
-            }
-          }
-        },
-        {
-          "providerId": "account:zai-offpeak-idle-plan",
-          "providerName": "Z.AI Idle plan",
-          "config": {
-            "group": "zai-family",
-            "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
-            "visibility": "hidden",
-            "access": {
-              "type": "zhipu-account",
-              "mode": "off-peak",
-              "accountType": "zai"
-            },
-            "api": {
-              "type": "anthropic-messages",
-              "baseUrl": "https://zcode.z.ai/api/v1/off-peak/anthropic"
-            },
-            "logo": {
-              "type": "builtin",
-              "key": "zai"
-            }
-          }
-        },
-        {
-          "providerId": "account:bigmodel-offpeak-idle-plan",
-          "providerName": "BigModel Idle plan",
-          "config": {
-            "group": "bigmodel-family",
-            "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
-            "visibility": "hidden",
-            "access": {
-              "type": "zhipu-account",
-              "mode": "off-peak",
-              "accountType": "bigmodel"
-            },
-            "api": {
-              "type": "anthropic-messages",
-              "baseUrl": "https://zcode.z.ai/api/v1/off-peak/anthropic"
             },
             "logo": {
               "type": "builtin",
@@ -6081,27 +5995,6 @@
           }
         },
         {
-          "providerId": "account:zai-start-plan",
-          "modelId": "GLM-5.3-Flash",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:zai-start-plan",
-          "modelId": "GLM-5.2",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:zai-start-plan",
-          "modelId": "GLM-5-Turbo",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
           "providerId": "account:bigmodel-individual-coding-plan",
           "modelId": "GLM-5.3",
           "config": {
@@ -6153,55 +6046,6 @@
         {
           "providerId": "account:bigmodel-team-coding-plan",
           "modelId": "GLM-5-Turbo",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:bigmodel-start-plan",
-          "modelId": "GLM-5.3-Flash",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:bigmodel-start-plan",
-          "modelId": "GLM-5.2",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:bigmodel-start-plan",
-          "modelId": "GLM-5-Turbo",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:zai-offpeak-idle-plan",
-          "modelId": "GLM-5.3-Flash",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:zai-offpeak-idle-plan",
-          "modelId": "GLM-5.3",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:bigmodel-offpeak-idle-plan",
-          "modelId": "GLM-5.3-Flash",
-          "config": {
-            "enabled": true
-          }
-        },
-        {
-          "providerId": "account:bigmodel-offpeak-idle-plan",
-          "modelId": "GLM-5.3",
           "config": {
             "enabled": true
           }

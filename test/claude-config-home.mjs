@@ -157,8 +157,18 @@ writeFileSync(join(cfgs, "config.json"), JSON.stringify({
   mcp: { servers: { "tie": { command: "from-explicit" } } },
 }));
 
+// 变量占位符展开 + 缺失变量处理
+writeFileSync(join(ws, ".mcp.json"), JSON.stringify({
+  mcpServers: {
+    "only-project": { command: "cp" },
+    "with-token": { command: "npx", env: { TOKEN: "\${PROBE_TOKEN}" } },
+    "missing-var": { command: "npx", env: { TOKEN: "\${PROBE_NOT_SET_ANYWHERE}" } },
+    "iso-ok": { command: "npx", isolation: "session" },
+  },
+}));
+
 const r = createConfig({
-  env: { HOME: root },
+  env: { HOME: root, PROBE_TOKEN: "sk-expanded-ok" },
   userConfigPath: join(cfgs, "config.json"),
   workingDirectory: ws,
 });
@@ -170,6 +180,9 @@ console.log(JSON.stringify({
   tieWinner: servers["tie"]?.command,
   tieSource: sources["tie"],
   userSource: sources["only-user"],
+  expandedToken: servers["with-token"]?.env?.TOKEN,
+  missingVarDropped: servers["missing-var"] === undefined,
+  isolationAccepted: Boolean(servers["iso-ok"]),
 }));
 `;
   const child = spawnSync(
@@ -403,6 +416,25 @@ try {
   assert(
     "MCP：来源被正确标注为 config-home",
     mcp.userSource === "config-home",
+    `实际: ${JSON.stringify(mcp)}`,
+  );
+  // `${VAR}` 必须展开：Claude Code 的 .mcp.json 惯例用它引用密钥。
+  // 不展开会把字面量交给适配器，表现为远端 401，而配置里看着是对的。
+  assert(
+    "MCP：`${VAR}` 被展开为环境变量的值",
+    mcp.expandedToken === "sk-expanded-ok",
+    `实际: ${JSON.stringify(mcp.expandedToken)}`,
+  );
+  // 变量缺失时应整条跳过并报名字，而不是把 `${X}` 原样发出去。
+  assert(
+    "MCP：环境变量缺失的 server 被整条跳过（不静默发出占位符）",
+    mcp.missingVarDropped === true,
+    `实际: ${JSON.stringify(mcp)}`,
+  );
+  // `isolation` 在契约与运行态中都存在，曾因漏在 strict schema 里而被整条丢弃。
+  assert(
+    "MCP：带 isolation 字段的 server 不被丢弃",
+    mcp.isolationAccepted === true,
     `实际: ${JSON.stringify(mcp)}`,
   );
 

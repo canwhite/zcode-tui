@@ -383,15 +383,34 @@
 （`doctor.ts:534` 与 `skills/roots.ts:115` 提到 `~/.zcode/skills` 是**刻意的** ——
 前者描述迁移检查、后者说明「不读哪里」，均保留。）
 
-### 记录但未修（既有、超范围、或收益不明确）
+### 第三轮：处理审计遗留项（2026-09-22）
+
+**已修 2 项：**
+
+- **[BUG-9] `isolation` 漏在 strict schema 里** —— 该字段在契约
+  （`mcp.port.ts:18`）与运行态（`mcp/pool.ts` 消费）中都存在，却不在
+  `mcpServerBaseSchema` 里。因三个变体都是 `.strict()`，带它的 server 会被**整条丢弃**：
+  声明了、能用、却进不来。已补 `z.enum(["session", "workspace"])`
+  （取值以契约的 `McpServerIsolation` 为准；初稿写错成 `none/process`，比对契约后修正）。
+- **[BUG-10] 配置路径不展开 `${VAR}`** —— 插件加载器有展开，配置路径没有。
+  Claude Code 的 `.mcp.json` 惯例是用 `${GITHUB_TOKEN}` 引用密钥，
+  不展开就会把**字面量**交给适配器 —— 表现为远端 401，而用户配置里看着完全正确，极难排查。
+  已加递归展开（覆盖 `command`/`args`/`env`/`url`/`headers`），并定了一条与插件侧
+  **刻意不同**的缺失语义：**不抛错，而是收集缺失变量名、整条跳过并报出名字** ——
+  `process.env` 的缺失是用户可修的，报出名字才有可操作性。
+
+**记录但未修（及理由）：**
 
 | 项 | 判定 |
 |---|---|
-| `mcp/list` 的 `untrustedProjectMcpServers` 恒为空集 → `.mcp.json` server 自动信任并连接 | **既有**，本次只是把该风险面从 `.zcode` 扩到 `.mcp.json`。属安全策略变更，需产品决策。 |
-| `isolation` 字段不在 strict schema 中 → 带该字段的 server 被**整条丢弃** | **既有**（`config.json` 路径同病）。严格性本身是既有设计，加字段属独立变更。 |
-| 无 `${VAR}` 展开（插件加载器有，配置路径没有） | **既有**。`.mcp.json` 若写 `${GITHUB_TOKEN}` 会原样传给适配器。 |
-| `includeZcodeSkills` / `includeZcodeCommands` 命名已名不副实（现门控整个默认根集）且无调用方 | **既有**，无害，仅命名误导。 |
+| `untrustedProjectMcpServers` 恒为空集（`.mcp.json` server 自动信任 + 自动执行 `command`） | ✅ **已决策：维持现状**。代码中该行为有明确注释「产品决定 workspace MCP 开箱即用」，是**已文档化的产品决定**而非疏漏。本次只把该风险面从 `.zcode/config.json` 扩到 `.mcp.json`（后者是**可提交进版本库**的约定文件名）。已向用户明示此区别并确认保持现状。 |
+| `mergeConfigs` 的 `mcp.servers` 深合并是死代码（只有最后一层存活） | **既有**，当前**不可达**（`createConfig:276-279` 整体重算覆盖，恰好掩盖）。改动合并器影响面远超本任务，列为预防任务。 |
+| `includeZcodeSkills` / `includeZcodeCommands` 命名名不副实且无调用方 | **既有**，无害，仅命名误导。 |
 | `doctor` 没有 MCP 段 | 计划 §3.1 要求过。当前本机 0 个 MCP server，加了只会是噪声；等真有 server 时再补。 |
+
+> 附注：本轮新增的 3 条断言在**写完第一次运行时就把我自己写错的东西抓住了** ——
+> 测试脚本用模板字符串承载内层脚本，注释里的 `` `${VAR}` `` 被外层当成了插值。
+> 这正是「断言锚在事实上」的价值：它不等你 review，运行时就直接报错。
 
 ### 根因（第二轮）
 

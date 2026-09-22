@@ -48,6 +48,10 @@ const mcpServerBaseSchema = {
   protocolVersion: z.enum(["auto", "legacy", "2026-07-28"]).optional(),
   enabled: z.boolean().optional(),
   timeoutMs: positiveNumberSchema.optional(),
+  // 同上：`isolation` 已在契约（mcp.port.ts 的 McpServerConfigBase）与运行态
+  // （mcp/pool.ts 消费）中存在，却漏在本表里。因三个变体都是 `.strict()`，
+  // 带该字段的 server 会被**整条丢弃** —— 声明了、能用、却进不来。
+  isolation: z.enum(["session", "workspace"]).optional(),
 };
 
 const mcpOAuthSchema = z.union([

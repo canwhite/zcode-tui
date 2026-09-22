@@ -79,8 +79,8 @@ export function loadMcpServersFromConfigHome(
   const sourceByName: Record<string, McpConfigSource> = {};
 
   // 先用户级，再项目级 —— 后写的覆盖先写的，天然实现「项目 > 用户」。
-  const userServers = readServersFrom(userPath, "user", readPaths, skipped);
-  const projectServers = readServersFrom(projectPath, "project", readPaths, skipped);
+  const userServers = readServersFrom(userPath, "user", readPaths, skipped, env);
+  const projectServers = readServersFrom(projectPath, "project", readPaths, skipped, env);
 
   const servers: Record<string, McpServerConfig> = { ...userServers, ...projectServers };
   for (const name of Object.keys(userServers)) sourceByName[name] = "user";
@@ -89,11 +89,51 @@ export function loadMcpServersFromConfigHome(
   return { servers, sourceByName, skipped, readPaths };
 }
 
+/** `${VAR}` 占位符。与插件加载器的 TEMPLATE_PATTERN 同形。 */
+const TEMPLATE_PATTERN = /\$\{([^}]+)\}/g;
+
+/**
+ * 递归展开定义里的 `${VAR}`。
+ *
+ * 与插件加载器的差别：这里**不抛错**，而是把「缺失的变量名」收集起来交还调用方 ——
+ * 调用方据此**跳过整条并报出名字**。理由：`process.env` 里的缺失是用户可修的，
+ * 而静默把 `${TOKEN}` 原样传给远端只会得到一个 401，用户从配置里看不出任何问题。
+ *
+ * 找不到的变量**不做替换**（保留原字面量），保证返回的文本始终可读、可搜索。
+ */
+function expandEnvTemplates(
+  value: unknown,
+  env: NodeJS.ProcessEnv,
+): { value: unknown; missing: string[] } {
+  const missing = new Set<string>();
+  const walk = (input: unknown): unknown => {
+    if (typeof input === "string") {
+      return input.replace(TEMPLATE_PATTERN, (match, name: string) => {
+        const resolved = env[name];
+        if (resolved === undefined || resolved === "") {
+          missing.add(name);
+          return match;
+        }
+        return resolved;
+      });
+    }
+    if (Array.isArray(input)) return input.map(walk);
+    if (input !== null && typeof input === "object") {
+      return Object.fromEntries(
+        Object.entries(input as Record<string, unknown>).map(([key, child]) => [key, walk(child)]),
+      );
+    }
+    return input;
+  };
+  return { value: walk(value), missing: [...missing] };
+}
+
 function readServersFrom(
   path: string,
   source: McpConfigSource,
   readPaths: string[],
   skipped: LoadedMcpServers["skipped"],
+  env: NodeJS.ProcessEnv,
 ): Record<string, McpServerConfig> {
   let raw: unknown;
   try {
@@ -114,7 +154,21 @@ function readServersFrom(
 
   const result: Record<string, McpServerConfig> = {};
   for (const [name, definition] of Object.entries(candidate as Record<string, unknown>)) {
-    const parsed = mcpServerSchema.safeParse(definition);
+    // `${VAR}` 展开：Claude Code 的 `.mcp.json` 惯例是用它引用环境变量
+    // （典型如 `"Authorization": "Bearer ${GITHUB_TOKEN}"`）。
+    // 不展开就会把字面量 `${GITHUB_TOKEN}` 交给适配器 —— 表现为远端 401，
+    // 而用户看到的配置里明明写对了，极难排查。
+    const expanded = expandEnvTemplates(definition, env);
+    if (expanded.missing.length > 0) {
+      skipped.push({
+        name,
+        reason: `未设置的环境变量：${expanded.missing.join(", ")}`,
+        source,
+      });
+      continue;
+    }
+
+    const parsed = mcpServerSchema.safeParse(expanded.value);
     if (parsed.success) {
       result[name] = parsed.data as McpServerConfig;
       continue;

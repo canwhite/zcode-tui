@@ -174,6 +174,49 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 > **四处行为变化**：① 请求不再经 `zcode.z.ai` 中转，少一跳；② HTTP 代理规则（`httpProxy` / `noProxy`）改为按**厂商端点**判定（原先按网关地址判定）——企业网络用户可感知；③ 平台侧 `3007` 内容安全校验不再触发，相关错误路径退化为死代码（待清理）；④ **平台侧计费归属未经证实**，如需确证须向平台侧确认。
 
+**移除登录 / 鉴权 / 登出**（`painpoints/pp8.md`）
+
+工具的账号概念整体移除。**保留 Coding Plan 的非登录配置路径**：套餐 key 由用户在套餐控制台取得后经 `zcode configure --api-key` 直接写入，全程无需登录。
+
+**删除（11 个文件）**
+
+| 文件                                                         | 作用                                              |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+| `bootstrap/src/auth-login.ts`                                | 登录编排（另见下方改名）                          |
+| `bootstrap/src/auth-login-polling.ts`、`auth-login-abort.ts` | 授权轮询与中断                                    |
+| `adapters/src/auth/cli-oauth.ts`                             | OAuth PKCE 客户端（内含 `zcode.z.ai` 硬编码副本） |
+| `adapters/src/auth/coding-plan-api-key.ts`                   | OAuth 令牌 → 套餐 Key 兑换                        |
+| `adapters/src/auth/bigmodel-oauth.ts`、`browser.ts`          | 登录专用（前者本就零调用）                        |
+| `cli/src/login-command.ts`、`tui-auth.ts`                    | CLI 子命令与 TUI 登录包装                         |
+| `command-center/login-flow.ts`                               | `/login` 选择器与结果格式化                       |
+
+**改名 / 保留**
+
+| 文件                                                                             | 改动                                                      |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `bootstrap/src/auth-login.ts` → `coding-plan-config.ts`                          | 仅保留**非登录**的 `configureCodingPlanApiKey` 链         |
+| `cli/src/tui-auth.ts` → `tui-provider-config.ts`                                 | 仅保留 `configureApiKeyForTui`                            |
+| `cli/src/tui-login-state.ts` → `tui-provider-setup-state.ts`                     | 门禁响应与可用模型判定                                    |
+| `adapters/src/auth/{shared-credentials,credential-cipher,localhost-callback}.ts` | **保留** —— 与 MCP 服务器 OAuth 共用，删除会打断 MCP 登录 |
+
+**修改**
+
+| 文件                                                                                   | 改动                                                                         |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `packages/shared/src/zcode-slash-command-help.ts`                                      | 摘除 `login`/`logout` 条目；保留名门禁由其派生，故一并生效                   |
+| `cli/src/command-center/{slash-commands,slash-command-types,create,types,history}.ts`  | 摘除解析分支、类型成员、`/login` 与 `/logout` handler、密钥入历史的抑制规则  |
+| `cli/src/{run.ts,prompt-command.ts,arguments.ts,cli-types.ts,provider-runtime-env.ts}` | 摘除子命令、headless 路由、`--no-browser`、登录 DI 钩子                      |
+| `cli/src/command-center/create.ts`                                                     | 无模型门禁判据由「未登录」改为「厂商未配置」                                 |
+| `cli/src/tui-prompt-handler{,-queries}.ts`、`cli/src/tui-command.ts`                   | `loginRequired` → `providerSetupRequired` 传递与投影                         |
+| `tui/src/{app,app-view,app-components,app-result,types}.tsx?`                          | 同上改名；`LoginRequiredPanel` → `ProviderSetupRequiredPanel`                |
+| `tui/src/app-submit.ts`                                                                | 摘除已无法命中的 `/login` transcript 脱敏函数                                |
+| `i18n/src/locales/{zh-CN,en-US}.ts`、`i18n/src/types.ts`                               | 摘除登录帮助行与 `loginSetup` 选择器；门禁文案改为指向 `.env` 与 `configure` |
+| `bootstrap/src/app/standalone-account-provider-runtime.ts`                             | 错误信息原为 `is required for login`，改为指向内置 Provider 配置             |
+
+> ⚠️ **上游同步注意**：本次删除横跨 `bootstrap` / `cli` / `adapters` / `i18n` / `tui` / `shared` 六个包。下次同步上游时，这些删除会与上游对同一批文件的修改大面积冲突；若「以上游为准」，登录会被静默恢复。`test/step0-gateway-necessity.md` 与后续验收关卡是唯一防线。
+>
+> ⚠️ **已知取舍**：移除 `/login` 后，TUI 内不再有任何配置厂商的入口（原 `/login *-api-key` 是唯一入口）。CLI 侧 `zcode configure --api-key` 不受影响，门禁文案已指向它。
+
 > `package.json` 与 `apps/zcode-cli/package.json` 亦有改动（`engines.node` 下限、`configure` 脚本等），但 **JSON 不支持注释**，无法在文件内标注 `Modified by ZCode:`——改动记录以本节为准。`pnpm-lock.yaml` 为生成物，同理不标注。
 
 其余为本分支自身的文档（`README*`、`AGENTS.md`、`docs/`）。

@@ -228,6 +228,42 @@ pre-mortem 风险 1（「网关承载鉴权」，14.0 分）**被实测推翻**�
 `test/repro-pp10-skill-command.mts` 非本次工作产物（pp10：TUI 中一级 skill 命令的分发）。
 已保持原样、未纳入任何提交。
 
+### E8. Steps 2-4 合并为一个提交（偏离「每步一提交」）
+
+计划要求 Step 0-10 各一个提交。实际 Steps 2-4 合并为 `a21ebb5`。理由：**三者相互依赖**，
+拆开会产出无法编译的中间提交 —— `login-command.ts` / `tui-auth.ts` 的登录函数在 Step 2
+移除调用方后即成为悬空引用，而它们引用的 `CommandCenterLogin*` 类型在 Step 3 才删除。
+**保留的关键分离仍然成立**：Step 1（唯一改变网络行为的步骤）是独立提交，可单独 revert。
+
+### E9. 方法论偏差：把 `build` 当成类型闸门（已在 Do 章修正）
+
+执行 Step 2 时，删掉 `CommandCenterLogin*` 类型后 `pnpm run build` 仍为绿，遂一度认为改动无恙；
+实际 apps typecheck 报出 **7 个类型错误**。根因：`packages/cli` 的构建是纯 esbuild，不检查类型。
+**教训**：本仓库的 `build` 与 `typecheck` 覆盖的是**不同集合**，两者都必须跑 —— 这条已写进 Do 章。
+
+### E10. 已知取舍：TUI 内不再有配置厂商的入口
+
+原 `/login *-api-key` 是 TUI 内**唯一**的厂商配置入口（走 `configureApiKeyForTui` →
+`configureCodingPlanApiKey`，非登录路径）。移除 `/login` 后该入口消失：
+`CommandCenterDeps.configureApiKey` 与 `tui-provider-config.ts` 保留为**接缝**但当前无 UI 调用方。
+
+CLI 侧 `zcode configure --api-key` 不受影响（已实测），F-002 的门禁文案亦指向它。
+**若需 TUI 内配置，需新增一个 `/configure` 类命令** —— 新增命令超出本次「删除登录」的范围，
+未实施，记此备查。
+
+### E11. 并发工作树：pp10 改动与本次改动同文件
+
+执行中发现 `prompt-command.ts` 同时存在本次改动与**另一份未提交的 pp10 改动**
+（`resolveSkillCommandName` 相关）。处理方式：用 `git apply --cached` 精确只暂存本次的两处 hunk
+（import 行 + `/login` `/logout` handler 块），**pp10 的改动原样留在工作区、未纳入任何提交**。
+核验：提交内该文件 0 处 pp10 hunk。
+
+**另发现并修正一次提交不完整**：首次提交因暂存循环未能解析重命名路径（porcelain 的
+`旧 -> 新` 形式），漏掉了 `tui-provider-setup-state.ts` 的标识符改名，使该提交内含
+「`create.ts` 引用 `providerSetupRequiredResponse`，而模块仍导出 `loginRequiredResponse`」的
+不一致 —— 该提交**无法通过类型检查**。已 amend 修正，并用「临时换回 HEAD 版本跑 apps typecheck」
+的方式验证提交本身（而非工作区）是绿的。
+
 ---
 
 ## Think — Debug Methodology
@@ -245,8 +281,12 @@ pre-mortem 风险 1（「网关承载鉴权」，14.0 分）**被实测推翻**�
 1. **构建**：`pnpm run build`（= `pnpm -r build`，覆盖 apps）。
    > ⚠️ **必须全量**。`pnpm --filter @zcode/cli build` **不会**重建 `@zcode/adapters`，改动不会进入 bundle —— 实测踩坑，见 E2。
    > 且**退出码管道会掩盖失败**：曾因 `pnpm run build | tail` 把 `ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL` 误读为通过。**取原始退出码判断**。
-2. **类型检查**：`pnpm run typecheck`（= `tsc -b packages/provider packages/provider-node packages/shared`）。
-   > ⚠️ **注意该脚本只覆盖 3 个包，不含 `apps/zcode-cli`**。本计划的改动主要集中在 apps，因此**必须额外依赖第 1 项的构建产物**来捕获 apps 侧类型错误 —— 构建通过是 apps 侧类型的实际闸门。
+2. **类型检查**：根 `pnpm run typecheck`（= `tsc -b packages/provider packages/provider-node packages/shared`）**只覆盖 3 个包**。
+   > 🔴 **apps 侧类型闸门是另一条命令**：`pnpm --filter zcode-cli run typecheck`（内部 `turbo run typecheck` → 各包 `tsc --noEmit`）。
+   >
+   > ⚠️ **原稿此处写错了**：曾断言「构建通过是 apps 侧类型的实际闸门」。**实测不成立** —— `packages/cli` 的构建脚本是 `node scripts/build.mjs`（**纯 esbuild，不做类型检查**）。Step 2 删掉 `CommandCenterLogin*` 类型后 `pnpm run build` 仍为绿，而 apps typecheck 报出 7 个类型错误（`tui-prompt-handler.ts` 的对象字面量传入已不存在的 `login` 属性等）。**只跑 build 会漏掉 apps 侧全部类型错误。**
+   >
+   > 另注：`pnpm --dir apps/zcode-cli run typecheck` 与 `pnpm --dir ... exec turbo` 都会因 `turbo` 不在 PATH 而失败，**必须用 `pnpm --filter zcode-cli run typecheck`**（见 E2/E9）。
 3. **静态检查**：`pnpm run lint`（oxlint）。
    - **`pnpm run knip` 在基线上即为红**（既有大量未使用导出 + 配置提示，实测 `BASE_KNIP_EXIT=1`）→ **不能直接当闸门**，Step 9 需先修基线或用「只检查本次涉及的包」口径。见 E3。
    - **`pnpm run fmt:check` 在基线上即为红**（18 个既存文件）→ 改为**只检查本次改动的文件**：`pnpm exec oxfmt <改动文件...>`，不得全仓库重排。见 E4。

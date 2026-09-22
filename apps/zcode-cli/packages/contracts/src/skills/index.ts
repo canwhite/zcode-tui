@@ -6,7 +6,19 @@ import type { ExecutionContext, TraceContext } from "../tracing/tracer.js";
 
 export type SkillScope = "project" | "user" | "system" | "admin";
 
-export type SkillSource = "agents" | "zcode" | "bundled" | "plugin" | "remote";
+/**
+ * skill 的来源生态。
+ *
+ * - `claude` —— `~/.claude/skills`（用户级）或 `<repo>/.claude/skills`（项目级）。
+ *   用户级配置面的**首选**来源，优先级高于 `zcode` / `agents`。
+ * - `agents` —— `.agents/skills`，Claude/Codex/Cursor 生态的跨工具约定。
+ * - `zcode` —— `.zcode/skills`。**用户级已停用**（配置面统一到 `.claude`）；
+ *   项目级 `<repo>/.zcode/skills` 仍然有效。
+ * - `bundled` / `plugin` / `remote` —— 随包分发、插件提供、远程拉取。
+ *
+ * 顺序即优先级：`claude` 在前，同名按 root 顺序解析。
+ */
+export type SkillSource = "claude" | "agents" | "zcode" | "bundled" | "plugin" | "remote";
 
 export type SkillDiagnosticSeverity = "warning" | "error";
 

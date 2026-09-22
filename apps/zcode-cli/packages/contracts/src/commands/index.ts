@@ -7,7 +7,17 @@ import type { ExecutionContext, TraceContext } from "../tracing/tracer.js";
 
 export type CustomCommandScope = "project" | "user" | "system" | "admin";
 
-export type CustomCommandSource = "agents" | "zcode" | "plugin";
+/**
+ * 自定义命令的来源生态。
+ *
+ * - `claude` —— `~/.claude/commands`（用户级）或 `<repo>/.claude/commands`（项目级）。
+ *   用户级配置面的**首选**来源，优先级高于 `zcode` / `agents`。
+ * - `agents` —— `.agents/commands`，跨工具生态约定。
+ * - `zcode` —— `.zcode/commands`。**用户级已停用**（配置面统一到 `.claude`）；
+ *   项目级 `<repo>/.zcode/commands` 仍然有效。
+ * - `plugin` —— 插件提供。
+ */
+export type CustomCommandSource = "claude" | "agents" | "zcode" | "plugin";
 
 export type CustomCommandDiagnosticSeverity = "warning" | "error";
 

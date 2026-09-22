@@ -1,9 +1,14 @@
 import { stat } from "node:fs/promises";
-import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import type { CustomCommandRoot, CustomCommandSource } from "@zcode/contracts";
+import {
+  CONFIG_HOME_DIR,
+  getUserConfigHome,
+  resolveUserHomeDir,
+} from "../config-home/index.js";
 
 const COMMANDS_DIR = "commands";
+const CLAUDE_DIR = CONFIG_HOME_DIR;
 const GIT_MARKER = ".git";
 const HOME_PREFIX = "~/";
 const PRIORITY_STEP = 10;
@@ -11,6 +16,7 @@ const ZCODE_DIR = ".zcode";
 const AGENTS_DIR = ".agents";
 
 export interface CustomCommandRootResolutionOptions {
+  env?: NodeJS.ProcessEnv;
   extraRoots?: string[];
   extraResolvedRoots?: CustomCommandRoot[];
   homeDirectory?: string;
@@ -24,7 +30,13 @@ export async function resolveDefaultCustomCommandRoots(
   const resolvedWorkingDirectory = resolve(workingDirectory);
   const roots: CustomCommandRoot[] = [];
   const includeZcode = options.includeZcodeCommands ?? true;
-  const home = options.homeDirectory ?? homedir();
+  const env = options.env ?? process.env;
+  // 用户级根走配置家目录，必须经 getUserConfigHome 解析（承载 ZCODE_CONFIG_HOME 覆盖）。
+  // `homeDirectory` 仍作为显式参数保留，供测试直接指定家目录。
+  const home = options.homeDirectory ?? resolveUserHomeDir(env);
+  const userConfigHome = options.homeDirectory
+    ? join(resolve(options.homeDirectory), CONFIG_HOME_DIR)
+    : getUserConfigHome(env);
   let priority = 0;
   const nextPriority = () => {
     priority += PRIORITY_STEP;
@@ -43,13 +55,13 @@ export async function resolveDefaultCustomCommandRoots(
   }
 
   if (includeZcode) {
-    roots.push(...commandRootsForBase(home, "user", nextPriority));
+    roots.push(...userCommandRoots(userConfigHome, nextPriority));
   }
 
   const projectDirectories = await resolveProjectDirectories(resolvedWorkingDirectory);
   for (const directory of projectDirectories) {
     if (includeZcode) {
-      roots.push(...commandRootsForBase(directory, "project", nextPriority));
+      roots.push(...projectCommandRoots(directory, nextPriority));
     }
   }
 
@@ -91,16 +103,35 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
-function commandRootsForBase(
-  baseDirectory: string,
-  scope: CustomCommandRoot["scope"],
-  nextPriority: () => number,
-): CustomCommandRoot[] {
-  // 合并而不是 fallback：兼容 `.agents` 命令和原生 `.zcode` 命令需要同时可见。
-  // 同一级别 `.zcode` 先扫描，命令同名时仍按“先到先赢”处理。
+/**
+ * 用户级自定义命令根。
+ *
+ * `configHome` 是**配置家目录本身**（`~/.claude`，可被 `ZCODE_CONFIG_HOME` 覆盖），
+ * 不是包含它的家目录 —— 与项目级不同，务必区分。
+ *
+ * 不读 `~/.zcode/commands`：用户级配置面已统一到 `.claude`。
+ * 与 `skills/roots.ts` 的 `userSkillRoots` 保持**相同的形状与理由**，
+ * 二者若不同步就会出现「skill 接轨了、命令没接轨」的分裂。
+ */
+function userCommandRoots(configHome: string, nextPriority: () => number): CustomCommandRoot[] {
   return [
-    root(join(baseDirectory, ZCODE_DIR, COMMANDS_DIR), scope, "zcode", nextPriority()),
-    root(join(baseDirectory, AGENTS_DIR, COMMANDS_DIR), scope, "agents", nextPriority()),
+    root(join(configHome, COMMANDS_DIR), "user", "claude", nextPriority()),
+    root(join(dirname(configHome), AGENTS_DIR, COMMANDS_DIR), "user", "agents", nextPriority()),
+  ];
+}
+
+/**
+ * 项目级自定义命令根。
+ *
+ * `baseDirectory` 是**仓库根目录**（`<repo>`），各目录名由本函数拼接。
+ * 与用户级**刻意不同**：项目级 `<repo>/.zcode/commands` 是仓库内的工程配置，
+ * 与「个人配置放哪」是不同问题，保持原样不动。
+ */
+function projectCommandRoots(baseDirectory: string, nextPriority: () => number): CustomCommandRoot[] {
+  return [
+    root(join(baseDirectory, CLAUDE_DIR, COMMANDS_DIR), "project", "claude", nextPriority()),
+    root(join(baseDirectory, ZCODE_DIR, COMMANDS_DIR), "project", "zcode", nextPriority()),
+    root(join(baseDirectory, AGENTS_DIR, COMMANDS_DIR), "project", "agents", nextPriority()),
   ];
 }
 

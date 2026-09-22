@@ -3,7 +3,7 @@
 // ============================================================
 
 import { readFile, stat } from "node:fs/promises";
-import { arch, homedir, release } from "node:os";
+import { arch, release } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { formatLocalIsoDate } from "@zcode/contracts";
 import type {
@@ -19,6 +19,10 @@ import type {
   ResolvedUserInstructions,
   UserInstructionsOptions,
 } from "@zcode/contracts";
+import {
+  CONFIG_HOME_INSTRUCTION_FILE,
+  getUserConfigHome,
+} from "../config-home/index.js";
 import { resolveGitSnapshot } from "./git-snapshot.js";
 
 const DEFAULT_PRIORITY_FILES = ["AGENTS.md"];
@@ -100,7 +104,9 @@ async function resolveUserInstructions(
   const maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES;
   const projectRoot = options.projectRoot ?? (await findProjectRoot(options.workingDirectory));
 
-  const defaultUserInstructionFile = await findDefaultUserInstructionFile(priorityFiles, env);
+  // 注意：**不传 priorityFiles**。用户级文件名固定为 CLAUDE.md，与项目级的
+  // AGENTS.md 列表解耦 —— 传进去会让闸门把用户级文件挡掉（见该函数注释第 2 点）。
+  const defaultUserInstructionFile = await findDefaultUserInstructionFile(env);
   const workspaceInstructionFile = await findInstructionFile(
     options.workingDirectory,
     projectRoot,
@@ -226,25 +232,32 @@ async function findInstructionFile(
   return undefined;
 }
 
+/**
+ * 用户级（全局）指令文件：`~/.claude/CLAUDE.md`。
+ *
+ * 三点与项目级**刻意不同**，改动前请先读完：
+ *
+ * 1. 路径来源是配置家目录（经 `getUserConfigHome`，承载 `ZCODE_CONFIG_HOME` 覆盖），
+ *    而**不是** `home/.zcode`。用户级配置面已统一到 `.claude`，不再读 `.zcode/AGENTS.md`。
+ *
+ * 2. 闸门与项目级共用同一个 `priorityFiles`（见 `:99` 的 `options.priorityFiles ??
+ *    DEFAULT_PRIORITY_FILES`，以及 `:107` 传给 `findInstructionFile`）。
+ *    因此这里**只把 `"AGENTS.md"` 换成 `"CLAUDE.md"` 是不够的** ——
+ *    `DEFAULT_PRIORITY_FILES` 仍是 `["AGENTS.md"]`，闸门会直接 return undefined。
+ *    这里的判定必须独立于 `priorityFiles` 的取值，否则用户级文件永远加载不到。
+ *
+ * 3. `CLAUDE.md` 常见为**软链**（如指向某个仓库里的文件）。`isFile` 走的是 stat，
+ *    会跟随软链，因此软链场景天然可用 —— 不要在这里加 realpath 包含性校验。
+ */
 async function findDefaultUserInstructionFile(
-  priorityFiles: string[],
   env: NodeJS.ProcessEnv,
 ): Promise<{ filePath: string; fileName: string } | undefined> {
-  if (!priorityFiles.includes("AGENTS.md")) {
-    return undefined;
-  }
-
-  const filePath = join(resolveUserHomeDir(env), ".zcode", "AGENTS.md");
+  const filePath = join(getUserConfigHome(env), CONFIG_HOME_INSTRUCTION_FILE);
   if (await isFile(filePath)) {
-    return { filePath, fileName: "AGENTS.md" };
+    return { filePath, fileName: CONFIG_HOME_INSTRUCTION_FILE };
   }
 
   return undefined;
-}
-
-function resolveUserHomeDir(env: NodeJS.ProcessEnv): string {
-  const envHome = env.HOME?.trim() || env.USERPROFILE?.trim();
-  return envHome && envHome.length > 0 ? envHome : homedir();
 }
 
 async function detectProjectContext(projectRoot: string): Promise<ProjectContext> {

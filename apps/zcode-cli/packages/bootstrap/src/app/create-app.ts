@@ -3,6 +3,7 @@ import {
   createInMemorySessionEventStore,
   createNodeToolArtifactStore,
 } from "@zcode/adapters/storage";
+import { ensureUserConfigHome } from "@zcode/adapters/config-home";
 import { createNodeLoggerFactory } from "@zcode/adapters/logging";
 import { createConfig, resolvePath } from "@zcode/adapters/config";
 import {
@@ -205,6 +206,19 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       cliStorageRoot,
       resolveZCodeRuntimeEnv(options.env ?? process.env) === "development",
     );
+    // 用户级配置家目录（`~/.claude`）缺失时留一个说明文件作路标。
+    //
+    // 放在这里而不是 main()：main() 在每个 plugin-host 子进程里也会跑一遍。
+    // 这里只随 app 创建触发一次，且**失败绝不阻断启动** —— 降级为一行告警。
+    const configHomeOutcome = await ensureUserConfigHome(options.env ?? process.env);
+    if (configHomeOutcome.error) {
+      logger.warn("Failed to bootstrap user config home", {
+        error: configHomeOutcome.error,
+        path: configHomeOutcome.path,
+      });
+    } else if (configHomeOutcome.created) {
+      logger.info("Created user config home", { path: configHomeOutcome.path });
+    }
     const zcodeSubagentProfileOutcome = await loadZCodeAgentProfiles({
       logger,
       storageRoot,

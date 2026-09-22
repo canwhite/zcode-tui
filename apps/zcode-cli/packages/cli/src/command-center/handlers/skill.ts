@@ -17,6 +17,14 @@ export async function handleSkillListCommand(
 
   try {
     const outcome = await deps.listSkills();
+    // undefined = 扫描失败且已被降级兜底。必须与「真的没有 skill」区分开，
+    // 否则一次读盘失败会被报成「No skills found」，把用户引向错误方向。
+    if (!outcome) {
+      return {
+        mode: deps.getMode?.(),
+        response: "Unable to list skills: the skill scan did not complete.",
+      };
+    }
     return {
       mode: deps.getMode?.(),
       response: formatCommandCenterSkillList(outcome),

@@ -27,7 +27,7 @@ import {
 import {
   listCustomCommandsForTui,
   listSessionsForTui,
-  listSkillsForTui,
+  listSkillSuggestionsForTui,
   loadCustomCommandForTui,
 } from "./tui-command-data.js";
 import {
@@ -263,7 +263,9 @@ export function createTuiSubmitPrompt(
     hasSelectableModels: createTuiModelAvailabilityChecker(getApp),
     listCustomCommands: () => listCustomCommandsForTui(deps),
     listSessions: () => listSessionsForTui(deps),
-    listSkills: () => listSkillsForTui(deps),
+    // 用带兜底的投影版本：原始 listSkillsForTui 会抛，而这里的调用点在 /help 输出路径上，
+    // 一次 skill 扫描失败不该让整个 help 不可用。
+    listSkills: () => listSkillSuggestionsForTui(deps),
     configureApiKey: (options) => configureApiKeyForTui(deps, options),
     login: (options) => loginForTui(deps, options),
     loginBigmodel: (options) => loginBigmodelForTui(deps, options),

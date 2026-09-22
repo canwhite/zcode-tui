@@ -8,6 +8,7 @@ import {
   formatSlashCommandHelp,
   parseSlashCommand,
 } from "./command-center.js";
+import { findSkillEntry } from "./command-center-skills.js";
 import { loadCliDotenv } from "./env.js";
 import { createCliHeadlessBrowserRuntime } from "./headless-browser.js";
 import {
@@ -25,6 +26,7 @@ import {
   runCliCleanupWithTimeout,
 } from "./shutdown.js";
 import { runSkillsCommand } from "./skills-command.js";
+import { listSkillSuggestionsForTui } from "./tui-command-data.js";
 import type { CommandCenterApp, SlashCommand } from "./command-center.js";
 import type {
   CliPermissionMode,
@@ -77,9 +79,27 @@ export const runPrompt = async (
   }
 
   const slashCommand = parseSlashCommand(prompt);
+
+  // 个人 skill 已提升为一级命令：`/pain-decomposition <task>` 与
+  // `/skill pain-decomposition <task>` 等价。`parseSlashCommand` 保持同步且不认识
+  // skill 名，因此在这里补一次异步探测 —— 与自定义命令走同一条 `type === "unknown"`
+  // 通道，不新增解析层。
+  //
+  // 顺序即优先级：**内置 > 自定义命令 > skill**。
+  // 内置命令在此刻已是 `type === "known"`，结构上天然胜出；
+  // 自定义命令先于 skill 探测，保持既有行为不回退。
+  const skillName =
+    slashCommand?.type === "unknown"
+      ? (await resolveSkillCommandName(deps, slashCommand)) ?? undefined
+      : undefined;
+
   if (slashCommand?.type === "known" && slashCommand.name === "help") {
     ctx.stdout.write(
-      `${formatSlashCommandHelp(slashCommand.args, await listCustomCommandsForPrompt(deps))}\n`,
+      `${formatSlashCommandHelp(
+        slashCommand.args,
+        await listCustomCommandsForPrompt(deps),
+        await listSkillSuggestionsForPrompt(deps),
+      )}\n`,
     );
     return 0;
   }
@@ -104,7 +124,9 @@ export const runPrompt = async (
   const runtimePrompt =
     slashCommand?.type === "known" && slashCommand.name === "skill"
       ? buildManualSkillPrompt(slashCommand.skillName, slashCommand.task)
-      : prompt;
+      : skillName !== undefined
+        ? buildManualSkillPrompt(skillName, slashCommand?.args ?? "")
+        : prompt;
 
   let traceId: string | undefined;
   let app:
@@ -264,7 +286,13 @@ export const runPrompt = async (
     // （`/compress` 是唯一一个 CLI 解析成 unknown 而 facade 又拒绝展开的）同样留在那边，
     // 判据与 facade 的 gate 共用一个来源，见 isResolvableCustomCommand。
     // `/expert`、`/goal` 走不到 submitPrompt，路由逐字不变。
-    if (slashCommand && (await routesToPromptCommandCenter(slashCommand, deps))) {
+    // `skillName` 命中时**不进** command-center：上面已把 prompt 改写成 skill 指令，
+    // 走普通 prompt 路径才会真正执行该 skill。
+    if (
+      slashCommand &&
+      skillName === undefined &&
+      (await routesToPromptCommandCenter(slashCommand, deps))
+    ) {
       return await runPromptCommandCenterCommand(
         ctx,
         options,
@@ -499,6 +527,7 @@ async function runPromptCommandCenterCommand(
     getApp: async () => app as unknown as CommandCenterApp,
     getMode: () => app.getMode?.() ?? mode ?? "build",
     listCustomCommands: () => listCustomCommandsForPrompt(deps),
+    listSkills: () => listSkillSuggestionsForPrompt(deps),
     loadCustomCommand: (name) => loadCustomCommandForPrompt(deps, name),
     recordInputHistory: async (input, kind) => {
       await app.recordInputHistory?.(input, kind);
@@ -558,6 +587,53 @@ async function listCustomCommandsForPrompt(deps: RunDependencies) {
   }
   const bootstrap = await loadBootstrapModule();
   return await bootstrap.listZCodeCustomCommands({ env, logger: deps.logger, workingDirectory });
+}
+
+/**
+ * 供 `/help` 与未知命令提示使用的一级 skill 投影。
+ *
+ * 同样独立兜底：help 输出不应因为 skill 扫描失败而整体不可用。
+ */
+async function listSkillSuggestionsForPrompt(deps: RunDependencies) {
+  return await listSkillSuggestionsForTui(deps);
+}
+
+/**
+ * 该名字是否命中一个可加载的个人 skill？
+ *
+ * 与 `isResolvableCustomCommand` 的判据对齐：**只有「不存在」算未命中**；
+ * 读盘失败、frontmatter 非法等必须继续冒泡，否则会被一句「未知命令」盖掉真正原因。
+ * 注意这里**不套用自定义命令的保留名检查** —— 保留名是给自定义命令用的闸门，
+ * 用它挡 skill 会让一个名叫 `/compress` 的 skill 永远不可达。
+ */
+async function isResolvableSkillName(deps: RunDependencies, name: string): Promise<boolean> {
+  const outcome = await listSkillSuggestionsForPrompt(deps);
+  return findSkillEntry(name, outcome) !== undefined;
+}
+
+/**
+ * 把 `type === "unknown"` 的一级命令解析成一个 skill 名。
+ *
+ * 返回 `undefined` 的两种情况语义不同，务必区分：
+ * - 探测发现这是自定义命令 —— 交回既有通道处理，不是 skill；
+ * - 什么都不匹配 —— 保持 `unknown` 语义，继续走 command-center 的「未知命令」提示。
+ *
+ * 自定义命令优先于 skill，与 `listSlashCommandSuggestions` 的呈现顺序一致。
+ */
+async function resolveSkillCommandName(
+  deps: RunDependencies,
+  slashCommand: SlashCommand,
+): Promise<string | undefined> {
+  try {
+    if (await isResolvableCustomCommand(deps, slashCommand.rawName)) return undefined;
+  } catch {
+    // 自定义命令探测自身出错时不吞掉整条路径：退化为「不是自定义命令」，
+    // 让后面的 skill 探测与未知命令提示仍有结论。
+    return undefined;
+  }
+  return (await isResolvableSkillName(deps, slashCommand.rawName))
+    ? slashCommand.rawName
+    : undefined;
 }
 
 async function loadCustomCommandForPrompt(deps: RunDependencies, name: string) {

@@ -23,6 +23,7 @@ import {
 import { createConfigPort } from "./index.js";
 import { loadFileConfig, getDefaultConfigPath, type LoadedConfig } from "./file-config.adapter.js";
 import { parseEnvConfig } from "./env-config.adapter.js";
+import { loadMcpServersFromConfigHome } from "../config-home/mcp.js";
 import { mergeConfigs, createPrioritizedConfig } from "./config-merger.js";
 import { createNodeLoggerFactory } from "../logging/index.js";
 import {
@@ -99,7 +100,13 @@ type OptionalPathLoadedConfig = Omit<LoadedConfig, "path"> & {
   path: string | undefined;
 };
 
-export type McpServerConfigSource = "system" | "project" | "user" | "env" | "cli";
+export type McpServerConfigSource =
+  | "system"
+  | "project"
+  | "user"
+  | "config-home"
+  | "env"
+  | "cli";
 export type PluginConfigScope = "user" | "workspace";
 
 export interface PluginConfigSources {
@@ -145,6 +152,29 @@ export function createConfig(options: ConfigFactoryOptions = {}): ConfigResult {
           path: userConfigResult.path,
         }),
         ConfigScope.User,
+      ),
+    );
+  }
+
+  // 2.5 `.claude` 侧的 MCP server（配置家目录接轨）
+  //
+  // 优先级：**高于**用户 config 文件，**低于**项目配置。理由 ——
+  // 用户级配置面已统一到 `.claude`，「不需要再去 ~/.zcode」这条决策要求
+  // `~/.claude.json` 里的 server 压过 `~/.zcode/cli/config.json` 里的同名项；
+  // 而项目级 `.mcp.json` 更具体，理应再压过用户级。
+  // 与插件的相对顺序在更下游确定：插件先合入、本层覆盖之（见 runtime-config.ts）。
+  // 最终即计划定的：项目 > 用户 > 插件。
+  const configHomeMcp = options.workingDirectory
+    ? loadMcpServersFromConfigHome({
+        ...(options.env ? { env: options.env } : {}),
+        workingDirectory: options.workingDirectory,
+      })
+    : undefined;
+  if (configHomeMcp && Object.keys(configHomeMcp.servers).length > 0) {
+    configs.push(
+      createPrioritizedConfig(
+        { mcp: { servers: configHomeMcp.servers } } as RuntimeConfigPatch,
+        ConfigScope.Project,
       ),
     );
   }
@@ -238,6 +268,7 @@ export function createConfig(options: ConfigFactoryOptions = {}): ConfigResult {
   });
   const mcpServerResolution = resolveEffectiveMcpServers({
     cliOverrides: options.cliOverrides,
+    configHomeServers: configHomeMcp?.servers,
     envConfig,
     projectConfig: projectConfigResult.config,
     userConfig: userConfigResult.config,
@@ -371,6 +402,14 @@ export function resolveWorkspaceStorageDir(input: {
 
 function resolveEffectiveMcpServers(input: {
   cliOverrides?: RuntimeConfigPatch;
+  /**
+   * 来自配置家目录（`~/.claude.json` + `<repo>/.mcp.json`）的 server。
+   *
+   * 必须显式传进来：本函数**从头重算** mcp.servers（而不是复用 mergeConfigs 的结果），
+   * 所以只在 configs 数组里加一层是不够的 —— 那层会被这里的重算整个丢掉。
+   * 这是本改动最容易踩空的地方。
+   */
+  configHomeServers?: Record<string, McpServerConfig>;
   envConfig: RuntimeConfigPatch;
   projectConfig: RuntimeConfigPatch;
   userConfig: RuntimeConfigPatch;
@@ -388,6 +427,14 @@ function resolveEffectiveMcpServers(input: {
   };
 
   apply("system", DefaultRuntimeConfig);
+  // 配置家目录层：压过系统默认、被其余各层压过。
+  // `configHomeServers` 内部已含「项目 > 用户」的合并结果（见 config-home/mcp.ts）。
+  if (input.configHomeServers) {
+    for (const [name, server] of Object.entries(input.configHomeServers)) {
+      servers[name] = server;
+      sources[name] = "config-home";
+    }
+  }
   // MCP server discovery has an extension-specific rule: user config shadows project config.
   // This does not change the global config precedence for model/permission/UI fields.
   apply("project", input.projectConfig);

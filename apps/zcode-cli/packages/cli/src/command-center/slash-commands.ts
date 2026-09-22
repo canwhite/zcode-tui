@@ -6,6 +6,12 @@ import {
   listCustomCommandSuggestions,
   type CommandCenterCustomCommandListOutcome,
 } from "../command-center-custom.js";
+import {
+  findSkillEntry,
+  formatSkillCommandEntry,
+  listSkillSuggestions,
+  type CommandCenterSkillListOutcome,
+} from "../command-center-skills.js";
 import { SLASH_COMMAND_HELP_ENTRIES, type SlashCommandHelpEntry } from "./slash-command-help.js";
 import type { SlashCommand } from "./slash-command-types.js";
 import { splitArgs } from "./utils.js";
@@ -237,6 +243,7 @@ export function manualSkillCommandUsage(): string {
 
 export function listSlashCommandSuggestions(
   customCommands?: CommandCenterCustomCommandListOutcome,
+  skills?: CommandCenterSkillListOutcome,
 ): TuiSlashCommandSuggestion[] {
   return [
     ...SLASH_COMMAND_HELP_ENTRIES.map((entry) => ({
@@ -245,6 +252,11 @@ export function listSlashCommandSuggestions(
       summary: entry.summary,
       usage: entry.usage,
     })),
+    // 个人 skill 与内置命令同列一级（顺序紧跟内置，先于自定义命令）——
+    // 这正是「默认显示在和 /skill 同一级」的落点。
+    ...listSkillSuggestions(skills, {
+      shadowedNames: builtinCommandNames(),
+    }),
     ...listCustomCommandSuggestions(customCommands),
   ];
 }
@@ -252,6 +264,7 @@ export function listSlashCommandSuggestions(
 export function formatSlashCommandHelp(
   args = "",
   customCommands?: CommandCenterCustomCommandListOutcome,
+  skills?: CommandCenterSkillListOutcome,
 ): string {
   const target = normalizeHelpTarget(args);
   if (target) {
@@ -261,13 +274,33 @@ export function formatSlashCommandHelp(
     const custom = findCustomCommandHelpEntry(target, customCommands);
     if (custom) return formatCustomCommandHelpEntry(custom);
 
-    return `Unknown slash command: /${target}. Available commands: ${formatAvailableCommandNames(AVAILABLE_COMMANDS, customCommands)}.`;
+    const skill = findSkillEntry(target, skills);
+    if (skill) {
+      return formatSkillCommandEntry(skill, {
+        shadowed: builtinCommandNames().has(skill.name.toLowerCase()),
+      });
+    }
+
+    return `Unknown slash command: /${target}. Available commands: ${formatAvailableCommandNames(AVAILABLE_COMMANDS, customCommands, skills)}.`;
   }
 
   const lines = [
     "Slash commands:",
     ...SLASH_COMMAND_HELP_ENTRIES.map((entry) => `- ${entry.usage}: ${entry.summary}`),
   ];
+  if (skills && skills.skills.length > 0) {
+    const builtin = builtinCommandNames();
+    lines.push(
+      "",
+      "Skills:",
+      ...skills.skills.map(
+        (skill) =>
+          `- /${skill.name} [task]: ${skill.description}${
+            builtin.has(skill.name.toLowerCase()) ? " [被内置命令遮蔽]" : ""
+          }`,
+      ),
+    );
+  }
   if (customCommands && customCommands.commands.length > 0) {
     lines.push(
       "",
@@ -280,6 +313,11 @@ export function formatSlashCommandHelp(
   }
   lines.push("", "Use /help <command> for details.");
   return lines.join("\n");
+}
+
+/** 内置命令名（小写集合），用于判定 skill 是否被内置命令遮蔽。 */
+function builtinCommandNames(): Set<string> {
+  return new Set(SLASH_COMMAND_HELP_ENTRIES.map((entry) => entry.name.toLowerCase()));
 }
 
 function normalizeHelpTarget(args: string): string | undefined {

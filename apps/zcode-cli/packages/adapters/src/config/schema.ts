@@ -103,7 +103,17 @@ const mcpSseServerSchema = z
   })
   .strict();
 
-const mcpServerSchema = z.preprocess(
+/**
+ * 单个 MCP server 定义的校验入口。
+ *
+ * 导出给**外部配置导入**复用（见 `adapters/src/config-home/mcp.ts`）：
+ * 它的 preprocess 已经处理了外部 Agent 配置的常见差异 ——
+ * `environment` → `env`、`remote` → `http`、legacy `enable` 字段、
+ * 以及 provider 私有 timeout 字段的剔除。外部导入必须走同一个 schema，
+ * 否则「从 `~/.zcode/cli/config.json` 读进来能用的 server」换到 `~/.claude.json`
+ * 就会因为一份不同的校验规则被拒。
+ */
+export const mcpServerSchema = z.preprocess(
   normalizeMcpServerConfigInput,
   z.discriminatedUnion("type", [mcpStdioServerSchema, mcpHttpServerSchema, mcpSseServerSchema]),
 );

@@ -89,6 +89,10 @@
     "./tools": {
       "types": "./dist/tools/index.d.ts",
       "import": "./dist/tools/index.js"
+    },
+    "./config-home": {
+      "types": "./dist/config-home/index.d.ts",
+      "import": "./dist/config-home/index.js"
     }
   },
   "scripts": {

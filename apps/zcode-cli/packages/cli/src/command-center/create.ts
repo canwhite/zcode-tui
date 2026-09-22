@@ -3,6 +3,7 @@ import {
   formatAvailableCommandNames,
   listCustomCommandsForHelp,
 } from "../command-center-custom.js";
+import { listSkillsForHelp } from "../command-center-skills.js";
 import { formatNewSessionResult, formatResumeResult } from "./formatters.js";
 import { handleCustomCommand } from "./handlers/custom.js";
 import { handleDwfCommand } from "./handlers/dwf.js";
@@ -67,18 +68,20 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
         return customResult;
       }
       const customCommands = await listCustomCommandsForHelp(deps);
+      const skills = await listSkillsForHelp(deps);
       return {
         mode: deps.getMode?.(),
-        response: `Unknown command: /${command.rawName}. Available commands: ${formatAvailableCommandNames(AVAILABLE_COMMANDS, customCommands)}.`,
+        response: `Unknown command: /${command.rawName}. Available commands: ${formatAvailableCommandNames(AVAILABLE_COMMANDS, customCommands, skills)}.`,
       };
     }
 
     const result = await (async () => {
       if (command.name === "help") {
         const customCommands = await listCustomCommandsForHelp(deps);
+        const skills = await listSkillsForHelp(deps);
         return {
           mode: deps.getMode?.(),
-          response: formatSlashCommandHelp(command.args, customCommands),
+          response: formatSlashCommandHelp(command.args, customCommands, skills),
         };
       }
 

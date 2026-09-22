@@ -4,7 +4,11 @@ import { createNodeClipboardImageReader } from "./clipboard-image.js";
 import { createNodeClipboardTextWriter } from "./clipboard-text.js";
 import { listSlashCommandSuggestions } from "./command-center.js";
 import { registerCliShutdownHandlers } from "./shutdown.js";
-import { listCustomCommandsForTui, loadInitialTuiSessionMetadata } from "./tui-command-data.js";
+import {
+  listCustomCommandsForTui,
+  listSkillSuggestionsForTui,
+  loadInitialTuiSessionMetadata,
+} from "./tui-command-data.js";
 import { createTuiSubmitPrompt } from "./tui-prompt-handler.js";
 import { loadTuiRuntime } from "./tui-runtime-loader.js";
 import { resolveTuiStartupLocale } from "./tui-startup-locale.js";
@@ -58,9 +62,11 @@ export const runTuiCommand = async (
     try {
       return await runTui({
         loadStartupOptions: async () => {
-          const [metadata, customCommands, workspaceGitBranch] = await Promise.all([
+          const [metadata, customCommands, skills, workspaceGitBranch] = await Promise.all([
             loadInitialTuiSessionMetadata(promptHandler),
             listCustomCommandsForTui(deps).catch(() => undefined),
+            // 独立兜底：skill 扫描失败不得连带拖垮内置命令建议。
+            listSkillSuggestionsForTui(deps),
             (deps.resolveWorkspaceGitBranch ?? resolveWorkspaceGitBranch)({
               workspaceDirectory,
             }).catch(() => undefined),
@@ -74,7 +80,7 @@ export const runTuiCommand = async (
             theme: metadata.theme ?? "auto",
             modelOptions: metadata.modelOptions,
             effortOptions: metadata.effortOptions,
-            slashCommands: listSlashCommandSuggestions(customCommands),
+            slashCommands: listSlashCommandSuggestions(customCommands, skills),
             workspaceGitBranch,
           };
         },

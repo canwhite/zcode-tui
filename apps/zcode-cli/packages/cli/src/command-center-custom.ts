@@ -1,4 +1,5 @@
 import type { TuiSlashCommandSuggestion } from "@zcode/tui";
+import type { CommandCenterSkillListOutcome } from "./command-center-skills.js";
 import { expandCliCustomCommandPrompt } from "./custom-command-expand.js";
 
 const customCommandNotFoundPattern = /not found/i;
@@ -66,9 +67,11 @@ export function formatCustomCommandHelpEntry(command: CommandCenterCustomCommand
 export function formatAvailableCommandNames(
   builtInCommands: readonly string[],
   customCommands?: CommandCenterCustomCommandListOutcome,
+  skills?: CommandCenterSkillListOutcome,
 ): string {
   const names = [
     ...builtInCommands,
+    ...(skills?.skills.map((skill) => `/${skill.name}`) ?? []),
     ...(customCommands?.commands.map((command) => `/${command.name}`) ?? []),
   ];
   return names.join(", ");

@@ -303,7 +303,8 @@ export type CommandCenterDeps = {
   hasSelectableModels?: () => Promise<boolean> | boolean;
   listSessions?: () => Promise<CommandCenterSession[]>;
   listCustomCommands?: () => Promise<CommandCenterCustomCommandListOutcome>;
-  listSkills?: () => Promise<CommandCenterSkillListOutcome>;
+  /** 缺失或返回 undefined 都表示「本次没拿到 skill」，help 输出降级而非失败。 */
+  listSkills?: () => Promise<CommandCenterSkillListOutcome | undefined>;
   login?: (options?: CommandCenterLoginOptions) => Promise<CommandCenterLoginResult>;
   loginBigmodel?: (
     options?: CommandCenterBigmodelLoginOptions,

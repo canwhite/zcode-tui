@@ -124,15 +124,17 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 ### 新增文件（本分支原创）
 
-| 文件                                                                       | 作用                                                                 |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `scripts/remote-resources.mjs`                                             | 远程资源台账的读取与对账（台账 vs 源码实际获取点，差集非空即失败）   |
-| `scripts/vendor-resources.mjs`                                             | 本地化资源的下载与校验（sha256 校验后原子落盘、幂等、落点忽略断言）  |
-| `test/offline-acceptance.mjs`                                              | 断网验收关卡，8 条断言                                               |
-| `test/vendor-scan.mjs`                                                     | 本地化资源的行为扫描（后门 + 特例判断），含受保护载荷解密            |
-| `third-party/resources.json`                                               | 远程资源台账（唯一真源）                                             |
-| `third-party/vendored/zhipu-official-plugin/**`                            | 随仓库分发的官方插件市场副本（清单 + 26 个插件包 + 图标，约 11 MiB） |
-| `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | 官方 CDN URL → 本地副本的寻址原语                                    |
+| 文件                                                                       | 作用                                                                   |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `scripts/remote-resources.mjs`                                             | 远程资源台账的读取与对账（台账 vs 源码实际获取点，差集非空即失败）     |
+| `scripts/vendor-resources.mjs`                                             | 本地化资源的下载与校验（sha256 校验后原子落盘、幂等、落点忽略断言）    |
+| `test/offline-acceptance.mjs`                                              | 断网验收关卡，8 条断言                                                 |
+| `test/vendor-scan.mjs`                                                     | 本地化资源的行为扫描（后门 + 特例判断），含受保护载荷解密              |
+| `third-party/resources.json`                                               | 远程资源台账（唯一真源）                                               |
+| `third-party/vendored/zhipu-official-plugin/**`                            | 随仓库分发的官方插件市场副本（清单 + 26 个插件包 + 图标，约 11 MiB）   |
+| `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | 官方 CDN URL → 本地副本的寻址原语                                      |
+| `test/zero-account-acceptance.mjs`                                         | 「零账号可用」验收关卡，8 条断言（见 pp8 一节）                        |
+| `test/step0-gateway-necessity.md`                                          | 网关必需性判定的证据记录（前提闭合情况、两种状态实测结果、已接受取舍） |
 
 ### 修改的文件
 
@@ -216,6 +218,14 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 > ⚠️ **上游同步注意**：本次删除横跨 `bootstrap` / `cli` / `adapters` / `i18n` / `tui` / `shared` 六个包。下次同步上游时，这些删除会与上游对同一批文件的修改大面积冲突；若「以上游为准」，登录会被静默恢复。`test/step0-gateway-necessity.md` 与后续验收关卡是唯一防线。
 >
 > ⚠️ **已知取舍**：移除 `/login` 后，TUI 内不再有任何配置厂商的入口（原 `/login *-api-key` 是唯一入口）。CLI 侧 `zcode configure --api-key` 不受影响，门禁文案已指向它。
+
+**验收关卡**：本仓库**没有任何单元测试**，拆除后最容易的失效形态是「上游同步把登录或隐式回连重新引进来，而没有东西会失败」。因此新增 `test/zero-account-acceptance.mjs`（8 条断言）作为唯一防线，并接入 `pnpm run verify:pre-push`：
+
+```bash
+pnpm run test:zero-account     # 需要先 pnpm run build（该关卡不静默跳过）
+```
+
+断言覆盖：命令面无 login/logout、`zcode login` 与 `/login` `logout` 报未知命令、构建产物不含平台网关改写路径、内置配置无端点指向 `zcode.z.ai`、仅凭 API Key 可完成厂商配置且落盘无登录态键。其中「网关改写路径」一条已验证**可失败**（注入标记后关卡确实 FAIL），不是空断言。
 
 > `package.json` 与 `apps/zcode-cli/package.json` 亦有改动（`engines.node` 下限、`configure` 脚本等），但 **JSON 不支持注释**，无法在文件内标注 `Modified by ZCode:`——改动记录以本节为准。`pnpm-lock.yaml` 为生成物，同理不标注。
 

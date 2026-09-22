@@ -9,6 +9,7 @@ import {
 } from "@zcode/provider-node";
 import type { CliEnv } from "./env.js";
 import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
+import { providerIdFromBaseUrl } from "./personal-vendor.js";
 
 export type DoctorCheckStatus = "pass" | "warn" | "fail";
 
@@ -74,6 +75,35 @@ export function findRepoRoot(startDir: string): string | undefined {
   }
 }
 
+/**
+ * 解析 engines.node 约束，取出可见的版本下限 [major, minor, patch]。
+ *
+ * 契约（必须与安装侧 `scripts/install/toolchain.mjs` 的 parseNodeFloor 一致）：
+ *   - 本仓库只声明 ">=X.Y.Z"，解析为三元组做逐段比较；
+ *   - 出现其它形式时退化为「只取首个版本号，minor/patch 记 0」；
+ *   - 完全没有版本号时返回 undefined，由调用方降级为 warn。
+ *
+ * 只比 major 是不够的：`>=22.13.0` 的下限落在 minor 上，
+ * 按 major 比较会把 22.0.0（node:sqlite 仍需 flag）误判为满足。
+ */
+function parseNodeFloor(raw: string): [number, number, number] | undefined {
+  const full = raw.match(/(\d+)\.(\d+)\.(\d+)/);
+  if (full) return [Number(full[1]), Number(full[2]), Number(full[3])];
+  const major = raw.match(/(\d+)/);
+  return major ? [Number(major[1]), 0, 0] : undefined;
+}
+
+/** [major, minor, patch] 逐段比较，返回 actual 是否不低于 floor。 */
+function nodeMeetsFloor(
+  actualVersion: string,
+  [floorMajor, floorMinor, floorPatch]: readonly [number, number, number],
+): boolean {
+  const [major = 0, minor = 0, patch = 0] = actualVersion.split(".").map(Number);
+  if (major !== floorMajor) return major > floorMajor;
+  if (minor !== floorMinor) return minor > floorMinor;
+  return patch >= floorPatch;
+}
+
 function firstOnPath(command: string, pathValue: string | undefined): string | undefined {
   if (!pathValue) return undefined;
   for (const dir of pathValue.split(delimiter)) {
@@ -99,19 +129,28 @@ function checkToolchain(env: CliEnv, repoRoot: string | undefined): DoctorCheck[
       detail: `无法读取期望版本（未定位到仓库根），当前 ${actualNode}`,
     });
   } else {
-    const requiredMajor = Number(expectedNode.replace(/[^\d]/g, "").charAt(0));
-    const actualMajor = Number(actualNode.split(".")[0]);
-    checks.push({
-      id: "toolchain.node",
-      label: "Node 版本",
-      status: actualMajor >= requiredMajor ? "pass" : "fail",
-      detail: `当前 ${actualNode}，仓库要求 ${expectedNode}`,
-      ...(actualMajor >= requiredMajor
-        ? {}
-        : {
-            fix: `切换到满足 ${expectedNode} 的 Node（仓库 pin 见 apps/zcode-cli/.node-version）后重试`,
-          }),
-    });
+    const floor = parseNodeFloor(expectedNode);
+    if (!floor) {
+      checks.push({
+        id: "toolchain.node",
+        label: "Node 版本",
+        status: "warn",
+        detail: `无法解析期望版本「${expectedNode}」，当前 ${actualNode}`,
+      });
+    } else {
+      const meets = nodeMeetsFloor(actualNode, floor);
+      checks.push({
+        id: "toolchain.node",
+        label: "Node 版本",
+        status: meets ? "pass" : "fail",
+        detail: `当前 ${actualNode}，仓库要求 ${expectedNode}`,
+        ...(meets
+          ? {}
+          : {
+              fix: `切换到满足 ${expectedNode} 的 Node（仓库 pin 见 apps/zcode-cli/.node-version）后重试`,
+            }),
+      });
+    }
   }
 
   const missing = REQUIRED_COMMANDS.filter(
@@ -288,22 +327,33 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
   const declared = parsed.config.vendorName ?? "自建端点";
   const endpoint = parsed.config.baseUrl ?? resolved.resolved.vendor.baseUrl;
   const summary = `${declared} ｜ ${endpoint} ｜ 模型 ${resolved.resolved.model}`;
+  const vendor = resolved.resolved.vendor;
 
-  // 只有能确定声明对应的 providerId 时才做一致性比对；
-  // 自建端点与套餐的落点命名规则不同，无法直接比字符串。
-  if (activeProviderId && activeProviderId.includes(declared)) {
+  // 声明应对应的 providerId：套餐落 `account:<id>`，其余（含自建端点）落 `personal:<host>`。
+  // 必须精确比对这个派生结果，不能拿厂商名去子串匹配——
+  // `declared="bigmodel"` 会错误地匹配上 `account:bigmodel-standard-api`，而那是另一个厂商。
+  const expectedProviderId =
+    vendor.kind === "coding-plan" && vendor.accountProviderId
+      ? vendor.accountProviderId
+      : /^[a-z][a-z0-9+.-]*:\/\//i.test(endpoint)
+        ? providerIdFromBaseUrl(endpoint)
+        : undefined;
+
+  if (!activeProviderId) {
     return { id: "config.vendor", label: "厂商声明", status: "pass", detail: summary };
   }
-  if (activeProviderId && parsed.config.vendorName) {
-    return {
-      id: "config.vendor",
-      label: "厂商声明",
-      status: "warn",
-      detail: `${summary}（当前生效：${activeProviderId}）`,
-      fix: "声明与生效不一致：重新执行 make install 或 zcode configure 使其生效",
-    };
+  if (expectedProviderId && activeProviderId === expectedProviderId) {
+    return { id: "config.vendor", label: "厂商声明", status: "pass", detail: summary };
   }
-  return { id: "config.vendor", label: "厂商声明", status: "pass", detail: summary };
+  // 声明存在但生效的不是它：这正是"配了新的、跑的仍是旧的"。
+  // 该状态不会报错、只是静默使用另一个厂商，必须显式告警。
+  return {
+    id: "config.vendor",
+    label: "厂商声明",
+    status: "warn",
+    detail: `${summary}（当前生效：${activeProviderId}）`,
+    fix: "声明与生效不一致：重新执行 make install 或 zcode configure；若仍不一致，说明该厂商配置未被运行期加载",
+  };
 }
 
 function checkBuiltinProviderConfig(env: CliEnv): DoctorCheck {

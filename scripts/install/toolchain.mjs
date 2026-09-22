@@ -29,14 +29,31 @@ function firstOnPath(command, pathValue) {
 export const which = (command, env = process.env) => firstOnPath(command, env.PATH);
 
 /**
- * 解析 package.json 的 engines.node 约束，取出主版本号。
- * 本仓库只使用 ">=X.Y.Z" 形式；出现其它形式时返回 undefined，由调用方降级处理。
+ * 解析 package.json 的 engines.node 约束，取出可见的版本下限 [major, minor, patch]。
+ *
+ * 契约（与 CLI 侧 `apps/zcode-cli/packages/cli/src/doctor.ts` 的 parseNodeFloor 必须一致）：
+ *   - 本仓库只声明 ">=X.Y.Z"，解析为三元组做逐段比较；
+ *   - 出现其它形式时退化为「只取首个版本号，minor/patch 记 0」，不把用户挡在门外；
+ *   - 完全没有版本号时返回 undefined，由调用方降级为「不校验」。
+ *
+ * 只比 major 是不够的：`>=22.13.0` 的下限落在 minor 上，
+ * 按 major 比较会把 22.0.0（node:sqlite 仍需 flag）误判为满足。
  */
-function expectedNodeMajor(pkg) {
+function parseNodeFloor(pkg) {
   const raw = pkg?.engines?.node;
   if (typeof raw !== "string") return undefined;
-  const match = raw.match(/(\d+)/);
-  return match ? Number(match[1]) : undefined;
+  const full = raw.match(/(\d+)\.(\d+)\.(\d+)/);
+  if (full) return [Number(full[1]), Number(full[2]), Number(full[3])];
+  const major = raw.match(/(\d+)/);
+  return major ? [Number(major[1]), 0, 0] : undefined;
+}
+
+/** [major, minor, patch] 逐段比较，返回 actual 是否不低于 floor。 */
+function nodeMeetsFloor(actualVersion, [floorMajor, floorMinor, floorPatch]) {
+  const [major = 0, minor = 0, patch = 0] = actualVersion.split(".").map(Number);
+  if (major !== floorMajor) return major > floorMajor;
+  if (minor !== floorMinor) return minor > floorMinor;
+  return patch >= floorPatch;
 }
 
 export function readToolchainSpec() {
@@ -48,7 +65,7 @@ export function readToolchainSpec() {
   }
   return {
     nodePin: nodePin || undefined,
-    nodeMajor: expectedNodeMajor(pkg),
+    nodeFloor: parseNodeFloor(pkg),
     nodeEngines: typeof pkg?.engines?.node === "string" ? pkg.engines.node : undefined,
     pnpm: typeof pkg?.packageManager === "string" ? pkg.packageManager.replace(/^pnpm@/, "") : undefined,
   };
@@ -61,8 +78,7 @@ export function readToolchainSpec() {
 export function inspectToolchain(env = process.env) {
   const spec = readToolchainSpec();
   const actualNode = process.versions.node;
-  const actualNodeMajor = Number(actualNode.split(".")[0]);
-  const nodeOk = spec.nodeMajor === undefined || actualNodeMajor >= spec.nodeMajor;
+  const nodeOk = spec.nodeFloor === undefined || nodeMeetsFloor(actualNode, spec.nodeFloor);
 
   const pnpmPath = which("pnpm", env);
   const nodeMismatch = !nodeOk;
@@ -71,7 +87,7 @@ export function inspectToolchain(env = process.env) {
     spec,
     node: {
       actual: actualNode,
-      expected: spec.nodeEngines ?? `>=${spec.nodeMajor ?? "?"}`,
+      expected: spec.nodeEngines ?? `>=${spec.nodeFloor?.join(".") ?? "?"}`,
       ok: nodeOk,
     },
     pnpm: {

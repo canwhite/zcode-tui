@@ -145,6 +145,12 @@ export async function startProcessProviderRegistryRuntime(
     });
     try {
       const configuredDefaultModelSelection = await modelSelectionConfigRepository.read();
+      // [DEBUG-vendor] 临时插桩：确认运行期看到的默认选择与 registry 内容。定位后删除。
+      console.error("[DEBUG-vendor] configuredDefault=", JSON.stringify(configuredDefaultModelSelection));
+      console.error(
+        "[DEBUG-vendor] registryProviderIds=",
+        JSON.stringify(((snapshot as unknown as { providers?: { providerId?: string }[] }).providers ?? []).map((p) => p.providerId)),
+      );
       return Object.freeze({
         accountSource: standaloneAccount ?? accountSource,
         async syncAccountProviderConfig(next: AccountProviderConfigSnapshot): Promise<boolean> {

@@ -22,7 +22,9 @@ ZCode is an AI coding workspace.
 
 ## Setup
 
-Install Git, Node.js **24.14.0**, and pnpm **10.33.2**. [mise.toml](mise.toml) is the source of truth for tool versions. Run all commands below from the repository root.
+Install Git, Node.js **>=22.13.0** (24.14.0 recommended), and pnpm **10.33.2**. [mise.toml](mise.toml) is the source of truth for tool versions. Run all commands below from the repository root.
+
+> The 22.13.0 floor comes from `node:sqlite`: introduced in Node 22.5.0, available without `--experimental-sqlite` from 22.13.0. Node 20/21 lack the builtin entirely and fail at startup with `ERR_UNKNOWN_BUILTIN_MODULE` — this cannot be worked around by relaxing version declarations.
 
 ```bash
 pnpm bootstrap

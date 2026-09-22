@@ -22,7 +22,9 @@ ZCode 是 AI 编程工作台。
 
 ## 初始化
 
-准备 Git、Node.js **24.14.0** 和 pnpm **10.33.2**，版本以 [mise.toml](mise.toml) 为准。以下命令均在仓库根目录执行。
+准备 Git、Node.js **>=22.13.0**（推荐 24.14.0）和 pnpm **10.33.2**，版本以 [mise.toml](mise.toml) 为准。以下命令均在仓库根目录执行。
+
+> 下限 22.13.0 来自 `node:sqlite`：该模块在 Node 22.5.0 引入，22.13.0 起不再需要 `--experimental-sqlite`。Node 20/21 没有这个内置模块，启动即报 `ERR_UNKNOWN_BUILTIN_MODULE`，无法通过降低声明来兼容。
 
 ```bash
 pnpm bootstrap

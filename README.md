@@ -81,6 +81,23 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 相对上游本分支移除了以下目录：`packages/desktop`、`packages/web`、`packages/server`、`packages/ui`、`packages/client`、`packages/services`、`packages/rpc`、`packages/formal-proof`、`packages/zcode-server-cli`。
 
+## 离线可用性
+
+官方插件市场（清单、26 个插件包与图标，约 11 MiB）**随仓库分发**，位于 `third-party/vendored/zhipu-official-plugin/`。因此**断网环境也能列出并安装智谱的官方插件**——市场清单与插件包都从本地副本读取，不需要回源 CDN。
+
+判定口径：**智谱自家的远程资源在本地留一份；第三方通用包（Node 运行时、上游源码包等）直接下载即可，不保留。** 台账 [third-party/resources.json](third-party/resources.json) 是唯一真源，两类都登记，只有前者随仓库分发。
+
+| 目的                   | 命令                                       |
+| ---------------------- | ------------------------------------------ |
+| 校验本地副本完整       | `node scripts/vendor-resources.mjs verify` |
+| 刷新本地副本           | `node scripts/vendor-resources.mjs fetch`  |
+| 核对台账与实际引用一致 | `node scripts/remote-resources.mjs check`  |
+| 断网验收               | `node test/offline-acceptance.mjs`         |
+
+`zcode doctor` 会报出本地化覆盖率（`覆盖率 100%（26/26），断网可列出并安装`）；副本缺失或损坏时会直接失败并指名缺的是哪个插件。
+
+> 注意：断网可用指的是**插件的列出与安装**。这些插件本身多为联网业务插件（金融数据、公司查询等），其业务数据来自第三方服务，不在随仓库分发的范围内。
+
 ## 项目声明
 
 功能与优惠范围、维护规则、执行与数据风险，以及许可和第三方版权说明，详见 [NOTICE.md](NOTICE.md)。

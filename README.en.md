@@ -81,6 +81,23 @@ Runtime variables can be set explicitly in the environment of the startup comman
 
 Removed from upstream by this branch: `packages/desktop`, `packages/web`, `packages/server`, `packages/ui`, `packages/client`, `packages/services`, `packages/rpc`, `packages/formal-proof`, and `packages/zcode-server-cli`.
 
+## Offline Availability
+
+The official plugin marketplace (manifest, 26 plugin packages, and icons — about 11 MiB) **ships with the repository** under `third-party/vendored/zhipu-official-plugin/`. As a result, **official Z.ai plugins can be listed and installed with no network access** — both the marketplace manifest and the plugin archives are read from the local copy, never from the CDN.
+
+Scope rule: **Z.ai's own remote resources are kept locally; generic third-party packages (the Node runtime, upstream source archives, etc.) are downloaded on demand and not vendored.** The ledger [third-party/resources.json](third-party/resources.json) is the single source of truth and registers both kinds; only the former ships with the repository.
+
+| Purpose                                | Command                                    |
+| -------------------------------------- | ------------------------------------------ |
+| Verify local copies are complete       | `node scripts/vendor-resources.mjs verify` |
+| Refresh local copies                   | `node scripts/vendor-resources.mjs fetch`  |
+| Check ledger matches actual references | `node scripts/remote-resources.mjs check`  |
+| Offline acceptance                     | `node test/offline-acceptance.mjs`         |
+
+`zcode doctor` reports localization coverage (`覆盖率 100%（26/26），断网可列出并安装`); when copies are missing or corrupt it fails and names the specific plugin.
+
+> Note: offline availability covers **listing and installing** plugins. Most of these plugins are themselves network-dependent (financial data, company lookups, and similar); their business data comes from third-party services and is out of scope.
+
 ## Project Notice
 
 See [NOTICE.md](NOTICE.md) for feature and promotion scope, maintenance policy, execution and data risks, licensing, and third-party copyright information.

@@ -7,6 +7,12 @@ import {
   ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
 } from "@zcode/provider-node";
+import {
+  readVendoredOfficialAsset,
+  resolveVendoredOfficialAssetPath,
+  resolveVendoredOfficialRoot,
+  ZHIPU_OFFICIAL_ASSET_BASE_URL,
+} from "@zcode/adapters";
 import type { CliEnv } from "./env.js";
 import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
 import { providerIdFromBaseUrl } from "./personal-vendor.js";
@@ -385,6 +391,83 @@ function checkBuiltinProviderConfig(env: CliEnv): DoctorCheck {
 }
 
 /**
+ * 官方插件本地化自检。
+ *
+ * 为什么放进 doctor：这条链路失效时的表现只是"插件市场是空的"或"插件装不上"，
+ * 而原因可能是三种截然不同的情况——副本没随这次安装分发、被某个 .gitignore 漏发、
+ * 或副本损坏。三者修法完全不同，却都没有任何界面信号。这里把"覆盖率"变成一个
+ * 可自查的数字，让用户不必等到装插件失败才发现。
+ *
+ * 未找到副本时判 warn 而非 fail：包管理器安装或 SEA 发行形态不一定带仓库目录，
+ * 那是合法的部署形态（只是官方插件需要联网）。
+ */
+function checkVendoredOfficialResources(): DoctorCheck {
+  const root = resolveVendoredOfficialRoot();
+  if (!root) {
+    return {
+      id: "plugins.vendored",
+      label: "官方插件本地化",
+      status: "warn",
+      detail: "未找到随附的官方插件副本；官方插件市场与安装将依赖网络",
+      fix: "在仓库根执行 node scripts/vendor-resources.mjs fetch",
+    };
+  }
+
+  const manifest = readVendoredOfficialAsset(`${ZHIPU_OFFICIAL_ASSET_BASE_URL}marketplace.json`);
+  if (!manifest) {
+    return {
+      id: "plugins.vendored",
+      label: "官方插件本地化",
+      status: "fail",
+      detail: `本地清单不可读：${join(root, "marketplace.json")}`,
+      fix: "在仓库根执行 node scripts/vendor-resources.mjs fetch",
+    };
+  }
+
+  let plugins: { name?: unknown; source?: { url?: unknown } }[];
+  try {
+    const parsed = JSON.parse(manifest.toString("utf8")) as { plugins?: unknown };
+    plugins = Array.isArray(parsed.plugins) ? parsed.plugins : [];
+  } catch {
+    return {
+      id: "plugins.vendored",
+      label: "官方插件本地化",
+      status: "fail",
+      detail: "本地清单不是合法 JSON",
+      fix: "在仓库根执行 node scripts/vendor-resources.mjs fetch",
+    };
+  }
+
+  const declared = plugins.filter((p) => typeof p.source?.url === "string");
+  const missing = declared.filter(
+    (p) => resolveVendoredOfficialAssetPath(String(p.source?.url)) === undefined,
+  );
+  const coverage = declared.length === 0 ? 0 : (declared.length - missing.length) / declared.length;
+
+  if (missing.length > 0) {
+    return {
+      id: "plugins.vendored",
+      label: "官方插件本地化",
+      status: "fail",
+      detail: `覆盖率 ${(coverage * 100).toFixed(0)}%（${declared.length - missing.length}/${declared.length}）；缺失：${
+        missing
+          .slice(0, 3)
+          .map((p) => String(p.name ?? "?"))
+          .join("、") || "—"
+      }${missing.length > 3 ? ` 等 ${missing.length} 个` : ""}`,
+      fix: "在仓库根执行 node scripts/vendor-resources.mjs fetch",
+    };
+  }
+
+  return {
+    id: "plugins.vendored",
+    label: "官方插件本地化",
+    status: "pass",
+    detail: `覆盖率 100%（${declared.length}/${declared.length}），断网可列出并安装`,
+  };
+}
+
+/**
  * 汇总安装自检结论。`zcode doctor` 与 `make install` 的收口自检共用这一份实现，
  * 避免出现两套判定标准。
  */
@@ -397,6 +480,7 @@ export function collectDoctorReport(gate: DoctorGateOptions): DoctorReport {
     checkProviderSelection(gate.env),
     checkVendorDeclaration(gate.env, readActiveModelSelection(gate.env)?.providerId),
     checkBuiltinProviderConfig(gate.env),
+    checkVendoredOfficialResources(),
   ];
   return {
     ok: !checks.some((check) => check.status === "fail"),

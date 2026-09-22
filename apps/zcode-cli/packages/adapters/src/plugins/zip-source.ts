@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { isZhipuOfficialAssetUrl, readVendoredOfficialAsset } from "./official-vendored-assets.js";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, posix, relative, resolve, sep } from "node:path";
@@ -101,11 +102,21 @@ export async function resolveHttpZipSource(
 
   try {
     throwIfAborted(input.signal);
-    const zipBytes = await downloadZipArchive({
-      headers: input.headers,
-      signal: input.signal,
-      url: input.url,
-    });
+    // 本地优先：智谱官方 CDN 的插件包随仓库分发，断网时必须命中本地副本。
+    //
+    // 命中本地后**照常走下面的 sha256 校验**（用清单发布的期望值）。改成读本地就跳过
+    // 校验，等于把这次本地化变成一次安全性倒退——本地副本同样可能是损坏或被替换的。
+    //
+    // 本地缺失时回源而不是直接失败：CDN 刷新后可能出现尚未本地化的新插件，
+    // 一律失败会打断正常的在线升级路径。但回源**失败**时会给出指名诊断（见下），
+    // 避免断网用户只看到一个笼统的网络错误、不知道缺的是什么。
+    const zipBytes: Uint8Array =
+      readVendoredOfficialAsset(input.url) ??
+      (await downloadOfficialAwareZipArchive({
+        headers: input.headers,
+        signal: input.signal,
+        url: input.url,
+      }));
     const actualSha256 = createHash("sha256").update(zipBytes).digest("hex");
     if (input.sha256 !== undefined && actualSha256 !== input.sha256.toLowerCase()) {
       throw new Error(
@@ -161,6 +172,35 @@ function validateZipSourceInput(input: ResolveZipPluginSourceInput): void {
   validateZipHeaders(input.headers);
   if (input.path !== undefined) {
     normalizeZipRelativePath(input.path);
+  }
+}
+
+/**
+ * 回源下载，并在「官方资源缺本地副本 **且** 回源失败」时给出指名诊断。
+ *
+ * 断网环境下这两个条件会同时成立——此时若只抛原始网络错误，用户看到的是
+ * 一个笼统的 fetch failed，不知道缺的是哪个插件、也不知道怎么补。
+ * 非官方来源（社区插件、GitHub 等）不套这层，原样抛出。
+ */
+async function downloadOfficialAwareZipArchive(input: {
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  url: string;
+}): Promise<Uint8Array> {
+  try {
+    return await downloadZipArchive({
+      headers: input.headers,
+      signal: input.signal,
+      url: input.url,
+    });
+  } catch (error) {
+    if (!isZhipuOfficialAssetUrl(input.url)) throw error;
+    throw new PluginZipDownloadError(
+      `官方插件包既无本地副本、也无法回源（断网环境下即为预期失败）：${input.url}\n` +
+        `  修复：在仓库根执行 node scripts/vendor-resources.mjs fetch\n` +
+        `  原始错误：${error instanceof Error ? error.message : String(error)}`,
+      input.url,
+    );
   }
 }
 

@@ -9,7 +9,10 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
-import { writeBundledOfficialMarketplacePartitionSync } from "@zcode/adapters";
+import {
+  seedCdnPartitionFromVendoredSync,
+  writeBundledOfficialMarketplacePartitionSync,
+} from "@zcode/adapters";
 import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE, type Logger } from "@zcode/contracts";
 import { isZCodeCuaInternalFeatureEnabled, ZCODE_CUA_OFFICIAL_PLUGIN_ID } from "@zcode/shared";
 import {
@@ -428,6 +431,11 @@ function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSee
     },
     storageRoot,
   });
+
+  // 用随仓库分发的官方清单播种 CDN 分片，让智谱的 26 个插件在**从未联网**的机器上
+  // 也能被列出。已存在分片时不覆盖——用户可能已刷新到更新的目录。
+  // 这是"断网可用官方插件"这条验收的可见性半边；可安装的半边在 zip-source.ts 的本地优先解析。
+  seedCdnPartitionFromVendoredSync(storageRoot);
 }
 
 /** 从 seed 文件集中读插件 plugin.json 的 description；读取/解析失败按 undefined 降级。 */

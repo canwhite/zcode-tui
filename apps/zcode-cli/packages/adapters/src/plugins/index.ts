@@ -85,9 +85,21 @@ export {
 } from "./marketplace.js";
 
 export {
+  seedCdnPartitionFromVendoredSync,
   writeBundledOfficialMarketplacePartitionSync,
   writeCdnOfficialMarketplacePartitionSync,
 } from "./official-marketplace.js";
+
+// 本地化资源的寻址原语。doctor 用它们做"本地化覆盖率"自检——
+// 没有消费方的本地化等于没做，而覆盖率是唯一能从界面上看出来的信号。
+export {
+  isZhipuOfficialAssetUrl,
+  officialAssetRelativePath,
+  readVendoredOfficialAsset,
+  resolveVendoredOfficialAssetPath,
+  resolveVendoredOfficialRoot,
+  ZHIPU_OFFICIAL_ASSET_BASE_URL,
+} from "./official-vendored-assets.js";
 
 export { getPluginSourceDiagnosticCode } from "./source-errors.js";
 
@@ -104,12 +116,7 @@ const DEFAULT_VERSION = "0.0.0";
 const FIRST_PLUGIN_PRIORITY = 1_000;
 const PRIORITY_STEP = 10;
 const PLUGIN_NAME_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/;
-const UNSUPPORTED_COMPONENT_KEYS = [
-  "channels",
-  "lspServers",
-  "outputStyles",
-  "settings",
-] as const;
+const UNSUPPORTED_COMPONENT_KEYS = ["channels", "lspServers", "outputStyles", "settings"] as const;
 const SUPPORTED_HOOK_EVENTS = new Set<string>(Object.values(HookEventNameValue));
 
 interface PluginHookInspection {

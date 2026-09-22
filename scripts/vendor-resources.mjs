@@ -47,9 +47,17 @@ async function sha256File(path) {
   return hash.digest("hex");
 }
 
-/** 需要本地化的条目：有落点、且尚未就绪。 */
+/**
+ * 需要本地化的条目：有落点、尚未就绪、且未被标记为排除。
+ *
+ * `vendoring === "excluded"` 用于「环境前提」类资源（目前是 Node 运行时）——
+ * 它们在台账里保留登记（对账要看得见），但不随仓库分发：336 MiB 占全部资源的 97%，
+ * 而 make install 全程并不需要它。理由与判定见台账的 vendoringExclusions。
+ */
 function vendorable(ledger) {
-  return (ledger.resources ?? []).filter((r) => r.vendoredPath && r.status !== "ready");
+  return (ledger.resources ?? []).filter(
+    (r) => r.vendoredPath && r.status !== "ready" && r.vendoring !== "excluded",
+  );
 }
 
 /** 本地副本是否已存在且内容与台账一致。不匹配的文件一律视为需要重新取。 */
@@ -94,7 +102,9 @@ function runStatus({ withHash }) {
       if (s.state === "ok") ok += 1;
       else if (s.state === "missing") missing += 1;
       else mismatch += 1;
-      const detail = withHash && s.actual ? `  (本地 ${s.actual.slice(0, 12)}… != 台账)` : "";
+      // 只在**校验不过**时展示哈希：匹配时也打一行 "!= 台账" 会让状态行自相矛盾。
+      const detail =
+        withHash && s.state === "mismatch" ? `  (本地 ${s.actual.slice(0, 12)}… ≠ 台账)` : "";
       console.log(`  ${mark}  ${r.id.padEnd(36)}${detail}`);
     });
     console.log(

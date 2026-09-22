@@ -72,6 +72,968 @@
   ],
   "resources": [
     {
+      "id": "zhipu-official-marketplace-manifest",
+      "kind": "marketplace-manifest",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/marketplace.json",
+      "sha256": "4a8d97efa5b5c5e2b09330b35fa69cbce8e2f21f120410f472158a8ae8cd0b99",
+      "sha256Provenance": "TOFU：CDN 未发布清单自身的校验值，此值于 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 41930,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/marketplace.json",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "packages/shared/src/plugin-marketplaces.ts",
+          "evidence": "cdn-zcode.z.ai/zcode/official-plugin/marketplace.json"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-accounting-and-reporting",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/accounting-and-reporting/0.1.1/plugin.zip",
+      "sha256": "6b37a08359b7a42e8b1af88c0f955293269934894df26b5f88e1a02877ee9fd5",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 282206,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/accounting-and-reporting/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-alibaba-cloud-cli",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/alibaba-cloud-cli/0.1.2/plugin.zip",
+      "sha256": "b0fb2362da466315a4f24c1910b6b40e27202e9c52226b3fb08f48b47122fb49",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 7703,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/alibaba-cloud-cli/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-assess-credit",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/assess-credit/0.1.2/plugin.zip",
+      "sha256": "be83d254ee13cbac24e3fc97a52e91d9c353fa43d5b24e0afc7029c66b29208d",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 263440,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/assess-credit/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-cloudbase-skills",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/cloudbase-skills/0.1.0/plugin.zip",
+      "sha256": "d60429f6ed70ef7e16b4f1a11b9afccd28dbef1118eb760f3d045bf7726c7f7c",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 394719,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/cloudbase-skills/0.1.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-dingtalk-cli",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/dingtalk-cli/0.1.1/plugin.zip",
+      "sha256": "ea35300430e9bacadfe1857a865c041ca72b149e9ae06b20ec78cbec9f5fa948",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 7794,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/dingtalk-cli/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-finance-search",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/finance-search/0.1.0/plugin.zip",
+      "sha256": "78ef8ffaf5c24bdb203108aeddc66176735cb914e2e802b5ff9d28e465e923a2",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 3401,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/finance-search/0.1.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-find-clients",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/find-clients/0.1.2/plugin.zip",
+      "sha256": "d0d798b6d23fbaf360a2d72e8f5f6d6654e5ba34cb24916259c76023ff386c71",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 258509,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/find-clients/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-github",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/github/0.1.2/plugin.zip",
+      "sha256": "7320f15886d83625ed8eec944a7a2ab09fe99d64a42131ccec427eeecfd769b6",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 30173,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/github/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-gitlab",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.3",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/gitlab/0.1.3/plugin.zip",
+      "sha256": "398816e8782b1aa40b8f1f920805242c3a8688764c3073ef4576f0ae1d602c8a",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 17137,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/gitlab/0.1.3/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-hexin",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/hexin/0.1.0/plugin.zip",
+      "sha256": "dc3431e8e13d5396424f5d997786e377e3b5c2ecff6946a6e4fb34bfdb02416a",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 3406,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/hexin/0.1.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-accounting-reporting",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/accounting-reporting/icon.png",
+      "sha256": "e9e3215b0f0710b51b3c847a1c5b1ba74ab1ef1e0bd696c1fb571fc7c7e73f00",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 55723,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/accounting-reporting/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-alibaba-cloud-cli",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/alibaba-cloud-cli/icon.png",
+      "sha256": "37c636a4890e30a7ae7c3654144757b89c7d1a31d61c1b87ef40962d39e2b33c",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 4353,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/alibaba-cloud-cli/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-business-analysis",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/business-analysis/icon.png",
+      "sha256": "a9cc929ecadd10b65f14d791badcc362d0f98ed401d7e703effdd7e9d54d55b5",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 42229,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/business-analysis/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-corporate-client-acquisition",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/corporate-client-acquisition/icon.png",
+      "sha256": "14c41eae9e44018f0b838894bcf5f41eaa82f5956bda6f98b72308222e5a9076",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 54627,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/corporate-client-acquisition/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-corporate-due-diligence",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/corporate-due-diligence/icon.png",
+      "sha256": "4fe92a15d5e3c484949aaa3aca387771580f1b41bb27a6a6b2d593b71c042d07",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 58835,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/corporate-due-diligence/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-dingtalk-cli",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/dingtalk-cli/icon.png",
+      "sha256": "b3fb0715857df5d23213b5265166fabcb7f7b4b290890d7b5682a027cf39c85d",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 11431,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/dingtalk-cli/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-equity-research",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/equity-research/icon.png",
+      "sha256": "5947aa436837bb087362bb56e4f3c8345e0703c24fd7cb43625e322d3112c50f",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 60410,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/equity-research/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-finance-search",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/finance-search/icon.png",
+      "sha256": "525792b656ab1256b1ea96620e0b8f1597cd2a67a565d09b1e2401f04249dafe",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 31361,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/finance-search/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-fixed-income-research",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/fixed-income-research/icon.png",
+      "sha256": "66ec223808968fa6eff069e51b7270b400dcf96e89590ce0db1bcb31ff1102ce",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 39909,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/fixed-income-research/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-fund-research",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/fund-research/icon.png",
+      "sha256": "c5746366fa63ff929cf1d79ac9df558cd1e877733ec1b6182fd2e32cb7f42bf6",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 49625,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/fund-research/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-github",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/github/icon.png",
+      "sha256": "916da4b4e72d9e80df2b2162ae47d01db372caadaaaad2e3a26339284965a548",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 9851,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/github/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-gitlab",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/gitlab/icon.png",
+      "sha256": "b67e1ff07805a95f62f01a8ce1797ae3e25be22d79252f074a73056d249c62d5",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 13925,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/gitlab/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-hexin",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/hexin/icon.png",
+      "sha256": "7d4d20eda949c72f565814320118d32cb4e0d2a21cebdb73dc93eda202505d28",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 29961,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/hexin/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-lark-cli",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/lark-cli/icon.png",
+      "sha256": "ed459fb792bdd0abef88ee91f1ec82925d9c04fdbfcb3b72cf8d67b02f6f2748",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 8806,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/lark-cli/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-macro-strategy",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/macro-strategy/icon.png",
+      "sha256": "5ab1d6446237b06cd53a15094ecbff6aedf1f494a7623963d87abf1cef2e6fce",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 64768,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/macro-strategy/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-mimosa",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/mimosa/icon.png",
+      "sha256": "05466a98ac49aa40fd96cd1f371ee3ff8574d76668f5649b24c62dd1dfd6361e",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 7383,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/mimosa/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-obsidian",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/obsidian/icon.png",
+      "sha256": "6e4b6881c3e3c304cbcaa53ffb202aa68fece3a0082a451f1638ff2c730a1285",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 9277,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/obsidian/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-portfolio-tracking",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/portfolio-tracking/icon.png",
+      "sha256": "4002f708ba7a2943429fa8f17ae42d9349d6dbe6211333c94a51ee7fad81ee57",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 48984,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/portfolio-tracking/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-tencent-meeting-cli",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/tencent-meeting-cli/icon.png",
+      "sha256": "40f08c632268086cff8bbbbe6c292b95ccf5effbb1f7dfa9966592ed40df48c9",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 13689,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/tencent-meeting-cli/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-tianyancha",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/tianyancha/icon.png",
+      "sha256": "a870dabe0aca143d01ca44bf7e6030d8dbec74f5ad8cb0631edb633b81319ba1",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 42944,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/tianyancha/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-trade-calculator",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/trade-calculator/icon.png",
+      "sha256": "015b6077de431ed10934b0be6c6778f4184e747ec117c9ce163b62137e26bf8d",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 48636,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/trade-calculator/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-video-agent",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/video-agent/icon.png",
+      "sha256": "1e810b27ce9dfa630627d7f9203d6f24e160d5f90f81633f2d5366cdcfb87b91",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 3059,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/video-agent/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-video2code",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/video2code/icon.png",
+      "sha256": "d90515535bf9615f848c80f56d234d606be7cc8e513f31b8564d1895298769e1",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 6830,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/video2code/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-wecom-cli",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/wecom-cli/icon.png",
+      "sha256": "f89d5976ca6382cb1cab856bfd572daa543bd855e39431825cff0b14c1fbd1be",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 4317,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/wecom-cli/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-icon-wind",
+      "kind": "plugin-asset",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets/wind/icon.png",
+      "sha256": "f114698c09b13f2cade40ffece960347cd533219d7fd8fdaa20269980d93c264",
+      "sha256Provenance": "TOFU：清单只对插件 zip 发布 sha256，图标未发布；此值为 2026-09-22 首次获取时本机计算。",
+      "sizeBytes": 44159,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/assets/wind/icon.png",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
+          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-lark-cli",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/lark-cli/0.1.2/plugin.zip",
+      "sha256": "b53747950cf99c93da69ef72e481bff0090ab6f132c96db393053fbc282fe487",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 8202,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/lark-cli/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-mimosa",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "1.0.3",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/mimosa/1.0.3/plugin.zip",
+      "sha256": "63fa21a04a30511a8b9aa72d45cd4e964ed832bb677ca81d211efd337ee4684c",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 6008268,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/mimosa/1.0.3/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-model-deals",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/model-deals/0.1.1/plugin.zip",
+      "sha256": "89ea6e6697eed1c664842a4fd24b0e7f4f759aac4e8cc496a12c92110502cf79",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 271694,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/model-deals/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-obsidian",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/obsidian/0.1.2/plugin.zip",
+      "sha256": "16ce018f2249ba4f6f4ff838dd964f0bfcdcd730118cca49242259e39eb60a3f",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 56304,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/obsidian/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-pick-funds",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/pick-funds/0.1.1/plugin.zip",
+      "sha256": "b8c372f8c476be3bedfde000553d66f70799d1be8a7452a662be84d1bce071f0",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 259021,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/pick-funds/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-read-macro",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/read-macro/0.1.1/plugin.zip",
+      "sha256": "0c759fac6019d9413373f495b3476dfb5cec57c2ccf907dab1f5c091145fa513",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 269394,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/read-macro/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-run-fpa",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/run-fpa/0.1.1/plugin.zip",
+      "sha256": "fb4f384ff9f17cbc7432ca08733f668ae693377c4d6051176fcb69de08c5c60c",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 321485,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/run-fpa/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-tencent-meeting-cli",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.3",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/tencent-meeting-cli/0.1.3/plugin.zip",
+      "sha256": "a4516d203a5ccf9a22319d41700995d7952ad1d56f8cc64a08e371fc61047af8",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 5946,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/tencent-meeting-cli/0.1.3/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-tianyancha",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/tianyancha/0.1.0/plugin.zip",
+      "sha256": "e2072ff3740babd313a358a21422af6354ea4cb1c1a9eb6aa3255a0c28109c53",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 3193,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/tianyancha/0.1.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-vet-companies",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.2",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/vet-companies/0.1.2/plugin.zip",
+      "sha256": "345b82432863480ba0c9300c957426e4da4c5d4c82d8135bfd36ef6035239bcb",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 249240,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/vet-companies/0.1.2/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-video-agent-kit",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.4.3",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/video-agent-kit/0.4.3/plugin.zip",
+      "sha256": "c085e64a9b57492455578dd4df293fcb197e1e5811dce4b40270e17bd518f1cb",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 696732,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/video-agent-kit/0.4.3/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-video2code",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.6.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/video2code/0.6.0/plugin.zip",
+      "sha256": "9cbb927f5f039b28f93be35cbec3166792246fddf5ec58e16dfad6a38a07a5b7",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 380955,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/video2code/0.6.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-watch-positions",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/watch-positions/0.1.1/plugin.zip",
+      "sha256": "88ad5f72d182380b9b37225ba9773781f6f0a239e7edfa01a490c275e0c6cae6",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 247177,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/watch-positions/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-wecom-cli",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/wecom-cli/0.1.1/plugin.zip",
+      "sha256": "2d9b192856b0769ff66322baa168090855347ad82c57493b2a42c7c5b18329c5",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 7168,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/wecom-cli/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-wind",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.0",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/wind/0.1.0/plugin.zip",
+      "sha256": "10ee09ffc1647c5987c917947fc6aca4a150b467135dd18793ef76ad13d2a772",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 3503,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/wind/0.1.0/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
+      "id": "zhipu-plugin-write-research",
+      "kind": "plugin-package",
+      "scope": "runtime",
+      "vendor": "zhipu",
+      "version": "0.1.1",
+      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/plugins/write-research/0.1.1/plugin.zip",
+      "sha256": "1637f24728302dab0821023cb0fa8c5f096047f053ccccefa4d7775404dbc9a0",
+      "sha256Provenance": "取自官方 marketplace.json 的 source.sha256（官方发布值）。",
+      "sizeBytes": 425361,
+      "vendoredPath": "third-party/vendored/zhipu-official-plugin/plugins/write-research/0.1.1/plugin.zip",
+      "status": "ready",
+      "consumers": [
+        {
+          "file": "apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts",
+          "evidence": "type === \"zip\""
+        }
+      ]
+    },
+    {
       "id": "node-runtime-24.14.0-darwin-arm64",
       "kind": "runtime",
       "scope": "build",
@@ -81,13 +1043,15 @@
       "sha256": "a1a54f46a750d2523d628d924aab61758a51c9dad3e0238beb14141be9615dd3",
       "sizeBytes": 51058258,
       "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-darwin-arm64.tar.gz",
-      "status": "pending",
+      "status": "prerequisite",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-runtime-24.14.0-darwin-x64",
@@ -99,13 +1063,15 @@
       "sha256": "f2879eb810e25993a0578e5d878930266fd2eafcffe9f2839b3d8db354d4879e",
       "sizeBytes": 52238343,
       "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-darwin-x64.tar.gz",
-      "status": "pending",
+      "status": "prerequisite",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-runtime-24.14.0-linux-arm64",
@@ -117,13 +1083,15 @@
       "sha256": "e7adfca03d9173276114a6f2219df1a7d25e1bfd6bbd771d3f839118a2053094",
       "sizeBytes": 29990440,
       "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-linux-arm64.tar.xz",
-      "status": "pending",
+      "status": "prerequisite",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-runtime-24.14.0-linux-x64",
@@ -135,13 +1103,15 @@
       "sha256": "41cd79bb7877c81605a9e68ec4c91547774f46a40c67a17e34d7179ef11729df",
       "sizeBytes": 31039304,
       "vendoredPath": "third-party/vendored/node/v24.14.0/node-v24.14.0-linux-x64.tar.xz",
-      "status": "pending",
+      "status": "prerequisite",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-runtime-24.14.0-win-arm64",
@@ -153,14 +1123,16 @@
       "sha256": "8c5fd45a4a1fd3cc4a6f07da8803b05194108906cb6fb7d962448a12582a5922",
       "sizeBytes": 80470176,
       "vendoredPath": "third-party/vendored/node/v24.14.0/win-arm64-node.exe",
-      "status": "pending",
+      "status": "prerequisite",
       "sizeWarning": "76.7 MiB——超过 GitHub 50MB 告警线",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-runtime-24.14.0-win-x64",
@@ -172,14 +1144,16 @@
       "sha256": "63c259c81e5d472b5f11c8d506070130cb04a1ecf84b80377a34ed6ec9048088",
       "sizeBytes": 91380224,
       "vendoredPath": "third-party/vendored/node/v24.14.0/win-x64-node.exe",
-      "status": "pending",
+      "status": "prerequisite",
       "sizeWarning": "87.1 MiB——距 GitHub 100MB 硬限仅 13 MiB，是本次体积门的主要风险项",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "ensureDownloadedArtifact"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
       "id": "node-shasums-24.14.0",
@@ -192,220 +1166,29 @@
       "sha256Provenance": "TOFU：该文件官方未发布自校验值，此值于 2026-09-22 首次获取时本机计算。它只是防篡改的第二道锁——真正的信任锚是各 artifact 条目里独立记录的 sha256（来自官方发布）。",
       "sizeBytes": 2256,
       "vendoredPath": "third-party/vendored/node/v24.14.0/SHASUMS256.txt",
-      "status": "pending",
+      "status": "prerequisite",
       "whyNeeded": "sea-node-download.mjs:90 在下载任何 artifact 之前先取这份清单。漏掉它会让断网构建失败在「下载 SHASUMS」这一步，现象是「资源明明在本地却仍说下载失败」。",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs",
           "evidence": "SHASUMS256.txt"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "Node 运行时来自 nodejs.org，属于**第三方通用包**，不是智谱自家的远程资源。按判据不保留。且它是运行与构建的环境前提（跑 pnpm/CLI 本就需要），任何目标环境都必然具备；make install 全程不取它，只有可选的 pnpm build:sea 需要，而该步骤既有的 --node-binary 已支持注入环境自带的 Node。缺失时必须指名失败，不得静默回源（Pre-Mortem R1）。"
     },
     {
-      "id": "src-bfs",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "4.1.1",
-      "url": "https://codeload.github.com/tavianator/bfs/tar.gz/f220fb5afd8dd7f46b1d1a2ae9c36261eaccf3cd",
-      "sha256": "26a122dbafc81f42a60f32d842ca5b4f30c943ba2efff1d61db827bda5efe742",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/bfs-4.1.1.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "tavianator/bfs"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-ugrep",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "7.8.4",
-      "url": "https://codeload.github.com/Genivia/ugrep/tar.gz/550599a6434fc5315fb6ecd415a5d859e6d846a8",
-      "sha256": "0b3ed2dc7c3902d89f2ef8b66961db2e31a32f240fa2a2e0eb8d559827f36dab",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/ugrep-7.8.4.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "Genivia/ugrep"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-oniguruma",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "6.9.10",
-      "url": "https://github.com/kkos/oniguruma/releases/download/v6.9.10/onig-6.9.10.tar.gz",
-      "sha256": "2a5cfc5ae259e4e97f86b68dfffc152cdaffe94e2060b770cb827238d769fc05",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/oniguruma-6.9.10.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "kkos/oniguruma"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-pcre2",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "10.43",
-      "url": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.43/pcre2-10.43.tar.gz",
-      "sha256": "889d16be5abb8d05400b33c25e151638b8d4bac0e2d9c76e9d6923118ae8a34e",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/pcre2-10.43.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "PCRE2Project/pcre2"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-zlib",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "1.3.1",
-      "url": "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
-      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/zlib-1.3.1.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "madler/zlib"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-bzip2",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "1.0.8",
-      "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
-      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/bzip2-1.0.8.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "sourceware.org/pub/bzip2"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-zstd",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "1.5.6",
-      "url": "https://codeload.github.com/facebook/zstd/tar.gz/794ea1b0afca0f020f4e57b6732332231fb23c70",
-      "sha256": "33eaa5611d330dbc037e32554521d4e4a8edf2358df7d9b74d586c510a4bcec6",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/zstd-1.5.6.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "facebook/zstd"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "src-brotli",
-      "kind": "source-tarball",
-      "scope": "build",
-      "version": "1.1.0",
-      "url": "https://codeload.github.com/google/brotli/tar.gz/ed738e842d2fbdf2d6459e39267a633c4a9b2f5d",
-      "sha256": "aaa739962a45b508b2e783b915e6b2b57ed3b12bd4b0feac73acfb144dffa54f",
-      "sizeBytes": null,
-      "vendoredPath": "third-party/vendored/native-search-src/brotli-1.1.0.tar.gz",
-      "status": "pending",
-      "consumers": [
-        {
-          "file": "scripts/native-search-tools-config.mjs",
-          "evidence": "google/brotli"
-        },
-        {
-          "file": "scripts/native-search-tools-process.mjs",
-          "evidence": "source.url"
-        }
-      ]
-    },
-    {
-      "id": "plugin-marketplace-manifest",
-      "kind": "marketplace-manifest",
-      "scope": "runtime",
-      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/marketplace.json",
-      "sha256": null,
-      "sizeBytes": null,
-      "vendoredPath": null,
-      "status": "not-vendored",
-      "note": "Phase 1 不处理（属 F-006）。已有内置分片 bundled-marketplace.json 兜底，故断网不会得到空市场——但图标资产没有兜底，见下条。",
-      "consumers": [
-        {
-          "file": "packages/shared/src/plugin-marketplaces.ts",
-          "evidence": "cdn-zcode.z.ai/zcode/official-plugin/marketplace.json"
-        },
-        {
-          "file": "apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts",
-          "evidence": "cdn-marketplace.json"
-        }
-      ]
-    },
-    {
-      "id": "plugin-asset-icons",
+      "id": "cloudbase-plugin-icon-external",
       "kind": "plugin-asset",
       "scope": "runtime",
-      "url": "https://cdn-zcode.z.ai/zcode/official-plugin/assets",
+      "vendor": "third-party",
+      "url": "https://docs.cloudbase.net/en/img/favicon.png",
       "sha256": null,
       "sizeBytes": null,
       "vendoredPath": null,
-      "status": "not-vendored",
-      "note": "Phase 1 不处理（属 F-006）。该 URL 在 official-plugin-definitions.ts:58 被直接渲染，没有任何本地兜底。",
-      "consumers": [
-        {
-          "file": "apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts",
-          "evidence": "OFFICIAL_PLUGIN_ASSETS_BASE_URL"
-        }
-      ]
+      "status": "excluded",
+      "vendoring": "excluded",
+      "excludedReason": "cloudbase 插件图标（docs.cloudbase.net 外域） 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
     },
     {
       "id": "plugin-install-github",
@@ -415,14 +1198,200 @@
       "sha256": null,
       "sizeBytes": null,
       "vendoredPath": null,
-      "status": "not-vendored",
+      "status": "excluded",
       "note": "Phase 1 不处理（属 F-006）。任意第三方插件无法预置，只能降级。安全缺口已在痛点文档 §8 登记为独立 Issue：此路径不校验 sha256，而 type:zip 路径校验 64 位 sha256。",
       "consumers": [
         {
           "file": "apps/zcode-cli/packages/adapters/src/plugins/github-archive-source.ts",
           "evidence": "api.github.com"
         }
-      ]
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "GitHub zipball/zip 插件源 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-bfs",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "4.1.1",
+      "url": "https://codeload.github.com/tavianator/bfs/tar.gz/f220fb5afd8dd7f46b1d1a2ae9c36261eaccf3cd",
+      "sha256": "26a122dbafc81f42a60f32d842ca5b4f30c943ba2efff1d61db827bda5efe742",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "tavianator/bfs"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "bfs 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-brotli",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.1.0",
+      "url": "https://codeload.github.com/google/brotli/tar.gz/ed738e842d2fbdf2d6459e39267a633c4a9b2f5d",
+      "sha256": "aaa739962a45b508b2e783b915e6b2b57ed3b12bd4b0feac73acfb144dffa54f",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "google/brotli"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "brotli 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-bzip2",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.0.8",
+      "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "sourceware.org/pub/bzip2"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "bzip2 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-oniguruma",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "6.9.10",
+      "url": "https://github.com/kkos/oniguruma/releases/download/v6.9.10/onig-6.9.10.tar.gz",
+      "sha256": "2a5cfc5ae259e4e97f86b68dfffc152cdaffe94e2060b770cb827238d769fc05",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "kkos/oniguruma"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "oniguruma 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-pcre2",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "10.43",
+      "url": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.43/pcre2-10.43.tar.gz",
+      "sha256": "889d16be5abb8d05400b33c25e151638b8d4bac0e2d9c76e9d6923118ae8a34e",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "PCRE2Project/pcre2"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "pcre2 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-ugrep",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "7.8.4",
+      "url": "https://codeload.github.com/Genivia/ugrep/tar.gz/550599a6434fc5315fb6ecd415a5d859e6d846a8",
+      "sha256": "0b3ed2dc7c3902d89f2ef8b66961db2e31a32f240fa2a2e0eb8d559827f36dab",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "Genivia/ugrep"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "ugrep 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-zlib",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.3.1",
+      "url": "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz",
+      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "madler/zlib"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "zlib 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
+    },
+    {
+      "id": "src-zstd",
+      "kind": "source-tarball",
+      "scope": "build",
+      "version": "1.5.6",
+      "url": "https://codeload.github.com/facebook/zstd/tar.gz/794ea1b0afca0f020f4e57b6732332231fb23c70",
+      "sha256": "33eaa5611d330dbc037e32554521d4e4a8edf2358df7d9b74d586c510a4bcec6",
+      "sizeBytes": null,
+      "vendoredPath": null,
+      "status": "excluded",
+      "consumers": [
+        {
+          "file": "scripts/native-search-tools-config.mjs",
+          "evidence": "facebook/zstd"
+        },
+        {
+          "file": "scripts/native-search-tools-process.mjs",
+          "evidence": "source.url"
+        }
+      ],
+      "vendoring": "excluded",
+      "excludedReason": "zstd 的上游源码包 属于**第三方通用包**，不属于智谱自家的远程资源。按既定判据（智谱自有资源在本地留一份；第三方通用包直接下载即可、不保留）不做本地化。它仍在台账中登记，对账因此看得见这个获取点。"
     }
   ],
   "alreadyLocal": [
@@ -561,5 +1530,22 @@
       "reason": "开发期提示轨迹代理，上游地址由使用者传入；不随 CLI 分发。",
       "coveredBy": []
     }
-  ]
+  ],
+  "vendoringExclusions": {
+    "policy": "vendoring=excluded 的条目仍在台账中登记（对账必须看得见它），但不参与本地化、不计入体积预算、其落点被 .gitignore 排除以免误提交。",
+    "count": 17,
+    "rationale": "把「智谱自家的远程资源」与「第三方通用包」分开：前者随仓库分发以保证断网可用，后者由环境在使用时自行获取。"
+  },
+  "vendorCriterion": {
+    "rule": "智谱自家的远程资源在本地留一份；第三方通用包直接下载即可、不保留。",
+    "appliedAt": "2026-09-22（用户澄清后重构）",
+    "zhipu": ["cdn-zcode.z.ai/zcode/official-plugin/**（清单、26 个插件包、图标）"],
+    "thirdPartyExcluded": [
+      "nodejs.org 的 Node 运行时",
+      "codeload/sourceware/GitHub Releases 的上游源码包",
+      "api.github.com 的插件 zipball",
+      "docs.cloudbase.net 的外域图标"
+    ],
+    "exemptServices": "智谱自家的 LLM/鉴权端点（zcode.z.ai/api/v1/oauth、api.z.ai、open.bigmodel.cn、chat.z.ai）是服务端点而非可下载资源，不适用本地化。"
+  }
 }

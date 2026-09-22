@@ -13,19 +13,35 @@
 
 以下命令从仓库根目录执行：
 
-| 用途             | 命令                                      |
-| ---------------- | ----------------------------------------- |
-| 类型检查         | `pnpm typecheck`                          |
-| Lint             | `pnpm lint` / `pnpm lint:fix`             |
-| 格式检查         | `pnpm fmt:check`                          |
-| CLI / TUI 开发   | `pnpm --filter @zcode/cli dev`            |
-| 提交前检查       | `pnpm verify:pre-push`（Lint 与架构检查） |
-| 架构检查         | `pnpm architecture:check --changed`       |
-| 模块阅读包       | `pnpm architecture:context <module-id>`   |
-| 未使用依赖与导出 | `pnpm knip`                               |
-| 导出引用查询     | `pnpm dep:refs --list-exports <file>`     |
+| 用途             | 命令                                       |
+| ---------------- | ------------------------------------------ |
+| 类型检查         | `pnpm typecheck`                           |
+| Lint             | `pnpm lint` / `pnpm lint:fix`              |
+| 格式检查         | `pnpm fmt:check`                           |
+| CLI / TUI 开发   | `pnpm --filter @zcode/cli dev`             |
+| 提交前检查       | `pnpm verify:pre-push`（Lint 与架构检查）  |
+| 架构检查         | `pnpm architecture:check --changed`        |
+| 模块阅读包       | `pnpm architecture:context <module-id>`    |
+| 未使用依赖与导出 | `pnpm knip`                                |
+| 导出引用查询     | `pnpm dep:refs --list-exports <file>`      |
+| 资源台账对账     | `node scripts/remote-resources.mjs check`  |
+| 本地副本校验     | `node scripts/vendor-resources.mjs verify` |
+| 刷新本地副本     | `node scripts/vendor-resources.mjs fetch`  |
+| 断网验收         | `node test/offline-acceptance.mjs`         |
+| 本地化资源扫描   | `node test/vendor-scan.mjs`                |
 
 测试入口以目标包当前的 `package.json` 和实际测试文件为准，不假定存在统一的单测或 E2E 命令。
+
+### 本地化资源（`third-party/vendored/`）
+
+官方插件市场（清单 + 26 个插件包 + 图标，约 11 MiB）随仓库分发，使断网环境仍可列出并安装智谱插件。台账 `third-party/resources.json` 是**唯一真源**：资源范围按归属方划分——**智谱自家的远程资源在本地留一份，第三方通用包直接下载即可、不保留**（Node 运行时、上游源码包因此不入库）。
+
+改这块时注意：
+
+- **落点不得落进任何 `.gitignore`**。`apps/zcode-cli/.gitignore` 有一条裸 `vendor` 规则，`apps/zcode-cli/**/vendor*` 会被**静默忽略**——本地一切正常，克隆到断网机器才全线失败。入库前跑 `vendor-resources.mjs assert`。
+- **改 `@zcode/bootstrap` 必须单独重建它**。`@zcode/cli` 打包时解析的是 bootstrap 的 `dist` 而非源码；只重建 adapters 与 cli 会让改动"没进产物却也不报错"。
+- **`@zcode/contracts` 的 `exports` 指向 `.ts` 源码**，只有打包器能解析，因此这条链路无法用 node/tsx 直接单测，验证要走真实产物（`pnpm --filter @zcode/cli build` 后用 `ZCODE_STORAGE_DIR` 隔离跑 CLI）。
+- 排障：`ZCODE_DEBUG_VENDOR=1` 会打印本地副本根的解析过程；`ZCODE_VENDORED_ASSETS_ROOT` 可显式指定副本位置。`zcode doctor` 会报出本地化覆盖率。
 
 - `apps/zcode-cli`：Agent CLI、TUI 与运行时；其 `packages/`、`tools/`、`dependencies/` 整棵子树均在保留边界内。
 - `packages/shared`、`packages/model-option-map`：共享协议与类型、模型选项映射。

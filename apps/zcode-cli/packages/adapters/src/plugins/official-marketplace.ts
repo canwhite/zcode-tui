@@ -1,6 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@zcode/contracts";
+import {
+  readVendoredOfficialAsset,
+  ZHIPU_OFFICIAL_ASSET_BASE_URL,
+} from "./official-vendored-assets.js";
 
 const BUNDLED_PARTITION_FILE = "bundled-marketplace.json";
 const CDN_PARTITION_FILE = "cdn-marketplace.json";
@@ -32,17 +36,54 @@ export function writeCdnOfficialMarketplacePartitionSync(input: {
   return rebuildOfficialMarketplaceSync(input.storageRoot);
 }
 
-export function loadBundledOfficialPluginRootsSync(
-  storageRoot: string,
-): string[] | undefined {
+/**
+ * 用随仓库分发的官方清单为 CDN 分片播种（**仅在分片尚不存在时**）。
+ *
+ * 为什么播到 CDN 分片、而不是内置分片：随仓库分发的 `marketplace.json` 就是 CDN 目录的
+ * 内容快照，条目带 `source.url` + `source.sha256`；而内置插件的条目带 `cachePath`
+ * （内容已 seed 到本地缓存）。两者是不同形态，混进内置分片会和 `loadBundledOfficialPluginRootsSync`
+ * 的 cachePath 校验冲突。放进 CDN 分片既符合语义，也让后续的 CDN 刷新
+ * （`writeCdnOfficialMarketplacePartitionSync`）自然覆盖它，不需要任何额外分支。
+ *
+ * 已存在则不覆盖：用户可能已经从 CDN 刷新到了更新的目录，回退成仓库里那份旧快照
+ * 会让"刷新"这个动作失去意义。
+ *
+ * @returns 是否真的播种了
+ */
+export function seedCdnPartitionFromVendoredSync(storageRoot: string): boolean {
+  if (process.env.ZCODE_DEBUG_VENDOR) {
+    console.error(`[DEBUG-vendor] seed 被调用，storageRoot=${storageRoot}`);
+  }
+  if (readJsonRecord(partitionPath(storageRoot, CDN_PARTITION_FILE)) !== undefined) {
+    if (process.env.ZCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] cdn 分片已存在，跳过`);
+    return false;
+  }
+
+  const bytes = readVendoredOfficialAsset(`${ZHIPU_OFFICIAL_ASSET_BASE_URL}marketplace.json`);
+  if (!bytes) {
+    if (process.env.ZCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] 读不到本地清单`);
+    return false;
+  }
+
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(bytes.toString("utf8"));
+  } catch {
+    // 本地副本损坏不是致命错误：不播种即可，市场会退化成仅内置插件。
+    // 损坏本身由 `node scripts/vendor-resources.mjs verify` 负责报出。
+    return false;
+  }
+  if (!isRecord(manifest) || manifest.name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE) return false;
+
+  writeCdnOfficialMarketplacePartitionSync({ manifest, storageRoot });
+  return true;
+}
+
+export function loadBundledOfficialPluginRootsSync(storageRoot: string): string[] | undefined {
   const bundledPartition = readBundledPartition(storageRoot);
   if (!bundledPartition) return undefined;
 
-  const officialCacheRoot = resolve(
-    storageRoot,
-    "cache",
-    ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
-  );
+  const officialCacheRoot = resolve(storageRoot, "cache", ZCODE_OFFICIAL_PLUGIN_MARKETPLACE);
   return readPluginEntries(bundledPartition.manifest).flatMap((plugin) => {
     const name = readPluginName(plugin);
     const cachePath = typeof plugin.cachePath === "string" ? plugin.cachePath : undefined;

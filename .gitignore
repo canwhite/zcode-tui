@@ -57,3 +57,14 @@ __pycache__/
 
 # 本地痛点记录，仅用于个人拆解流程，不入库。
 painpoints/
+
+# 本地化资源里「第三方通用包」的落点。判据见 third-party/resources.json 的 vendorCriterion：
+# 智谱自家的远程资源在本地留一份；第三方通用包直接下载即可、不保留。
+#   node/              —— nodejs.org 的 Node 运行时（336 MiB，跑 pnpm/CLI 本就必装）
+#   native-search-src/ —— codeload / sourceware 的上游源码包（仅 pnpm build:native-search 用）
+# 这些不入库，落点因此排除在索引外，避免误提交。
+#
+# 注意方向性：third-party/vendored/ 下**唯一**需要入库的是 zhipu-official-plugin/，
+# 它必须入库、且不得被任何 .gitignore 命中（由 `node scripts/vendor-resources.mjs assert` 把关）。
+third-party/vendored/node/
+third-party/vendored/native-search-src/

@@ -1,3 +1,5 @@
+// Modified by ZCode: 新增 configure 的 --api-key / --provider 参数，Key 可从环境变量读取以免出现在进程命令行。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import { parseArgs } from "node:util";
 
 export const parseGlobalArgs = (argv: string[]) =>

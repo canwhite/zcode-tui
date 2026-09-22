@@ -1,3 +1,5 @@
+// Modified by ZCode: 同步 CLI 帮助文案（新增 configure，订正 doctor 描述）。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import type { ZCodeCopy } from "../types.js";
 
 export const enUS: ZCodeCopy = {

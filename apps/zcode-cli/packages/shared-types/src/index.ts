@@ -1,3 +1,5 @@
+// Modified by ZCode: 新增 configure 非交互写入所需的字段（Key / 厂商 / 模型覆盖）。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 export type JsonValue =
   | boolean
   | null

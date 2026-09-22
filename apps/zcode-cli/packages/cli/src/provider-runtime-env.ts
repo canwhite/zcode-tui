@@ -1,3 +1,5 @@
+// Modified by ZCode: 让 configure 命令也先准备好内置与个人 Provider Config 的路径环境变量。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";

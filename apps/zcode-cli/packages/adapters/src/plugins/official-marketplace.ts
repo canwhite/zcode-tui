@@ -1,3 +1,5 @@
+// Modified by ZCode: 新增 seedCdnPartitionFromVendoredSync：用随仓库分发的官方清单为 CDN 分片播种。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@zcode/contracts";

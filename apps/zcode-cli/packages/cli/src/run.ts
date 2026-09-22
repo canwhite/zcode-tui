@@ -1,3 +1,5 @@
+// Modified by ZCode: 接入 doctor 自检与 CLI 入口级 .env 统一加载（痛点：make install 一条命令 + .env 配置厂商）。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import { dirname } from "node:path";
 import { extractDisallowedToolsArgs, parseGlobalArgs } from "./arguments.js";
 import { createNodeLoggerFactory } from "@zcode/adapters";

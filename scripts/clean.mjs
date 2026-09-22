@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// Modified by ZCode: 新增受保护根断言与清理后快照自检，避免误删随仓库分发的本地化资源。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 // 清空可重建产物：node_modules 与 dist。
 //
 // 与本地化资源的关系（docs/plan-offline-vendoring.md Step 2.4）：

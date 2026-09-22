@@ -1,3 +1,5 @@
+// Modified by ZCode: 抽出入口统一加载 .env 的实现（原先 login / prompt / tui-auth / protocol server 各自加载）。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import { existsSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, parse, resolve } from "node:path";

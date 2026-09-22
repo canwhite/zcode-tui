@@ -1,4 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+// Modified by ZCode: 新增「官方插件本地化」自检项：报出本地化覆盖率，副本缺失或损坏时指名失败。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { resolveRuntimeZCodeEndpointOrigin, DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "@zcode/shared";
@@ -8,6 +10,11 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
 } from "@zcode/provider-node";
 import {
+  CONFIG_HOME_COMMANDS_DIR,
+  CONFIG_HOME_DIR,
+  CONFIG_HOME_INSTRUCTION_FILE,
+  CONFIG_HOME_SKILLS_DIR,
+  getUserConfigHome,
   isZhipuOfficialAssetUrl,
   readVendoredOfficialAsset,
   resolveVendoredOfficialAssetPath,
@@ -480,9 +487,90 @@ function checkVendoredOfficialResources(): DoctorCheck {
 }
 
 /**
+ * 用户级配置面自检。
+ *
+ * 目的不是校验「目录好不好」，而是让**接轨了但没生效**当场可见：
+ * 用户改了 `~/.claude` 却看不到效果时，第一件事是确认 zcode 到底在读哪里。
+ *
+ * 只列数量与路径，**绝不回显任何配置值**（该目录下可能含密钥）。
+ */
+function checkConfigHome(env: CliEnv): DoctorCheck[] {
+  const checks: DoctorCheck[] = [];
+  const configHome = getUserConfigHome(env);
+  const homeExists = existsSync(configHome);
+  const skillsDir = join(configHome, CONFIG_HOME_SKILLS_DIR);
+
+  checks.push({
+    id: "confighome.path",
+    label: "用户级配置家目录",
+    status: "pass",
+    detail: `${configHome}（${homeExists ? "已存在" : "不存在"}）`,
+  });
+
+  if (homeExists) {
+    const commandsDir = join(configHome, CONFIG_HOME_COMMANDS_DIR);
+    const instructionFile = join(configHome, CONFIG_HOME_INSTRUCTION_FILE);
+    checks.push({
+      id: "confighome.contents",
+      label: "用户级配置",
+      status: "pass",
+      detail: `skill ${countSkillEntries(skillsDir)} 个，自定义命令 ${countSkillEntries(commandsDir)} 个，指令文件 ${existsSync(instructionFile) ? CONFIG_HOME_INSTRUCTION_FILE : "无"}`,
+    });
+  } else {
+    // 缺失是**正常状态**（不用个人配置的人很多），不是故障 —— 故 PASS 而非 WARN。
+    // 但要让用户知道「它不在」以及「放哪能生效」，否则会怀疑是自己的配置写错了。
+    checks.push({
+      id: "confighome.contents",
+      label: "用户级配置",
+      status: "pass",
+      detail: `未使用（${configHome} 不存在，zcode 不会创建它）`,
+      fix: `如需个人 skill / 指令，自行创建 ${configHome} 并放入 ${CONFIG_HOME_SKILLS_DIR}/、${CONFIG_HOME_INSTRUCTION_FILE}`,
+    });
+  }
+
+  // 存量迁移提示：严格独占已生效，旧路径下的 skill **不再被读取**。
+  //
+  // 这一段刻意放在 `homeExists` 分支**之外**：既有 `~/.zcode/skills`、
+  // 又从未建过 `~/.claude` 的用户，正是受影响最严重的一群 ——
+  // 若把提示塞进 `homeExists === true` 分支里，他们恰好收不到迁移提示，
+  // skill 会静默消失，且表现与「接轨逻辑写错了」完全一致。
+  const legacySkills = join(homedir(), ".zcode", CONFIG_HOME_SKILLS_DIR);
+  if (countSkillEntries(legacySkills) > 0) {
+    checks.push({
+      id: "confighome.legacySkills",
+      label: "迁移提示",
+      status: "warn",
+      detail: `检测到旧位置仍有 skill：${legacySkills}（**当前已不再读取**）`,
+      fix: `迁移到 ${skillsDir} 后旧位置的 skill 才会重新生效`,
+    });
+  }
+
+  return checks;
+}
+
+/**
  * 汇总安装自检结论。`zcode doctor` 与 `make install` 的收口自检共用这一份实现，
  * 避免出现两套判定标准。
  */
+
+/**
+ * 统计目录下「含 SKILL.md」的条目数；目录不存在或不可读时返回 0。
+ *
+ * 刻意**不用 `Dirent.isDirectory()`**：个人 skill 常以**软链**形式安装
+ * （本机 12/13 就是这样），而 `isDirectory()` 对软链返回 false，
+ * 会把它们全部漏计 —— 报出「3 个」而实际有 13 个，比不报更误导。
+ * 判据与 skill 发现层对齐：有 SKILL.md 才算一个 skill。
+ */
+function countSkillEntries(directory: string): number {
+  try {
+    return readdirSync(directory)
+      .filter((name) => !name.startsWith("."))
+      .filter((name) => existsSync(join(directory, name, "SKILL.md"))).length;
+  } catch {
+    return 0;
+  }
+}
+
 export function collectDoctorReport(gate: DoctorGateOptions): DoctorReport {
   const checks: DoctorCheck[] = [
     ...checkToolchain(gate.env, gate.repoRoot),
@@ -493,6 +581,7 @@ export function collectDoctorReport(gate: DoctorGateOptions): DoctorReport {
     checkVendorDeclaration(gate.env, readActiveModelSelection(gate.env)?.providerId),
     checkBuiltinProviderConfig(gate.env),
     checkVendoredOfficialResources(),
+    ...checkConfigHome(gate.env),
   ];
   return {
     ok: !checks.some((check) => check.status === "fail"),

@@ -1,3 +1,5 @@
+// Modified by ZCode: 本地优先读取智谱官方插件包（只改寻址，清单发布的 sha256 校验不变），回源失败时给出指名诊断。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { createHash } from "node:crypto";
 import { isZhipuOfficialAssetUrl, readVendoredOfficialAsset } from "./official-vendored-assets.js";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";

@@ -1,3 +1,5 @@
+# Modified by ZCode: 排除第三方通用包的本地缓存落点，同时确保随仓库分发的本地化资源不被忽略。
+# 本分支全部改动的清单见 README.md「本分支的改动」。
 node_modules/
 dist/
 dist-release/

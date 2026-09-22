@@ -1,3 +1,5 @@
+// Modified by ZCode: 导出本地化资源的寻址原语，供 doctor 做本地化覆盖率自检。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type {

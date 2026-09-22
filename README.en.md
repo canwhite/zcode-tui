@@ -98,6 +98,53 @@ Scope rule: **Z.ai's own remote resources are kept locally; generic third-party 
 
 > Note: offline availability covers **listing and installing** plugins. Most of these plugins are themselves network-dependent (financial data, company lookups, and similar); their business data comes from third-party services and is out of scope.
 
+## Changes in This Branch
+
+> This repository is a slimmed-down branch relative to upstream (see [docs/dependency-boundary.md](docs/dependency-boundary.md) for the retention boundary). On top of that, this branch makes the changes below. **Every modified upstream file carries a `Modified by ZCode:` header**; per-file detail follows.
+
+### New files (original to this branch)
+
+| File                                                                       | Purpose                                                                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `scripts/remote-resources.mjs`                                             | Remote-resource ledger reader and reconciliation (ledger vs. actual fetch sites; a non-empty difference fails)      |
+| `scripts/vendor-resources.mjs`                                             | Localized-resource downloader and verifier (sha256-checked atomic writes, idempotent, ignore-path assertions)       |
+| `test/offline-acceptance.mjs`                                              | Offline acceptance gate, 8 assertions                                                                               |
+| `test/vendor-scan.mjs`                                                     | Behavioural scan of vendored resources (backdoors + special-case logic), including decryption of protected payloads |
+| `third-party/resources.json`                                               | Remote-resource ledger (single source of truth)                                                                     |
+| `third-party/vendored/zhipu-official-plugin/**`                            | Vendored official plugin marketplace (manifest + 26 plugin packages + icons, ~11 MiB)                               |
+| `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | Official CDN URL → local-copy resolution primitives                                                                 |
+
+### Modified files
+
+**Offline localization** (`painpoints/done/pp2.md`)
+
+| File                                                                   | Change                                                                                                                                                               |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts`           | Plugin archives are now read **local-first** (addressing only; the manifest-published sha256 check is unchanged); failed fetch produces a resource-naming diagnostic |
+| `apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts` | Added `seedCdnPartitionFromVendoredSync` to seed the CDN partition from the vendored manifest                                                                        |
+| `apps/zcode-cli/packages/adapters/src/plugins/index.ts`                | Exported the localization resolution primitives                                                                                                                      |
+| `apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts`         | Seeds the CDN partition after writing the bundled one, so official plugins are listed on a first offline start                                                       |
+| `scripts/clean.mjs`                                                    | Added a protected-root assertion and a post-clean snapshot check so shipped resources are never deleted                                                              |
+| `.gitignore`                                                           | Ignores local caches of generic third-party packages while keeping the shipped localization copies tracked                                                           |
+
+**Vendor configuration and installation** (`painpoints/done/pp4.md`, `pp5.md`, `pp8.md`)
+
+| File                                                             | Change                                                                                                                                  |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/zcode-cli/packages/cli/src/run.ts`                         | Wires in the `doctor` self-check and entry-level `.env` loading                                                                         |
+| `apps/zcode-cli/packages/cli/src/env.ts`                         | Extracted the single entry-level `.env` loader (previously each command loaded its own)                                                 |
+| `apps/zcode-cli/packages/cli/src/provider-runtime-env.ts`        | `configure` now also prepares the built-in and personal Provider Config paths                                                           |
+| `apps/zcode-cli/packages/cli/src/arguments.ts`                   | Added `configure`'s `--api-key` / `--provider`; the key can come from the environment so it never appears on the command line           |
+| `apps/zcode-cli/packages/cli/src/doctor.ts` (new in this branch) | Added an "official plugin localization" self-check reporting coverage; fails by name when copies are missing or corrupt                 |
+| `apps/zcode-cli/packages/shared-types/src/index.ts`              | Added the fields `configure` needs for non-interactive writes                                                                           |
+| `packages/provider/src/model-selection-config.ts`                | Distinguishes registry-order fallback from "the configured model is no longer selectable"; the two degradations are reported separately |
+| `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts`      | Synced CLI help text (added `configure`, corrected the `doctor` description)                                                            |
+| `.env.example`                                                   | Reworked into a `ZCODE_VENDOR`-driven four-field vendor configuration template                                                          |
+
+> `package.json` and `apps/zcode-cli/package.json` also changed (the `engines.node` floor, the `configure` script, and so on), but **JSON cannot carry comments**, so no `Modified by ZCode:` header can be placed inside them — this section is the record for those. `pnpm-lock.yaml` is generated and likewise unannotated.
+
+The remainder are this branch's own documentation (`README*`, `AGENTS.md`, `docs/`).
+
 ## Project Notice
 
 See [NOTICE.md](NOTICE.md) for feature and promotion scope, maintenance policy, execution and data risks, licensing, and third-party copyright information.

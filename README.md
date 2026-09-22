@@ -98,6 +98,67 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 > 注意：断网可用指的是**插件的列出与安装**。这些插件本身多为联网业务插件（金融数据、公司查询等），其业务数据来自第三方服务，不在随仓库分发的范围内。
 
+## 本分支的改动
+
+> 本仓库相对上游为精简分支（保留边界见 [docs/dependency-boundary.md](docs/dependency-boundary.md)）。在此之上，本分支另做了下列改动。**被修改的上游文件已在文件头标注 `Modified by ZCode:`**，逐条说明见下表。
+
+### 新增文件（本分支原创）
+
+| 文件                                                                       | 作用                                                                 |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `scripts/remote-resources.mjs`                                             | 远程资源台账的读取与对账（台账 vs 源码实际获取点，差集非空即失败）   |
+| `scripts/vendor-resources.mjs`                                             | 本地化资源的下载与校验（sha256 校验后原子落盘、幂等、落点忽略断言）  |
+| `test/offline-acceptance.mjs`                                              | 断网验收关卡，8 条断言                                               |
+| `test/vendor-scan.mjs`                                                     | 本地化资源的行为扫描（后门 + 特例判断），含受保护载荷解密            |
+| `third-party/resources.json`                                               | 远程资源台账（唯一真源）                                             |
+| `third-party/vendored/zhipu-official-plugin/**`                            | 随仓库分发的官方插件市场副本（清单 + 26 个插件包 + 图标，约 11 MiB） |
+| `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | 官方 CDN URL → 本地副本的寻址原语                                    |
+
+### 修改的文件
+
+**离线本地化**（`painpoints/done/pp2.md`）
+
+| 文件                                                                   | 改动                                                                                       |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts`           | 插件包改为**本地优先**读取（仅改寻址，清单发布的 sha256 校验不变）；回源失败时给出指名诊断 |
+| `apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts` | 新增 `seedCdnPartitionFromVendoredSync`：用随仓库分发的清单为 CDN 分片播种                 |
+| `apps/zcode-cli/packages/adapters/src/plugins/index.ts`                | 导出本地化资源的寻址原语                                                                   |
+| `apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts`         | 写入内置分片后播种 CDN 分片，使首次启动断网也能列出官方插件                                |
+| `scripts/clean.mjs`                                                    | 新增受保护根断言与清理后快照自检，避免误删随仓库分发的资源                                 |
+| `.gitignore`                                                           | 排除第三方通用包的本地缓存落点，同时确保随仓库分发的本地化资源不被忽略                     |
+
+**厂商配置与安装**（`painpoints/done/pp4.md`、`pp5.md`、`pp8.md`）
+
+| 文件                                                        | 改动                                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `apps/zcode-cli/packages/cli/src/run.ts`                    | 接入 `doctor` 自检与 CLI 入口级 `.env` 统一加载                                      |
+| `apps/zcode-cli/packages/cli/src/env.ts`                    | 抽出入口统一加载 `.env` 的实现（原先各命令各自加载）                                 |
+| `apps/zcode-cli/packages/cli/src/provider-runtime-env.ts`   | 让 `configure` 也先准备好内置与个人 Provider Config 的路径环境变量                   |
+| `apps/zcode-cli/packages/cli/src/arguments.ts`              | 新增 `configure` 的 `--api-key` / `--provider`，Key 可从环境变量读取以免出现在命令行 |
+| `apps/zcode-cli/packages/cli/src/doctor.ts`（分支新增）     | 新增「官方插件本地化」自检项，报出覆盖率；副本缺失或损坏时指名失败                   |
+| `apps/zcode-cli/packages/shared-types/src/index.ts`         | 新增 `configure` 非交互写入所需字段                                                  |
+| `packages/provider/src/model-selection-config.ts`           | 区分 registry 顺序兜底与「用户配置的模型已不可选」兜底，两种降级分开报告             |
+| `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts` | 同步 CLI 帮助文案（新增 `configure`，订正 `doctor` 描述）                            |
+| `.env.example`                                              | 改为 `ZCODE_VENDOR` 四字段驱动的厂商配置模板                                         |
+
+> `package.json` 与 `apps/zcode-cli/package.json` 亦有改动（`engines.node` 下限、`configure` 脚本等），但 **JSON 不支持注释**，无法在文件内标注 `Modified by ZCode:`——改动记录以本节为准。`pnpm-lock.yaml` 为生成物，同理不标注。
+
+其余为本分支自身的文档（`README*`、`AGENTS.md`、`docs/`）。
+
+### 随仓库分发的第三方内容（许可提示）
+
+`third-party/vendored/zhipu-official-plugin/` 下的 26 个插件包**逐字节原样入库**（sha256 校验，未解包重打包），因此包内自带的许可原文完整保留。其中 **5 个插件包内含非智谱的第三方代码**：
+
+| 插件               | 授权 | 版权方                                |
+| ------------------ | ---- | ------------------------------------- |
+| `gitlab`           | MIT  | GitLab Inc.、GitHub Inc.              |
+| `obsidian`         | MIT  | Steph Ango (@kepano)、Axton Liu、Z.ai |
+| `cloudbase-skills` | MIT  | TencentCloudBase                      |
+| `mimosa`           | MIT  | Mimosa                                |
+| `video2code`       | MIT  | Z.ai                                  |
+
+这些许可原文随各自的 `plugin.zip` 一同分发；**尚未汇总进 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)**（该文件按完整仓库的依赖图生成，且生成链路当前存在既存故障）。如需完整汇总，见 `docs/plan-offline-vendoring.md` 的 Open Questions。
+
 ## 项目声明
 
 功能与优惠范围、维护规则、执行与数据风险，以及许可和第三方版权说明，详见 [NOTICE.md](NOTICE.md)。

@@ -1,3 +1,5 @@
+// Modified by ZCode: 区分 registry 顺序兜底与「用户配置的模型已不可选」兜底，两种降级分开报告。
+// 本分支全部改动的清单见 README.md「本分支的改动」。
 import {
   validateModelSelectionOptions,
   type ModelSelection,

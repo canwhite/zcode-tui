@@ -1,3 +1,5 @@
+// Modified by ZCode: 写入内置分片后，用随仓库分发的清单播种 CDN 分片，使断网环境也能列出官方插件。
+// 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { createHash } from "node:crypto";
 import {
   chmodSync,

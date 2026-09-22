@@ -112,31 +112,35 @@ console.log("零账号可用验收关卡");
   );
 }
 
-// —— 5. 内置配置：没有模型端点指向 zcode.z.ai（cdn-zcode.z.ai 是另一台主机，不在本关） ——
-{
-  const config = JSON.parse(readFileSync(builtinConfigPath, "utf8"));
-  const rules = config?.config?.providerConfigRules ?? {};
-  const zcodeHostUrls = [];
-  for (const list of Object.values(rules)) {
-    if (!Array.isArray(list)) continue;
-    for (const rule of list) {
-      const baseUrl = rule?.config?.api?.baseUrl;
-      if (typeof baseUrl !== "string") continue;
-      let host;
-      try {
-        host = new URL(baseUrl).host;
-      } catch {
-        continue;
-      }
-      if (host === "zcode.z.ai")
-        zcodeHostUrls.push(`${rule.providerId ?? rule.templateId} → ${baseUrl}`);
+// —— 5. 内置配置：整份配置里不得再出现 zcode.z.ai（cdn-zcode.z.ai 是另一台主机，不在本关） ——
+//
+// ⚠️ 本条曾漏检：早期版本只走 `providerConfigRules[*].config.api.baseUrl`，
+// 于是 `modelConfigRules.providerSiteRules[*].baseUrlMatch` 里残留的 3 处
+// `https://zcode\.z\.ai/api/v1/...` 被放过，关卡报绿而配置未清干净
+// （post-mortem 发现）。现在改为**递归扫描整份配置**，且同时匹配
+// 字面量与 JSON 转义（`zcode\\.z\\.ai`）两种写法。
+const ZCODE_HOST_RE = /(?<![\w.-])zcode\.z\.ai/iu;
+function collectZcodeHostRefs(node, path, out) {
+  if (typeof node === "string") {
+    // 去掉正则转义后判断，才能同时命中 `zcode.z.ai` 与 `zcode\.z\.ai`
+    if (ZCODE_HOST_RE.test(node.replaceAll("\\", ""))) out.push(`${path} → ${node}`);
+    return;
+  }
+  if (Array.isArray(node)) {
+    node.forEach((item, i) => collectZcodeHostRefs(item, `${path}[${i}]`, out));
+    return;
+  }
+  if (node && typeof node === "object") {
+    for (const [key, value] of Object.entries(node)) {
+      collectZcodeHostRefs(value, path ? `${path}.${key}` : key, out);
     }
   }
-  assert(
-    "内置配置无端点指向 zcode.z.ai",
-    zcodeHostUrls.length === 0,
-    `仍指向：${zcodeHostUrls.join(" | ")}`,
-  );
+}
+{
+  const config = JSON.parse(readFileSync(builtinConfigPath, "utf8"));
+  const refs = [];
+  collectZcodeHostRefs(config?.config ?? {}, "config", refs);
+  assert("内置配置无任何 zcode.z.ai 引用", refs.length === 0, `仍含：${refs.join(" | ")}`);
 }
 
 // —— 6. 零账号配置路径可用：隔离目录下写入普通厂商配置，不应提到登录 ——

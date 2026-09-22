@@ -81,6 +81,14 @@ export const parseGlobalArgs = (argv: string[]) =>
       surface: {
         type: "string",
       },
+      // 供 `zcode configure` 非交互写入 Coding Plan Key；值也可从环境变量读取，
+      // 避免出现在进程命令行（会被 ps 看到）与安装日志里。
+      "api-key": {
+        type: "string",
+      },
+      provider: {
+        type: "string",
+      },
 
       // 在全局注册，run.ts 收集后透传给 plugins-command，不污染其他命令的选项语义。
       all: {

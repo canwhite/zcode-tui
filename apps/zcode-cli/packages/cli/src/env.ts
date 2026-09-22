@@ -47,7 +47,7 @@ export function applyCliRuntimeEnvSanitization(
   applyCliRuntimeEnvDefaults(env, argv);
 }
 
-const findDotenv = (startDir: string): string | undefined => {
+export const findDotenv = (startDir: string): string | undefined => {
   let current = resolve(startDir);
   const root = parse(current).root;
 
@@ -106,6 +106,33 @@ export const loadCliDotenv = (options: LoadCliDotenvOptions = {}): DotenvLoadRes
     path: dotenvPath,
   };
 };
+
+/**
+ * 入口处统一加载 .env 的唯一实现。
+ *
+ * 背景：`.env` 原先只由 login / prompt / tui-auth / protocol server 各自加载，
+ * 而 TUI 主路径（tui-command.ts）直接用 process.env，导致「改 .env 就能用」在
+ * 交互式入口上不成立——用户在项目根配了 base url 和 api key，敲 zcode 却读不到。
+ *
+ * 这里把加载收敛到单点，process.env 作为唯一的运行时环境载体，所有子命令共享
+ * 同一份已加载结果。语义保持不变：向上查找最近 .env，且 override: false，
+ * shell 环境变量优先于文件。
+ */
+/**
+ * 入口统一加载后，命令层的 `deps.loadDotenv` 已被替换为幂等 no-op（见 run.ts 的
+ * commandDeps）。login / prompt / tui-auth 中留存的 `loadDotenv` 调用因此不会二次读盘，
+ * 其 `dotenvResult.error` 分支也不会再触发——入口失败时进程已在加载点退出。
+ */
+export function loadCliDotenvAtEntry(options: {
+  cwd: string;
+  env: CliEnv;
+  loadDotenv?: (options?: LoadCliDotenvOptions) => DotenvLoadResult;
+}): DotenvLoadResult {
+  const dotenvResult = (options.loadDotenv ?? loadCliDotenv)({ cwd: options.cwd, env: options.env });
+  // 与既有命令路径一致：加载后立刻清洗，避免用户 shell 注入的代理/证书变量泄漏给子进程。
+  applyCliRuntimeEnvSanitization(options.env);
+  return dotenvResult;
+}
 
 export function shouldLoadCliDotenvForProtocolServer(env: CliEnv): boolean {
   return resolveCliRuntimeEnv(env, process.argv) === "development";

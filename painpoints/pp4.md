@@ -1,1 +1,2 @@
 现在的安装过程太复杂了，我需要的是make install之后所有的工作都做好，然后我在env中配置好base url 和api key就可以直接在终端输入zcode使用了
+make clear会移除所有多余的npm包，当然如果有其他缺失的命令你也可以加上

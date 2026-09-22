@@ -1,0 +1,1 @@
+还是需要在.env中显式样的配置出base url和model，现在api key我看已经有了，我的目的是如果换上其他大模型厂商的base url，api key和model也能用，你明白我意思吗，如果有问题，可以问我

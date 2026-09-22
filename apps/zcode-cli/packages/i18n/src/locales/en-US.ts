@@ -17,7 +17,8 @@ With no command, zcode opens the full-screen TUI.
 Commands:
   app-server Run the ZCode Protocol stdio app server
   commands   List custom slash commands (\`commands list\`)
-  doctor     Inspect runtime and packaging assumptions
+  configure  Write a Coding Plan key non-interactively and preset the default model (\`configure --provider bigmodel\`; key from --api-key or the matching .env variable)
+  doctor     Inspect runtime, installation, and configuration readiness
   login [zai|bigmodel]  Sign in through browser authorization
   logout     Remove the shared Z.AI login credentials
   plugins    Manage plugins and marketplaces (\`plugins list|install|uninstall|enable|disable|update|validate|marketplace ...\`; alias: plugin)

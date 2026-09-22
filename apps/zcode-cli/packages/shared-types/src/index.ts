@@ -30,6 +30,10 @@ export type GlobalOutputFormat = "text" | "json" | "stream-json";
 export type GlobalOptions = {
   browserExecutable?: string;
   browserUse?: "headless";
+  /** 仅 `zcode configure` 使用：非交互写入的 Coding Plan Key。 */
+  configureApiKey?: string;
+  /** 仅 `zcode configure` 使用：Coding Plan 供应方。 */
+  configureProvider?: string;
   detectedLocale?: GlobalDetectedLocale;
   force: boolean;
   json: boolean;

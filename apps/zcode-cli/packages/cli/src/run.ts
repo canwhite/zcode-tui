@@ -1,3 +1,4 @@
+import { dirname } from "node:path";
 import { extractDisallowedToolsArgs, parseGlobalArgs } from "./arguments.js";
 import { createNodeLoggerFactory } from "@zcode/adapters";
 import { getRuntimeInfo, type PresentationSurface } from "@zcode/core";
@@ -7,9 +8,17 @@ import type { RunContext, GlobalOptions, GlobalOutputFormat } from "@zcode/share
 import {
   applyCliRuntimeEnvSanitization,
   loadCliDotenv,
+  loadCliDotenvAtEntry,
   prepareCliRuntimeEnv,
   shouldLoadCliDotenvForProtocolServer,
+  type CliEnv,
 } from "./env.js";
+import {
+  collectDoctorReport,
+  findRepoRoot,
+  toJsonChecks,
+  type DoctorReport,
+} from "./doctor.js";
 import { formatCliHelp } from "./help.js";
 import { runHooksCommand } from "./hooks-trust-command.js";
 import { detectCliLocale } from "./locale.js";
@@ -98,6 +107,8 @@ const globalOptions = (
   return {
     browserExecutable,
     browserUse,
+    ...(typeof values["api-key"] === "string" ? { configureApiKey: values["api-key"] } : {}),
+    ...(typeof values.provider === "string" ? { configureProvider: values.provider } : {}),
     detectedLocale,
     force: values.force === true,
     json: values.json === true,
@@ -185,9 +196,35 @@ const writeHelp = (
   stdout.write(formatCliHelp(version, locale, detectedLocale));
 };
 
-const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: string): number => {
+const DOCTOR_STATUS_LABEL: Record<DoctorReport["checks"][number]["status"], string> = {
+  pass: "PASS",
+  warn: "WARN",
+  fail: "FAIL",
+};
+
+const runDoctor = (
+  ctx: RunContext,
+  options: GlobalOptions,
+  workingDirectory: string,
+  gate: {
+    dotenv: ReturnType<typeof loadCliDotenvAtEntry>;
+    env: CliEnv;
+  },
+): number => {
   const runtime = getRuntimeInfo();
+  // 仓库根先从 cwd 找；cwd 不在仓库内时退回已加载 .env 所在目录（.env 就在仓库根）。
+  // 不依赖 __dirname / import.meta：本文件会被打成 CJS bundle，两者在运行期不都可用。
+  const repoRoot =
+    findRepoRoot(workingDirectory) ??
+    (gate.dotenv.path ? findRepoRoot(dirname(gate.dotenv.path)) : undefined);
+  const report = collectDoctorReport({
+    dotenv: gate.dotenv,
+    env: gate.env,
+    cwd: workingDirectory,
+    repoRoot,
+  });
   const payload = {
+    ok: report.ok,
     cli: {
       name: CLI_COMMAND_NAME,
       processName: CLI_PROCESS_NAME,
@@ -206,11 +243,12 @@ const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: st
       default: "node-bundle",
       sea: "optional",
     },
+    checks: toJsonChecks(report.checks),
   };
 
   if (options.json) {
     ctx.stdout.write(formatJson(payload));
-    return 0;
+    return report.ok ? 0 : 1;
   }
 
   const colors = supportsColor(ctx.stdout, options.noColor);
@@ -222,12 +260,77 @@ const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: st
   ctx.stdout.write(`sea: ${payload.runtime.sea ? "yes" : "no"} (${payload.packaging.sea})\n`);
   ctx.stdout.write(`default artifact: ${payload.packaging.default}\n`);
 
+  ctx.stdout.write(`\n${color.bold("self-check", colors)}\n`);
+  for (const item of report.checks) {
+    ctx.stdout.write(`${DOCTOR_STATUS_LABEL[item.status]}  ${item.label}: ${item.detail}\n`);
+    if (item.fix) {
+      ctx.stdout.write(`      → ${item.fix}\n`);
+    }
+  }
+  ctx.stdout.write(report.ok ? "\nresult: OK\n" : "\nresult: FAILED\n");
+
   if (options.verbose) {
     ctx.stdout.write(`execPath: ${payload.runtime.execPath}\n`);
     ctx.stdout.write(`cwd: ${payload.runtime.cwd}\n`);
   }
 
-  return 0;
+  return report.ok ? 0 : 1;
+};
+
+const CODING_PLAN_PROVIDERS = ["bigmodel", "zai"] as const;
+type CodingPlanProviderId = (typeof CODING_PLAN_PROVIDERS)[number];
+
+const isCodingPlanProviderId = (value: string): value is CodingPlanProviderId =>
+  (CODING_PLAN_PROVIDERS as readonly string[]).includes(value);
+
+/** Coding Plan Key 的环境变量兜底，避免把凭据放进命令行（ps 可见）。 */
+const CODING_PLAN_API_KEY_ENV: Record<CodingPlanProviderId, string> = {
+  bigmodel: "BIGMODEL_API_KEY",
+  zai: "ZAI_API_KEY",
+};
+
+/**
+ * 非交互写入 Coding Plan 凭据并把默认模型预置为内置 Provider 的首个模型。
+ * 与 TUI 命令中心走同一个 bootstrap 入口（configureCodingPlanApiKey），
+ * 不另写一份配置格式，避免两套写入路径。
+ */
+const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDependencies): Promise<number> => {
+  try {
+    const env = deps.env ?? process.env;
+    const providerIdRaw = options.configureProvider?.trim() || "bigmodel";
+    if (!isCodingPlanProviderId(providerIdRaw)) {
+      ctx.stderr.write(`--provider must be one of ${CODING_PLAN_PROVIDERS.join(", ")}.\n`);
+      return 1;
+    }
+    const providerId = providerIdRaw;
+    const apiKey = options.configureApiKey?.trim() || env[CODING_PLAN_API_KEY_ENV[providerId]]?.trim();
+    if (!apiKey) {
+      ctx.stderr.write(
+        `No API key provided. Pass --api-key or set ${CODING_PLAN_API_KEY_ENV[providerId]} in .env.\n`,
+      );
+      return 1;
+    }
+
+    const configure =
+      deps.configureCodingPlanApiKey ?? (await loadBootstrapModule()).configureCodingPlanApiKey;
+    const result = await configure({ apiKey, env, providerId });
+
+    if (options.json) {
+      ctx.stdout.write(formatJson({ providerId: result.providerId, model: result.model, configPath: result.configPath }));
+    } else {
+      // 只回报落点与模型，绝不回显 key。
+      ctx.stdout.write(`Configured ${result.providerId}: default model ${result.model}\n`);
+      ctx.stdout.write(`Provider config: ${result.configPath}\n`);
+    }
+    return 0;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    ctx.stderr.write(`Error: ${message}\n`);
+    if (options.verbose && error instanceof Error && error.stack) {
+      ctx.stderr.write(`${error.stack}\n`);
+    }
+    return 1;
+  }
 };
 
 const runZCodeProtocolCommand = async (
@@ -469,6 +572,21 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     return 1;
   }
 
+  // .env 的唯一加载点。必须在构造 commandDeps 之前完成：此处注入的 env 是
+  // process.env 本体，TUI 主路径（tui-command.ts）直接读它，不经过 loadDotenv。
+  // 例外见 runZCodeProtocolCommand：app-server / agent-server 仍自行决定是否加载。
+  const entryDotenvResult = loadCliDotenvAtEntry({
+    cwd: workingDirectory,
+    env,
+    loadDotenv: deps.loadDotenv,
+  });
+  if (entryDotenvResult.error) {
+    ctx.stderr.write(
+      `Failed to load environment file: ${entryDotenvResult.path ?? "<unknown>"}\n`,
+    );
+    return 1;
+  }
+
   const commandDeps: RunDependencies = {
     ...deps,
     cwd: () => workingDirectory,
@@ -476,10 +594,10 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     logger:
       deps.logger ??
       createNodeLoggerFactory({ env }).createLogger("zcode").child({ module: "cli" }),
+    // 入口已统一加载，这里保持既有回调签名但不再重复读文件，避免二次解析。
     loadDotenv: (dotenvOptions = {}) => {
-      const dotenvResult = (deps.loadDotenv ?? loadCliDotenv)(dotenvOptions);
       applyCliRuntimeEnvSanitization(dotenvOptions.env ?? env);
-      return dotenvResult;
+      return entryDotenvResult;
     },
   };
 
@@ -531,8 +649,13 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
         presentationSurface,
         parsed.values["prepare-storage"] === true,
       );
+    case "configure":
+      return await runConfigure(ctx, options, commandDeps);
     case "doctor":
-      return runDoctor(ctx, options, workingDirectory);
+      return runDoctor(ctx, options, workingDirectory, {
+        dotenv: entryDotenvResult,
+        env,
+      });
     case "login":
       return await runLoginCommand(
         ctx,

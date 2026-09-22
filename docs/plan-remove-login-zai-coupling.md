@@ -264,6 +264,65 @@ CLI 侧 `zcode configure --api-key` 不受影响（已实测），F-002 的门�
 不一致 —— 该提交**无法通过类型检查**。已 amend 修正，并用「临时换回 HEAD 版本跑 apps typecheck」
 的方式验证提交本身（而非工作区）是绿的。
 
+### E12. Step 8 的性质与计划不符：那 4 条不是"隐式回连"，是"显式平台套餐"
+
+计划把 `zcode-builtin.json` 里 4 处 `zcode.z.ai` 当作残余耦合，称"必须移除或改造"。**实测发现性质不同**：
+
+|                | 承载体                                                                         | 性质                        |
+| -------------- | ------------------------------------------------------------------------------ | --------------------------- |
+| Step 1 断掉的  | `individual/team coding plan`：声明 `open.bigmodel.cn` 却被改写到 `zcode.z.ai` | **隐式**改写（痛点 B 本身） |
+| Step 8 这 4 条 | `start-plan` / `off-peak`：清单里**直接声明** `zcode.z.ai/api/v1/...`          | **显式**平台托管套餐        |
+
+移除它们等于删掉两条完整产品线，实测规模：**off-peak 涉及 68 个文件**（含用户可见的
+`OffPeakCreate`「闲时任务」工具、`offpeak-port.ts`、工具策略、重试语义、DB 迁移、schema 枚举），
+start-plan 涉及 14 个文件。**"只删 4 条"做不到** —— 删后 off-peak 会指向不存在的 provider 而静默失效。
+
+**决策（已确认）**：先只移除这 4 条 + 连带项；两条产品线的代码层全量移除**推迟**。
+因此 `streaming-recovery` / `target-completion-verification` 的 `START_PLAN_BUSY_*`、
+`model-provider-types` 的 `zaiStartPlan` / `bigmodelStartPlan`、`off-peak-types` 的
+`OFF_PEAK_PROVIDER_IDS` 与整条闲时任务链路现在**不可达但不报错**，属**静默行为变化**，
+必须在后续清理时一并处理。session-store 的三个历史迁移仍引用这些 providerId —— 迁移是
+追加式历史记录，保持原样。
+
+### E13. Step 8 的必需附带项：`revision` 必须 bump（计划未提）
+
+`process-provider-registry-runtime.ts:131` 以
+`config.zcodeBuiltinRevision !== account.basedOnZCodeBuiltinRevision` 判定账号型 Provider
+快照是否需要重建。**不 bump `revision` 的话，已有快照会继续保留这 4 个 provider，改动等于没生效。**
+已 bump 30 → 31。计划原文完全没提这一点 —— 未来改动 `zcode-builtin.json` 时必须同样处理。
+
+### E14. Step 9 有意未删的契约面（附理由）
+
+计划把 `packages/shared/src/oauth.ts` 的 4 个导出、`channels.ts` 的 OAuth IPC 通道、
+`test-ids.ts` 的 Login entry 一组常量列为待删死代码。实测它们**确实零引用**，但**未删**：
+它们是**面向桌面端的契约面**，而计划 Open Question 7（是否有仓库外消费者）**在本仓库内无法验证**。
+盲删有跨仓库破坏风险，留待能确认下游时处理。
+
+同理**有意保留** `runtimeEnv.ts` 的 `ZCODE_TELEMETRY_USER_*` 剥离项 —— 它们是**出于安全**
+才留在剥离清单里的历史身份变量，删掉反而可能让这些变量进入遥测。
+
+本步实际删除：整份死文件 `zcode-source-headers.ts`（含 Step 7 之前那处隐式回连的孪生副本）、
+`loadSharedZCodeCredentialSync`，以及 env.ts 三处过时注释。**Step 2-4 已顺带清掉大部分**
+（login-command / tui-auth / login-flow / app-submit 脱敏规则 / 冗余 loadDotenv）。
+
+### E15. Step 10 关卡已验证"可失败"（防假绿）
+
+`test/zero-account-acceptance.mjs`（8 条断言）建成后，**向产物注入 `"/ultra/anthropic/"`
+确认关卡确实 FAIL（7/8）**，恢复后 8/8 —— 即网关改写那条断言不是空断言。
+已接入 `pnpm run verify:pre-push`（原先只有 lint + architecture:check），并新增
+`pnpm run test:zero-account` 单独入口。
+
+**注意**：本仓库**没有 CI、也没有实际安装的 husky 钩子**（`.husky/_` 之外无钩子文件），
+所以 `verify:pre-push` 仍需有人主动跑。这是已知的残余风险 —— 关卡存在但无强制触发点。
+
+### E16. 方法教训：按声明边界删除，不要靠花括号计数
+
+删除 `loadSharedZCodeCredentialSync` 时，我用花括号配平定位函数体，**从参数默认值里的 `{}`
+开始计数**，切在了错误位置，留下悬空的函数体、文件语法损坏。改用**声明边界**（删到下一个
+`export function resolveSharedZCodeCredentialsPath(` 为止）后一次成功。
+**教训**：TS 里花括号配平不足以界定函数边界（参数默认值、对象字面量、模板串都会干扰）；
+优先用下一个顶层声明作为右边界，并在删除后**校验中间没有别的声明**。
+
 ---
 
 ## Think — Debug Methodology

@@ -32,8 +32,10 @@ export type GlobalOptions = {
   browserUse?: "headless";
   /** 仅 `zcode configure` 使用：非交互写入的 Coding Plan Key。 */
   configureApiKey?: string;
-  /** 仅 `zcode configure` 使用：Coding Plan 供应方。 */
+  /** 仅 `zcode configure` 使用：Coding Plan 供应方 / 厂商名。 */
   configureProvider?: string;
+  /** 仅 `zcode configure` 使用：模型名覆盖。 */
+  configureModel?: string;
   detectedLocale?: GlobalDetectedLocale;
   force: boolean;
   json: boolean;

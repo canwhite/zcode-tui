@@ -21,13 +21,19 @@ function runPnpm(args) {
   });
 }
 
-/** 从项目根 .env 读取编码套餐 Key（不打印值）。 */
-function readCodingPlanKey() {
-  if (!existsSync(envPath)) return undefined;
-  const entry = parseEnvEntries(readFileSync(envPath, "utf8")).find(
-    (candidate) => candidate.key === "BIGMODEL_API_KEY",
-  );
-  return entry?.value ? entry.value : undefined;
+/**
+ * 厂商配置是否已在 .env 中声明。
+ *
+ * 只判断"是否有值"，不解析内容——解析与校验由 CLI 的 configure 命令统一负责
+ * （`apps/zcode-cli/packages/cli/src/vendor.ts`）。在这里重写一套判定，
+ * 就会出现安装脚本与运行期两套规则。
+ */
+function hasVendorConfig() {
+  if (!existsSync(envPath)) return false;
+  const entries = parseEnvEntries(readFileSync(envPath, "utf8"));
+  const read = (key) => entries.find((candidate) => candidate.key === key)?.value ?? "";
+  // 内置厂商写 VENDOR；自建端点写 BASE_URL。两者居其一即视为已配置。
+  return Boolean(read("ZCODE_VENDOR") || read("ZCODE_VENDOR_BASE_URL"));
 }
 
 /**
@@ -70,18 +76,16 @@ function install() {
   log("\n== 4/5 配置 ==");
   ensureEnvFile(log);
 
-  const apiKey = readCodingPlanKey();
-  if (!apiKey) {
-    log("[configure] .env 中未填写 BIGMODEL_API_KEY，跳过模型预置。");
+  if (!hasVendorConfig()) {
+    log("[configure] .env 中未声明厂商（ZCODE_VENDOR 或 ZCODE_VENDOR_BASE_URL），跳过。");
     log("[configure] 填好后重新执行 make install，或在 TUI 设置里填入 Key。");
   } else {
+    // 让 CLI 自己读 .env 解析厂商——入口已统一加载，这里不要重复解析一遍。
+    // 解析、校验、按链路分流写入全部在 configure 内部，失败即非零退出。
     try {
-      runCommand(process.execPath, [cliEntry, "configure", "--provider", "bigmodel"], {
-        cwd: repoRoot,
-        env: process.env,
-      });
+      runCommand(process.execPath, [cliEntry, "configure"], { cwd: repoRoot, env: process.env });
     } catch (error) {
-      log(`[configure] 凭据写入失败：${error instanceof Error ? error.message : String(error)}`);
+      log(`[configure] 厂商配置写入失败：${error instanceof Error ? error.message : String(error)}`);
       return 1;
     }
   }
@@ -103,6 +107,8 @@ function install() {
         log(`\n[install] 完成。${exposed.shellPath.path} 已更新，新开一个终端后输入 zcode 即可使用。`);
         break;
       case "already":
+      // shellPath 为 undefined 表示 bin 目录本就在 PATH 里，新终端直接可用。
+      case undefined:
         log("\n[install] 完成。在终端输入 zcode 即可使用。");
         break;
       default:

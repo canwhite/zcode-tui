@@ -8,6 +8,7 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
 } from "@zcode/provider-node";
 import type { CliEnv } from "./env.js";
+import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
 
 export type DoctorCheckStatus = "pass" | "warn" | "fail";
 
@@ -186,10 +187,26 @@ function checkEndpoint(env: CliEnv): DoctorCheck {
  * 凭据本身存在共享凭据库（权限 0600），此检查只读 Provider Config，
  * 不读取、不输出任何凭据内容。
  */
-function checkProviderSelection(env: CliEnv): DoctorCheck {
-  const path =
+/** 读取个人 Provider 配置里的默认模型选择；无配置或损坏时返回 undefined。 */
+function readActiveModelSelection(
+  env: CliEnv,
+): { providerId?: string; modelId?: string } | undefined {
+  const path = resolveDoctorPersonalConfigPath(env);
+  if (!existsSync(path)) return undefined;
+  const file = readJsonFile(path);
+  const config = (file?.config ?? {}) as Record<string, unknown>;
+  return config.defaultModelSelection as { providerId?: string; modelId?: string } | undefined;
+}
+
+function resolveDoctorPersonalConfigPath(env: CliEnv): string {
+  return (
     env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ||
-    join(homedir(), ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
+    join(homedir(), ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME)
+  );
+}
+
+function checkProviderSelection(env: CliEnv): DoctorCheck {
+  const path = resolveDoctorPersonalConfigPath(env);
 
   if (!existsSync(path)) {
     return {
@@ -221,6 +238,72 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
     status: "pass",
     detail: `默认模型 ${selection.providerId ?? DEFAULT_PROVIDER_ID}/${selection.modelId}`,
   };
+}
+
+/**
+ * 报出 .env 声明的厂商，以及它与当前生效配置是否一致。
+ *
+ * "配了新的、跑的仍是旧的"是本功能最难发现的一类失败——它不报错，
+ * 只是静默使用另一个厂商。因此这一项必须显式比对，而不是只报配置存在。
+ */
+function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefined): DoctorCheck {
+  const parsed = parseVendorConfig(env);
+  if (!parsed.ok) {
+    if (parsed.notConfigured) {
+      // 未配置厂商本身没问题（沿用内置默认），但要说清"当前生效的其实由哪里决定"，
+      // 否则用户会以为空着就等于没在用任何厂商。
+      const activeId = activeProviderId;
+      return {
+        id: "config.vendor",
+        label: "厂商声明",
+        status: "warn",
+        detail: activeId
+          ? `未在 .env 中声明厂商；当前生效由已有配置决定：${activeId}`
+          : "未在 .env 中声明厂商（ZCODE_VENDOR_* 缺失）",
+        fix: "如需由 .env 驱动厂商，请填写 ZCODE_VENDOR 与 ZCODE_VENDOR_API_KEY",
+      };
+    }
+    return {
+      id: "config.vendor",
+      label: "厂商声明",
+      status: "fail",
+      detail: parsed.reason,
+      ...(parsed.fix ? { fix: parsed.fix } : {}),
+    };
+  }
+
+  const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+  const resolved = resolveVendor(parsed.config, vendors);
+
+  if (!resolved.ok) {
+    return {
+      id: "config.vendor",
+      label: "厂商声明",
+      status: "fail",
+      detail: resolved.reason,
+      ...(resolved.fix ? { fix: resolved.fix } : {}),
+    };
+  }
+
+  const declared = parsed.config.vendorName ?? "自建端点";
+  const endpoint = parsed.config.baseUrl ?? resolved.resolved.vendor.baseUrl;
+  const summary = `${declared} ｜ ${endpoint} ｜ 模型 ${resolved.resolved.model}`;
+
+  // 只有能确定声明对应的 providerId 时才做一致性比对；
+  // 自建端点与套餐的落点命名规则不同，无法直接比字符串。
+  if (activeProviderId && activeProviderId.includes(declared)) {
+    return { id: "config.vendor", label: "厂商声明", status: "pass", detail: summary };
+  }
+  if (activeProviderId && parsed.config.vendorName) {
+    return {
+      id: "config.vendor",
+      label: "厂商声明",
+      status: "warn",
+      detail: `${summary}（当前生效：${activeProviderId}）`,
+      fix: "声明与生效不一致：重新执行 make install 或 zcode configure 使其生效",
+    };
+  }
+  return { id: "config.vendor", label: "厂商声明", status: "pass", detail: summary };
 }
 
 function checkBuiltinProviderConfig(env: CliEnv): DoctorCheck {
@@ -262,6 +345,7 @@ export function collectDoctorReport(gate: DoctorGateOptions): DoctorReport {
     checkEnvSource(gate),
     checkEndpoint(gate.env),
     checkProviderSelection(gate.env),
+    checkVendorDeclaration(gate.env, readActiveModelSelection(gate.env)?.providerId),
     checkBuiltinProviderConfig(gate.env),
   ];
   return {

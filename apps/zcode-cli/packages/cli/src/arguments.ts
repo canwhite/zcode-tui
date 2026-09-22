@@ -89,6 +89,10 @@ export const parseGlobalArgs = (argv: string[]) =>
       provider: {
         type: "string",
       },
+      // `zcode configure` 的模型覆盖；日志与进程列表不应出现凭据，模型名无此顾虑。
+      "configure-model": {
+        type: "string",
+      },
 
       // 在全局注册，run.ts 收集后透传给 plugins-command，不污染其他命令的选项语义。
       all: {

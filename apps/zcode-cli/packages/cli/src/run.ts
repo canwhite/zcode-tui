@@ -19,6 +19,15 @@ import {
   toJsonChecks,
   type DoctorReport,
 } from "./doctor.js";
+import {
+  VENDOR_ENV_KEYS,
+  findCodingPlanByBaseUrl,
+  parseVendorConfig,
+  readBuiltinVendors,
+  resolveVendor,
+} from "./vendor.js";
+import { writePersonalVendor } from "./personal-vendor.js";
+import { ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV } from "@zcode/provider-node";
 import { formatCliHelp } from "./help.js";
 import { runHooksCommand } from "./hooks-trust-command.js";
 import { detectCliLocale } from "./locale.js";
@@ -109,6 +118,9 @@ const globalOptions = (
     browserUse,
     ...(typeof values["api-key"] === "string" ? { configureApiKey: values["api-key"] } : {}),
     ...(typeof values.provider === "string" ? { configureProvider: values.provider } : {}),
+    ...(typeof values["configure-model"] === "string"
+      ? { configureModel: values["configure-model"] }
+      : {}),
     detectedLocale,
     force: values.force === true,
     json: values.json === true,
@@ -277,17 +289,18 @@ const runDoctor = (
   return report.ok ? 0 : 1;
 };
 
-const CODING_PLAN_PROVIDERS = ["bigmodel", "zai"] as const;
-type CodingPlanProviderId = (typeof CODING_PLAN_PROVIDERS)[number];
+type CodingPlanProviderId = "bigmodel" | "zai";
 
-const isCodingPlanProviderId = (value: string): value is CodingPlanProviderId =>
-  (CODING_PLAN_PROVIDERS as readonly string[]).includes(value);
-
-/** Coding Plan Key 的环境变量兜底，避免把凭据放进命令行（ps 可见）。 */
-const CODING_PLAN_API_KEY_ENV: Record<CodingPlanProviderId, string> = {
-  bigmodel: "BIGMODEL_API_KEY",
-  zai: "ZAI_API_KEY",
-};
+/**
+ * 套餐写入所需的账号族。
+ *
+ * 直接取内置厂商定义里的 `access.accountType`——不维护第二份族名清单，
+ * 也不从 providerId 切分推导（那依赖 id 拼写，含连字符的族名会静默切错）。
+ * accountType 的取值域由内置配置决定，本文件不做白名单校验。
+ */
+const codingPlanProviderIdOf = (vendor: {
+  family?: string;
+}): CodingPlanProviderId | undefined => vendor.family as CodingPlanProviderId | undefined;
 
 /**
  * 非交互写入 Coding Plan 凭据并把默认模型预置为内置 Provider 的首个模型。
@@ -297,30 +310,91 @@ const CODING_PLAN_API_KEY_ENV: Record<CodingPlanProviderId, string> = {
 const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDependencies): Promise<number> => {
   try {
     const env = deps.env ?? process.env;
-    const providerIdRaw = options.configureProvider?.trim() || "bigmodel";
-    if (!isCodingPlanProviderId(providerIdRaw)) {
-      ctx.stderr.write(`--provider must be one of ${CODING_PLAN_PROVIDERS.join(", ")}.\n`);
-      return 1;
-    }
-    const providerId = providerIdRaw;
-    const apiKey = options.configureApiKey?.trim() || env[CODING_PLAN_API_KEY_ENV[providerId]]?.trim();
-    if (!apiKey) {
-      ctx.stderr.write(
-        `No API key provided. Pass --api-key or set ${CODING_PLAN_API_KEY_ENV[providerId]} in .env.\n`,
-      );
+
+    // 统一的厂商配置入口：从 .env 的四字段解析出确定性的厂商事实。
+    // CLI 参数可覆盖 .env，便于手工调用与测试。
+    const parsed = parseVendorConfig({
+      ...env,
+      ...(options.configureApiKey ? { [VENDOR_ENV_KEYS.apiKey]: options.configureApiKey } : {}),
+      ...(options.configureProvider ? { [VENDOR_ENV_KEYS.vendor]: options.configureProvider } : {}),
+      ...(options.configureModel ? { [VENDOR_ENV_KEYS.model]: options.configureModel } : {}),
+    });
+    if (!parsed.ok) {
+      // 未配置厂商是合法状态，不算失败：跳过即可，由安装流程决定是否提示。
+      if (parsed.notConfigured) {
+        ctx.stdout.write("未配置厂商（.env 中缺少 ZCODE_VENDOR_* 字段），跳过。\n");
+        return 0;
+      }
+      ctx.stderr.write(`${parsed.reason}\n`);
+      if (parsed.fix) ctx.stderr.write(`${parsed.fix}\n`);
       return 1;
     }
 
-    const configure =
-      deps.configureCodingPlanApiKey ?? (await loadBootstrapModule()).configureCodingPlanApiKey;
-    const result = await configure({ apiKey, env, providerId });
+    const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+    const resolved = resolveVendor(parsed.config, vendors);
+    if (!resolved.ok) {
+      ctx.stderr.write(`${resolved.reason}\n`);
+      if (resolved.fix) ctx.stderr.write(`${resolved.fix}\n`);
+      return 1;
+    }
 
+    const { vendor, model } = resolved.resolved;
+    // 端点决定分流：用户填了就用用户的，没填用厂商带出的。
+    const baseUrl = parsed.config.baseUrl ?? vendor.baseUrl;
+
+    // 分流判据是**端点**，不是厂商类型：
+    //   端点精确命中某个账号型套餐端点 → 走加密凭据库（个人层禁止声明其 access）；
+    //   否则 → 写个人 Provider 配置，key 内联，支持任意 base url。
+    // 这样"换成别的厂商只填 base url + key + model"就走通了。
+    const planVendor = findCodingPlanByBaseUrl(baseUrl, vendors);
+    if (planVendor) {
+      const providerId = codingPlanProviderIdOf(planVendor);
+      if (!providerId) {
+        ctx.stderr.write(`端点 ${baseUrl} 命中套餐 ${planVendor.id}，但缺少账号族信息。\n`);
+        return 1;
+      }
+      const configure =
+        deps.configureCodingPlanApiKey ?? (await loadBootstrapModule()).configureCodingPlanApiKey;
+      const result = await configure({ apiKey: parsed.config.apiKey, env, providerId });
+      if (options.json) {
+        ctx.stdout.write(
+          formatJson({ kind: "coding-plan", vendor: planVendor.id, endpoint: baseUrl, model: result.model }),
+        );
+      } else {
+        // 只回报落点与模型，绝不回显 key。
+        ctx.stdout.write(`已配置套餐 ${planVendor.id}（${baseUrl}）：默认模型 ${result.model}\n`);
+      }
+      return 0;
+    }
+
+    // 自定义端点的模型不做清单校验（本就没有清单，见 resolveVendor），但**声明里
+    // 可能残留着内置厂商的模型**——换 base url 却忘了改 ZCODE_VENDOR_MODEL。
+    // 这会写出一个"端点 A + 模型 B"的组合，且不报错，直到发请求才失败。
+    if (!parsed.config.vendorName) {
+      const owner = vendors.find((candidate) => candidate.modelIds.includes(model));
+      if (owner) {
+        ctx.stderr.write(
+          `提示：模型 ${model} 是内置厂商 ${owner.id} 的模型，但你配置的是自建端点 ${baseUrl}。\n` +
+            `      如果确实要用该端点，请把 ZCODE_VENDOR_MODEL 改成该端点支持的模型名。\n`,
+        );
+      }
+    }
+
+    // 端点不属于任何套餐：按自定义厂商写入个人 Provider 配置。
+    const written = await writePersonalVendor({
+      baseUrl,
+      apiKey: parsed.config.apiKey,
+      model,
+      apiType: vendor.apiType,
+      env,
+    });
     if (options.json) {
-      ctx.stdout.write(formatJson({ providerId: result.providerId, model: result.model, configPath: result.configPath }));
+      ctx.stdout.write(
+        formatJson({ kind: "api-key", providerId: written.providerId, endpoint: baseUrl, model }),
+      );
     } else {
-      // 只回报落点与模型，绝不回显 key。
-      ctx.stdout.write(`Configured ${result.providerId}: default model ${result.model}\n`);
-      ctx.stdout.write(`Provider config: ${result.configPath}\n`);
+      ctx.stdout.write(`已配置厂商 ${written.providerId}（${baseUrl}）：模型 ${model}\n`);
+      ctx.stdout.write(`提示：该厂商的 key 以明文存于个人 Provider 配置中，权限 0600。\n`);
     }
     return 0;
   } catch (error) {

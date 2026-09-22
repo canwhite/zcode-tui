@@ -53,9 +53,11 @@ function buildInitAgentsPrompt(params: {
     "Target:",
     `- Workspace directory: ${params.workingDirectory}`,
     `- Instruction file: ${params.targetPath}`,
-    `- Existing hidden instruction candidates: ${join(params.workingDirectory, ".zcode", "AGENTS.md")} and ${join(params.workingDirectory, ".agents", "AGENTS.md")}`,
+    `- Existing hidden instruction candidates: ${join(params.workingDirectory, ".claude", "CLAUDE.md")}, ${join(params.workingDirectory, "AGENTS.md")}, ${join(params.workingDirectory, ".zcode", "AGENTS.md")} and ${join(params.workingDirectory, ".agents", "AGENTS.md")}`,
     "- File name must be exactly AGENTS.md.",
-    "- This command targets the current workspace only. Do not write ~/.zcode/AGENTS.md.",
+    // 用户级指令已迁到 `~/.claude/CLAUDE.md`（不再有 `~/.zcode/AGENTS.md` 这一档）。
+    // 这句护栏必须指向**现在真正生效**的那条路径，否则它形同虚设。
+    "- This command targets the current workspace only. Do not write ~/.claude/CLAUDE.md.",
     additionalInstructions,
     "",
     "Process:",

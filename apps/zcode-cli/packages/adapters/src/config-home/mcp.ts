@@ -21,9 +21,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { McpServerConfig } from "@zcode/contracts";
 import { mcpServerSchema } from "../config/schema.js";
-import { getUserConfigHome } from "./index.js";
+import { resolveUserHomeDir } from "./index.js";
 
-/** 用户级 MCP 定义所在的文件（Claude Code 把 `mcpServers` 放在这个文件的顶层）。 */
+/**
+ * 用户级 MCP 定义所在的文件。
+ *
+ * 注意它是**家目录下的文件**：`~/.claude.json`（与 `.claude/` 目录同级），
+ * **不是** `~/.claude/.claude.json`。Claude Code 把 `mcpServers` 放在该文件顶层。
+ */
 export const USER_MCP_CONFIG_FILE = ".claude.json";
 
 /** 项目级 MCP 定义文件名。注意：插件包内也用它，但二者根目录不同。 */
@@ -61,7 +66,12 @@ export function loadMcpServersFromConfigHome(
   options: LoadMcpServersFromConfigHomeOptions,
 ): LoadedMcpServers {
   const env = options.env ?? process.env;
-  const userPath = join(getUserConfigHome(env), USER_MCP_CONFIG_FILE);
+  // ⚠️ `.claude.json` 是 `.claude/` **目录的同级文件**，不是它里面的文件。
+  // 即 `~/.claude.json`，而**不是** `~/.claude/.claude.json`。
+  // 早先写成 `join(getUserConfigHome(env), USER_MCP_CONFIG_FILE)`，算出的路径
+  // 永远不存在 —— 用户级 MCP 一个都读不到，且静默无报错。
+  // 因此必须从 **家目录** 拼，而不是从配置家目录拼。
+  const userPath = join(resolveUserHomeDir(env), USER_MCP_CONFIG_FILE);
   const projectPath = join(options.workingDirectory, PROJECT_MCP_CONFIG_FILE);
 
   const skipped: LoadedMcpServers["skipped"] = [];

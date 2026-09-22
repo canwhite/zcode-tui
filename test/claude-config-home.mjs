@@ -64,7 +64,7 @@ function checkBootstrapSemantics() {
   const script = `
 import { ensureUserConfigHome, CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV }
   from "./src/config-home/index.js";
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 const t = () => mkdtempSync(join(tmpdir(), "zcode-boot-"));
@@ -77,9 +77,21 @@ out.createdOnFirstRun = r.created;
 out.readmeSeeded = readdirSync(join(h, ".claude")).includes("README.md");
 out.noEmptySkillDir = !readdirSync(join(h, ".claude")).includes("skills");
 
-writeFileSync(join(h, ".claude", "README.md"), "USER_EDIT\\n");
+// 二次运行：不得重复创建，也不得改动用户在配置家目录里放的东西。
+// （注意不能用「改写 README 再断言它被保留」来测 —— 那是 ZCode 自己生成的
+//  路标文件，不属于用户内容，允许被补写。）
+mkdirSync(join(h, ".claude", "skills", "mine"), { recursive: true });
+writeFileSync(join(h, ".claude", "skills", "mine", "SKILL.md"), "x");
+writeFileSync(join(h, ".claude", "USER_NOTES.txt"), "user content\\n");
 r = await ensureUserConfigHome(env(h));
-out.idempotent = !r.created && readFileSync(join(h, ".claude", "README.md"), "utf8").includes("USER_EDIT");
+out.idempotent = !r.created && readdirSync(join(h, ".claude")).includes("USER_NOTES.txt");
+
+// 残留态：目录已建但说明文件缺失（上次写到一半失败）—— 必须补写，
+// 否则「目录已存在就跳过」会把这次部分成功永久化，用户永远拿不到路标。
+const h2 = t();
+mkdirSync(join(h2, ".claude"), { recursive: true });
+r = await ensureUserConfigHome(env(h2));
+out.repairsMissingReadme = readdirSync(join(h2, ".claude")).includes("README.md") && !r.created;
 
 h = t();
 r = await ensureUserConfigHome(env(h, { [CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV]: "1" }));
@@ -127,7 +139,14 @@ const home = join(root, ".claude"); mkdirSync(home, { recursive: true });
 const ws = join(root, "ws"); mkdirSync(ws, { recursive: true });
 const cfgs = join(root, "cfgs"); mkdirSync(cfgs, { recursive: true });
 
-writeFileSync(join(home, ".claude.json"), JSON.stringify({
+// 关键：把真实家目录也指到 fixture 里。
+// 用户级 MCP 读的是 **~/.claude.json**（家目录下的文件，与 .claude/ 同级），
+// 它经 resolveUserHomeDir 解析，只看 HOME —— 不设它就会去读**本机真实**的
+// ~/.claude.json，测试于是「用的是别人的配置」却仍然通过。
+process.env.HOME = root;
+process.env.ZCODE_CONFIG_HOME = home;
+
+writeFileSync(join(root, ".claude.json"), JSON.stringify({
   mcpServers: { "only-user": { command: "cu" }, "tie": { command: "from-claude" } },
   projects: { "/noise": {} },
 }));
@@ -343,8 +362,13 @@ try {
     `实际: ${JSON.stringify(boot)}`,
   );
   assert(
-    "自举幂等：已有目录不被覆盖，用户改动保留",
+    "自举幂等：不重复创建，且不改动用户放在配置家目录里的内容",
     boot.idempotent === true,
+    `实际: ${JSON.stringify(boot)}`,
+  );
+  assert(
+    "自举残留态可自愈：目录在但说明文件缺失时会补写",
+    boot.repairsMissingReadme === true,
     `实际: ${JSON.stringify(boot)}`,
   );
   assert(

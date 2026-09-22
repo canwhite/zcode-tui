@@ -69,6 +69,26 @@ node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 
 运行时变量可在启动命令的环境中显式设置。随客户端发布的默认配置见 [config/README.md](config/README.md)。
 
+### 个人配置放在哪
+
+**个人配置读 `~/.claude`，运行时数据留 `~/.zcode`。两者互不派生。**
+
+| 内容                       | 位置                                |
+| -------------------------- | ----------------------------------- |
+| 个人 skill                 | `~/.claude/skills/<name>/SKILL.md`  |
+| 全局指令                   | `~/.claude/CLAUDE.md`               |
+| 个人命令                   | `~/.claude/commands/<name>.md`      |
+| 用户级 MCP                 | `~/.claude.json` 的 `mcpServers`    |
+| 项目级 MCP                 | `<仓库>/.mcp.json` 的 `mcpServers`  |
+| 会话、凭据、厂商配置、日志 | `~/.zcode/`（继续留在此处，不迁移） |
+
+个人 skill 会作为**一级斜杠命令**暴露 —— 输入 `/<skill-name>` 即可，无需 `/skill` 前缀。
+`~/.claude` 不存在时首次运行会自动创建并写入一份说明文件；设
+`ZCODE_NO_CONFIG_HOME_BOOTSTRAP=1` 可关闭。用 `zcode doctor` 可查看实际生效的配置家目录与各来源数量。
+
+> 从旧版本升级：`~/.zcode/skills` 与 `~/.zcode/AGENTS.md` **已不再读取**。
+> 迁移到上表对应位置后即可生效；`zcode doctor` 在检测到旧位置仍有 skill 时会给出提示。
+
 ## 仓库结构
 
 | 目录                                           | 职责                                          |

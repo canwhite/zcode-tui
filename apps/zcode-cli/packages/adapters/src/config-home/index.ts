@@ -124,7 +124,14 @@ const README_CONTENT = `# ZCode 个人配置
  * 这里只留**一个说明文件**作为路标，而不是装一整套外部工具。
  *
  * 语义约定（勿改）：
- * - **幂等**：目录已存在则原样返回，绝不写入、绝不覆盖任何内容。
+ * - **幂等**：绝不覆盖用户内容。目录已存在时**只**补写缺失的说明文件（见下），
+ *   不触碰其它任何文件。
+ * - **补写说明文件**：早先的实现是「目录存在就整体跳过」。那会让一次
+ *   「目录建成了、说明文件写失败」（磁盘满、权限、进程被杀）的**部分成功**永久化 ——
+ *   此后每次启动都因「目录已存在」而跳过，用户永远得不到那份路标，
+ *   而这正是自举本来要解决的问题。现在改为：目录在、说明文件不在 → 补写。
+ *   注意这**不会**与「用户主动删掉说明文件」冲突：补写是幂等的，
+ *   删了会被下次启动补回；用户不想要它，请用下面的关闭开关。
  * - **不预置空目录**：刻意不创建空的 `skills/` / `commands/`。空目录会让
  *   下次启动误判为「用户已有配置」，从而静默遮蔽真实状态
  *   （见 Pre-Mortem「自举出的空 ~/.claude 静默遮蔽全部配置来源」）。
@@ -135,17 +142,21 @@ export async function ensureUserConfigHome(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<ConfigHomeBootstrapOutcome> {
   const path = getUserConfigHome(env);
-  if (await pathExists(path)) {
+  const readmePath = join(path, README_FILE);
+  const dirExists = await pathExists(path);
+
+  if (isBootstrapOptedOut(env)) {
     return { path, created: false };
   }
-  if (isBootstrapOptedOut(env)) {
+  // 目录已在、说明文件也在 —— 无事可做，也绝不覆盖用户改动。
+  if (dirExists && (await pathExists(readmePath))) {
     return { path, created: false };
   }
 
   try {
-    await mkdir(path, { recursive: true });
-    await writeFile(join(path, README_FILE), README_CONTENT, "utf8");
-    return { path, created: true };
+    if (!dirExists) await mkdir(path, { recursive: true });
+    await writeFile(readmePath, README_CONTENT, "utf8");
+    return { path, created: !dirExists };
   } catch (error) {
     // 竞态：另一进程刚创建。视为已存在，不算失败。
     if ((error as NodeJS.ErrnoException)?.code === "EEXIST") {

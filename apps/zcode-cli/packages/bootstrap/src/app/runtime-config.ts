@@ -90,9 +90,17 @@ export function resolveAppRuntimeConfig(input: {
   // Protocol session/create 传入的 mcp.servers 只包含 UI MCP 设置里的用户配置，
   // 不包含插件注册的 MCP。宿主内建 server 最后合并并保留其 identity，避免用户或第三方
   // 用同名配置劫持 mcp__node_repl__*；普通 plugin MCP 仍允许显式用户配置覆盖。
+  // 调用方传入的 servers 与配置里解析出的 servers 是**叠加**关系，不是二选一。
+  //
+  // 原为 `...(runtimeConfig?.mcp?.servers ?? configResult.config.mcp.servers)`：
+  // `??` 会在调用方（如桌面端 UI 的 MCP 设置）提供了 servers 时，把
+  // `configResult` 那一整套**整体丢弃** —— 其中包含从 `.claude` 读来的用户级 MCP。
+  // 表现为「配了 `.claude.json` 但桌面端连不上」，且没有任何报错。
+  // 语义应为：调用方（更具体的运行态覆盖）压过配置解析结果，两者都要在。
   const configuredMcpServers = {
     ...pluginMcpServers,
-    ...(options.runtimeConfig?.mcp?.servers ?? configResult.config.mcp.servers),
+    ...configResult.config.mcp.servers,
+    ...options.runtimeConfig?.mcp?.servers,
     ...builtInMcpServers,
   };
   const trustedOfficialCuaServerNames = resolveTrustedOfficialCuaServerNames(

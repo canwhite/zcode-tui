@@ -88,10 +88,24 @@ export const runPrompt = async (
   // 顺序即优先级：**内置 > 自定义命令 > skill**。
   // 内置命令在此刻已是 `type === "known"`，结构上天然胜出；
   // 自定义命令先于 skill 探测，保持既有行为不回退。
-  const skillName =
-    slashCommand?.type === "unknown"
-      ? (await resolveSkillCommandName(deps, slashCommand)) ?? undefined
-      : undefined;
+  //
+  // 探测失败（读盘错误、frontmatter 非法）必须**报出真实原因并退出**，不能静默继续：
+  // 静默继续会走到后面的「未知命令」分支，用一句 "Unknown command" 盖掉真正的失败
+  // —— 而那正是 `isResolvableCustomCommand` 的契约要防的事。
+  // 此处在主 try 块之外，故需自己收口，否则会变成未捕获的 rejection。
+  let skillName: string | undefined;
+  if (slashCommand?.type === "unknown") {
+    try {
+      skillName = (await resolveSkillCommandName(deps, slashCommand)) ?? undefined;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      ctx.stderr.write(`Error: ${message}\n`);
+      if (options.verbose && error instanceof Error && error.stack) {
+        ctx.stderr.write(`${error.stack}\n`);
+      }
+      return 1;
+    }
+  }
 
   if (slashCommand?.type === "known" && slashCommand.name === "help") {
     ctx.stdout.write(
@@ -624,13 +638,14 @@ async function resolveSkillCommandName(
   deps: RunDependencies,
   slashCommand: SlashCommand,
 ): Promise<string | undefined> {
-  try {
-    if (await isResolvableCustomCommand(deps, slashCommand.rawName)) return undefined;
-  } catch {
-    // 自定义命令探测自身出错时不吞掉整条路径：退化为「不是自定义命令」，
-    // 让后面的 skill 探测与未知命令提示仍有结论。
-    return undefined;
-  }
+  // 自定义命令错误**必须继续冒泡**，不要在这里 catch。
+  //
+  // `isResolvableCustomCommand` 的契约（见其 catch 内注释）是：只有「不存在」算不可解析，
+  // 读盘失败 / frontmatter 非法一律抛出，好让真正的失败原因浮到用户面前。
+  // 若在这里吞掉并返回 undefined，流程会顺势走到最后的「未知命令」分支 ——
+  // 正好就是那条契约要防的事：用一句 "Unknown command" 盖掉真实错误。
+  if (await isResolvableCustomCommand(deps, slashCommand.rawName)) return undefined;
+
   return (await isResolvableSkillName(deps, slashCommand.rawName))
     ? slashCommand.rawName
     : undefined;

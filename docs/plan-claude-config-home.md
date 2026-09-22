@@ -308,6 +308,104 @@
 
 ---
 
+## Post-Mortem 第二轮（2026-09-22，外部审计）
+
+上一轮之后又做了一轮带**独立复核**的审计（两个并行审查代理 + 自查），
+专查「路径拼接」与「MCP 合并方向」。**又发现 5 个缺陷，其中 1 个是灾难性的。**
+
+### [BUG-4] 用户级 MCP 读错文件：`~/.claude/.claude.json` 而非 `~/.claude.json`
+
+**位置**：`adapters/src/config-home/mcp.ts:74`
+**严重度**：**Critical** ｜ **类型**：路径拼接错误
+
+**问题**：`join(getUserConfigHome(env), ".claude.json")`。`getUserConfigHome` 返回的是
+**配置家目录** `~/.claude`，而 Claude Code 的 `.claude.json` 是它的**同级文件**（在家目录下）。
+算出来的 `~/.claude/.claude.json` 在真实机器上**永远不存在** ——
+`readServersFrom` 把 ENOENT 静默吞成 `{}`，于是**整个「用户级 MCP」功能是一个 no-op**，
+且没有任何报错、没有诊断。
+
+**为什么测试没抓到**：我的 fixture 把 `.claude.json` 写进了 `$HOME/.claude/` ——
+**测试复刻了 bug 本身**，于是「自证正确」。更糟的是 fixture 没设 `HOME`，
+`resolveUserHomeDir` 实际读的是**本机真实的** `~/.claude.json`，测试跑的是别人的配置却通过。
+
+**修复**：改从**家目录**拼 —— `join(resolveUserHomeDir(env), USER_MCP_CONFIG_FILE)`。
+测试侧：fixture 改写到 `$HOME/.claude.json` 并把 `process.env.HOME` 指向 fixture。
+
+**验证**：把修复临时回退，测试**确实变红**（21/23），恢复后 23/23 —— 证明这条断言真的在防它。
+
+### [BUG-5] `mcp/list` 丢弃全部非插件 MCP（与已修的 runtime-config 同一形状）
+
+**位置**：`bootstrap/src/zcode-protocol/mcp.ts:65-69`
+**严重度**：**High** ｜ **类型**：逻辑错误（`??` 当合并用）
+
+**问题**：`...(provided ? explicit : configResult.config.mcp.servers)` ——
+调用方（桌面端设置页）提供 `params.mcpServers` 时，`configResult` 那一整套被**整体丢弃**，
+而那正是 `~/.claude.json` / `.mcp.json` 的落点。更糟：`params.mcpServers: []` 也命中
+`!== undefined`，算出 `{}`，再经下游 `connectConfiguredServers` 的 **replace 语义**
+把已连上的 server 全部**断开**。旁边 `runtime-config.ts` 已修过同一形状，
+`mcp/list` 这条路径漏了。
+
+**修复**：改为三层叠加 `plugin → configResult → explicit`，与 `runtime-config.ts` 一致。
+
+### [BUG-6] `mergeConfigs` 的 `mcp.servers` 深合并是死代码（**既有缺陷，非本次引入**）
+
+**位置**：`adapters/src/config/config-merger.ts:45,66-75`
+**严重度**：Medium（当前不可达）｜ **类型**：逻辑错误
+
+**问题**：`Object.assign(result, config)` 先把 `result.mcp` 指向当前层，
+随后的 `{...result.mcp?.servers, ...config.mcp.servers}` 就成了 `{...X, ...X}` ——
+**只有最后一层的 servers 存活**。实测：三层 `{systemA} / {userA,shared} / {projectA,shared}`
+→ 结果只剩 `[projectA, shared]`。触发条件是某一层写了 `mcp` 但没写 `mcp.servers`（如只写 `mcp.enabled`）。
+
+**当前不可达**：`createConfig` 在 `:276-279` 会把 `merged.mcp.servers` 整体重算覆盖，
+恰好掩盖了它。**属既有缺陷，本次不改**（改动合并器影响面远超本任务），
+但已在下方列为预防任务。
+
+### [BUG-7] 用户级指令的护栏与文档仍指向已废弃路径
+
+**位置**：`bootstrap/src/builtin-prompt-command.ts:58`、`packages/shared/src/zcode-slash-command-help.ts:47`
+**严重度**：Medium ｜ **类型**：Comment/Code Drift（且会注入模型提示词）
+
+**问题**：`/init` 的提示词里写着 `Do not write ~/.zcode/AGENTS.md`，而该路径**已不再生效**；
+真正需要护栏的是 `~/.claude/CLAUDE.md`。护栏指向错目标 = 形同虚设，
+且这段文本**直接进模型提示词**。`/init` 的 help 文案同病。
+
+**修复**：护栏改为 `Do not write ~/.claude/CLAUDE.md`；候选清单补上
+`.claude/CLAUDE.md` 与 `AGENTS.md`；help 文案同步。
+
+### [BUG-8] 4 处注释仍把用户级 skill 根写成 `~/.zcode/skills`
+
+**位置**：`adapters/src/skills/index.ts:245`、`adapters/src/skills/scan.ts:23`、
+`packages/shared/src/skills-types.ts:18`、`packages/shared/src/skill-scan-policy.ts:46`
+**严重度**：Low ｜ **类型**：Comment Drift
+
+**修复**：统一改为 `~/.claude/skills`。
+（`doctor.ts:534` 与 `skills/roots.ts:115` 提到 `~/.zcode/skills` 是**刻意的** ——
+前者描述迁移检查、后者说明「不读哪里」，均保留。）
+
+### 记录但未修（既有、超范围、或收益不明确）
+
+| 项 | 判定 |
+|---|---|
+| `mcp/list` 的 `untrustedProjectMcpServers` 恒为空集 → `.mcp.json` server 自动信任并连接 | **既有**，本次只是把该风险面从 `.zcode` 扩到 `.mcp.json`。属安全策略变更，需产品决策。 |
+| `isolation` 字段不在 strict schema 中 → 带该字段的 server 被**整条丢弃** | **既有**（`config.json` 路径同病）。严格性本身是既有设计，加字段属独立变更。 |
+| 无 `${VAR}` 展开（插件加载器有，配置路径没有） | **既有**。`.mcp.json` 若写 `${GITHUB_TOKEN}` 会原样传给适配器。 |
+| `includeZcodeSkills` / `includeZcodeCommands` 命名已名不副实（现门控整个默认根集）且无调用方 | **既有**，无害，仅命名误导。 |
+| `doctor` 没有 MCP 段 | 计划 §3.1 要求过。当前本机 0 个 MCP server，加了只会是噪声；等真有 server 时再补。 |
+
+### 根因（第二轮）
+
+1. **测试复刻了 bug 的假设**（BUG-4）—— fixture 按「代码怎么算」来构造，
+   而不是按「Claude Code 实际长什么样」来构造。**测试必须锚在外部事实上，不能锚在实现上。**
+   并且 fixture 没隔离 `HOME`，实际读的是本机真实文件，于是连「有没有读到」都测错了。
+2. **同一个错误形状修了一处、漏了另一处**（BUG-5）—— `runtime-config.ts` 与
+   `mcp/list` 是同构的两条路径，修第一条时没有全局扫描同类。这正是项目 `Adjust` 章
+   「修完一处要扫全局」要防的事。
+3. **注释跟着旧路径一起留在原地**（BUG-7/8）—— 路径迁移时只改了代码，没改描述代码的文字；
+   而当注释会进提示词时，它就成了实际行为的一部分。
+
+---
+
 ## Pre-Mortem Risks
 
 <!-- AUTO-GENERATED: New risks will be appended below -->

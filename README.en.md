@@ -69,6 +69,26 @@ The root [.env.example](.env.example) provides sample service URLs and build con
 
 Runtime variables can be set explicitly in the environment of the startup command. See [config/README.md](config/README.md) for the default configuration shipped with the client.
 
+### Where personal configuration lives
+
+**Personal configuration is read from `~/.claude`; runtime data stays in `~/.zcode`. The two are independent.**
+
+| Content                                    | Location                                   |
+| ------------------------------------------ | ------------------------------------------ |
+| Personal skills                            | `~/.claude/skills/<name>/SKILL.md`         |
+| Global instructions                        | `~/.claude/CLAUDE.md`                      |
+| Personal commands                          | `~/.claude/commands/<name>.md`             |
+| User-level MCP                             | the `mcpServers` key in `~/.claude.json`   |
+| Project-level MCP                          | the `mcpServers` key in `<repo>/.mcp.json` |
+| Sessions, credentials, vendor config, logs | `~/.zcode/` (stays here, not migrated)     |
+
+Personal skills are exposed as **top-level slash commands** — type `/<skill-name>` directly, no `/skill` prefix needed.
+If `~/.claude` does not exist, the first run creates it and writes a short README explaining the layout; set
+`ZCODE_NO_CONFIG_HOME_BOOTSTRAP=1` to disable that. Run `zcode doctor` to see the effective config home and per-source counts.
+
+> Upgrading from an older version: `~/.zcode/skills` and `~/.zcode/AGENTS.md` are **no longer read**.
+> Move them to the locations above to take effect; `zcode doctor` warns when skills are still present in the old location.
+
 ## Repository Structure
 
 | Directory                                      | Responsibility                                                                          |

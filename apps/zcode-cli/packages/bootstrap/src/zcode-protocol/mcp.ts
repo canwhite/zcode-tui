@@ -56,16 +56,18 @@ export async function listMcpServers(
     startupTimer,
     workingDirectory,
   });
-  const explicitMcpServersProvided = params.mcpServers !== undefined;
   const explicitRuntimeMcp = protocolMcpServersToRuntimeMcpConfig(params.mcpServers);
+  // 三层**叠加**，不是二选一（与 runtime-config.ts 保持同一形状与理由）。
+  //
+  // 原为 `...(provided ? explicit : configResult…)`，会在调用方提供了 mcpServers 时
+  // 把 `configResult.config.mcp.servers` **整体丢弃** —— 而那正是
+  // `~/.claude.json` 与 `<repo>/.mcp.json` 的落点，于是「配了却连不上」且无报错。
+  // 更糟的是 `params.mcpServers: []` 也会命中 `!== undefined`，算出 `{}`，
+  // 再经下游 `connectConfiguredServers` 的 **replace 语义**把已连上的 server 全部断开。
   const configuredMcpServers = {
     ...pluginOutcome.mcpServers,
-    // 设置页的本地 MCP 列表由 desktop main 解析 `.zcode` / `.agents` fallback，
-    // session runtime 也使用这批 params.mcpServers。mcp/list 不能再只靠 agent createConfig，
-    // 否则 `.agents` fallback 行会缺少 status snapshot 并被 UI 误标红。
-    ...(explicitMcpServersProvided
-      ? (explicitRuntimeMcp?.servers ?? {})
-      : configResult.config.mcp.servers),
+    ...configResult.config.mcp.servers,
+    ...(explicitRuntimeMcp?.servers ?? {}),
   };
   const trustedOfficialCuaServerNames = resolveTrustedOfficialCuaServerNames(
     configuredMcpServers,

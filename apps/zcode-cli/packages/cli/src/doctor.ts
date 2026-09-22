@@ -11,7 +11,6 @@ import {
 } from "@zcode/provider-node";
 import {
   CONFIG_HOME_COMMANDS_DIR,
-  CONFIG_HOME_DIR,
   CONFIG_HOME_INSTRUCTION_FILE,
   CONFIG_HOME_SKILLS_DIR,
   getUserConfigHome,

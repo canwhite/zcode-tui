@@ -1,4 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -206,31 +205,6 @@ export function createSharedZCodeCredentialStore(
     },
 
   };
-}
-
-export function loadSharedZCodeCredentialSync(
-  key: string,
-  options: SharedZCodeCredentialStoreOptions = {},
-): string | undefined {
-  const filePath = resolveSharedZCodeCredentialsPath(options);
-  if (!existsSync(filePath)) {
-    return undefined;
-  }
-
-  try {
-    const raw = readFileSync(filePath, "utf-8");
-    const parsed = JSON.parse(raw);
-    const record = parseCredentialRecord(parsed);
-    const rawValue = record[validateCredentialKey(key)];
-    if (rawValue === undefined) {
-      return undefined;
-    }
-    const cipher = options.cipher ?? createZCodeCredentialCipher({ env: options.env });
-    const decrypted = cipher.decrypt(rawValue);
-    return decrypted.trim().length > 0 ? decrypted : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 export function resolveSharedZCodeCredentialsPath(

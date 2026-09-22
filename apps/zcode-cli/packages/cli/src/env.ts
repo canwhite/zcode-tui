@@ -1,4 +1,4 @@
-// Modified by ZCode: 抽出入口统一加载 .env 的实现（原先 login / prompt / tui-auth / protocol server 各自加载）。
+// Modified by ZCode: 抽出入口统一加载 .env 的实现（原先 prompt / protocol server 等各自加载）。
 // 本分支全部改动的清单见 README.md「本分支的改动」。
 import { existsSync, statSync } from "node:fs";
 import { homedir } from "node:os";
@@ -112,7 +112,7 @@ export const loadCliDotenv = (options: LoadCliDotenvOptions = {}): DotenvLoadRes
 /**
  * 入口处统一加载 .env 的唯一实现。
  *
- * 背景：`.env` 原先只由 login / prompt / tui-auth / protocol server 各自加载，
+ * 背景：`.env` 原先只由 prompt / protocol server 等入口各自加载，
  * 而 TUI 主路径（tui-command.ts）直接用 process.env，导致「改 .env 就能用」在
  * 交互式入口上不成立——用户在项目根配了 base url 和 api key，敲 zcode 却读不到。
  *
@@ -122,7 +122,7 @@ export const loadCliDotenv = (options: LoadCliDotenvOptions = {}): DotenvLoadRes
  */
 /**
  * 入口统一加载后，命令层的 `deps.loadDotenv` 已被替换为幂等 no-op（见 run.ts 的
- * commandDeps）。login / prompt / tui-auth 中留存的 `loadDotenv` 调用因此不会二次读盘，
+ * commandDeps）。命令层留存的 `loadDotenv` 调用因此不会二次读盘，
  * 其 `dotenvResult.error` 分支也不会再触发——入口失败时进程已在加载点退出。
  */
 export function loadCliDotenvAtEntry(options: {

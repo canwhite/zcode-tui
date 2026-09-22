@@ -14,7 +14,7 @@ export async function readTuiSessionMetadata(app: CommandCenterApp): Promise<Tui
     thoughtLevel: app.getThoughtLevel?.(),
     modelOptions,
     effortOptions: (await listAppEffortOptions(app)) ?? [],
-    loginRequired: !modelOptions.some((model) => !model.disabledReason),
+    providerSetupRequired: !modelOptions.some((model) => !model.disabledReason),
   };
 }
 

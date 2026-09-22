@@ -20,10 +20,7 @@ import {
 import { DEFAULT_CLI_CLEANUP_TIMEOUT_MS, runCliCleanupWithTimeout } from "./shutdown.js";
 import {
   configureApiKeyForTui,
-  loginBigmodelForTui,
-  loginForTui,
-  logoutForTui,
-} from "./tui-auth.js";
+} from "./tui-provider-config.js";
 import {
   listCustomCommandsForTui,
   listSessionsForTui,
@@ -36,7 +33,7 @@ import {
   TUI_TITLE_GENERATION_CONFIG,
   type TuiPromptHandler,
 } from "./tui-command-state.js";
-import { createTuiModelAvailabilityChecker } from "./tui-login-state.js";
+import { createTuiModelAvailabilityChecker } from "./tui-provider-setup-state.js";
 import { withTuiMetadata } from "./tui-submit-metadata.js";
 import type {
   CliModeState,
@@ -267,8 +264,6 @@ export function createTuiSubmitPrompt(
     // 一次 skill 扫描失败不该让整个 help 不可用。
     listSkills: () => listSkillSuggestionsForTui(deps),
     configureApiKey: (options) => configureApiKeyForTui(deps, options),
-    login: (options) => loginForTui(deps, options),
-    loginBigmodel: (options) => loginBigmodelForTui(deps, options),
     loadCustomCommand: (name) => loadCustomCommandForTui(deps, name),
     newApp,
     recordInputHistory: async (input, kind) => {
@@ -282,7 +277,6 @@ export function createTuiSubmitPrompt(
       }
       await runtime.modelSelectionConfigRepository.saveConfiguredDefault(selection);
     },
-    logout: () => logoutForTui(deps),
     setLocale: async (locale) => {
       if (app?.setLocale) {
         const result = await app.setLocale(locale);

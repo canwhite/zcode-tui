@@ -196,7 +196,7 @@ export function actionPanelContentWidthForTerminal(
   return normalizeSlashCommandContentWidth(mainWidth - PANEL_HORIZONTAL_CHROME_COLUMNS);
 }
 
-export function LoginRequiredPanel({
+export function ProviderSetupRequiredPanel({
   copy = DEFAULT_TUI_COPY,
 }: {
   copy?: TuiCopy;
@@ -204,7 +204,7 @@ export function LoginRequiredPanel({
   return h(
     "box",
     {
-      title: copy.loginRequired.title,
+      title: copy.providerSetupRequired.title,
       style: {
         backgroundColor: palette.panel,
         border: true,
@@ -217,8 +217,8 @@ export function LoginRequiredPanel({
         width: "100%",
       },
     },
-    h("text", { style: { fg: palette.warning } }, copy.loginRequired.message),
-    h("text", { style: { fg: palette.muted } }, copy.loginRequired.help),
+    h("text", { style: { fg: palette.warning } }, copy.providerSetupRequired.message),
+    h("text", { style: { fg: palette.muted } }, copy.providerSetupRequired.help),
   );
 }
 

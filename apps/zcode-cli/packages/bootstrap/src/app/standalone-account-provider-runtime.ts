@@ -50,7 +50,7 @@ async function readStandaloneCodingPlanCatalog(
     };
   const filePath = env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (!filePath) {
-    throw new Error(`${ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required for login`);
+    throw new Error(`${ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required to resolve the built-in provider config`);
   }
   const source = new NodeZCodeBuiltinProviderConfigSource({
     bundledFilePath: filePath,

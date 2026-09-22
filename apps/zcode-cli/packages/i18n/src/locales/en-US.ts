@@ -21,8 +21,6 @@ Commands:
   commands   List custom slash commands (\`commands list\`)
   configure  Write a Coding Plan key non-interactively and preset the default model (\`configure --provider bigmodel\`; key from --api-key or the matching .env variable)
   doctor     Inspect runtime, installation, and configuration readiness
-  login [zai|bigmodel]  Sign in through browser authorization
-  logout     Remove the shared Z.AI login credentials
   plugins    Manage plugins and marketplaces (\`plugins list|install|uninstall|enable|disable|update|validate|marketplace ...\`; alias: plugin)
   skills     List local skills (\`skills list\`)
   tui        Open the terminal UI
@@ -50,14 +48,11 @@ Options:
   --target-replace Replace any existing session goal set by --target
   -c, --continue        Resume the latest session for the current directory
   --json           Print machine-readable JSON where supported
-  --no-browser     Print the OAuth URL without opening a browser
   --no-color       Disable ANSI colors
   --verbose        Print extra diagnostic detail
 
 Slash Commands:
   /help [command]       Show slash command help
-  /login                Choose Z.AI or BigModel browser login
-  /logout               Remove the shared Z.AI login credentials
   /compact [instructions]  Compact the current conversation
   /expert [status|resume|stop|<task>]  Run or manage the expert workflow
   /dwf [list|cancel|resume]  List, cancel, or resume dynamic workflow runs
@@ -98,60 +93,11 @@ Slash Commands:
       restorePreviousInputFailed: "Could not restore previous input.",
       typePrompt: "Type a question and press Enter.",
     },
-    loginRequired: {
-      help: "Use /model to view models, or /login to connect a Coding Plan account.",
-      message: "No available models. Configure a provider or sign in with /login.",
-      status: "No available models. Configure a provider or sign in with /login.",
-      title: "model setup required",
-    },
-    loginSetup: {
-      emptyMessage: "No login options are available.",
-      help: "Use Up/Down to choose, Enter to select.",
-      options: {
-        bigmodelApiKey: {
-          inputPrimary: "Enter BigModel Coding Plan API Key",
-          inputSecondary: "Paste the key here. It is hidden while typing.",
-          primary: "BigModel Coding Plan API Key",
-          secondary: "Paste a Coding Plan API key manually.",
-        },
-        bigmodelOauth: {
-          pendingPrimary: "Waiting for BigModel authorization",
-          pendingSecondary:
-            "Complete sign-in in your browser. Authorization is detected automatically.",
-          primary: "BigModel Coding Plan",
-          secondary: "Open browser login; authorization is detected automatically.",
-        },
-        zaiApiKey: {
-          inputPrimary: "Enter Z.AI Coding Plan API Key",
-          inputSecondary: "Paste the key here. It is hidden while typing.",
-          primary: "Z.AI Coding Plan API Key",
-          secondary: "Paste a Coding Plan API key manually.",
-        },
-        zaiOauth: {
-          pendingPrimary: "Waiting for Z.AI authorization",
-          pendingSecondary:
-            "Complete sign-in in your browser. I will continue when authorization finishes.",
-          primary: "Z.AI Coding Plan",
-          secondary: "Open browser login and create a Coding Plan API key.",
-        },
-      },
-      pending: {
-        cancelStatus: "Login cancelled. Choose a setup method.",
-        help: "Esc cancels and returns to setup choices.",
-        status: "Waiting for browser authorization...",
-      },
-      input: {
-        cancelStatus: "API key entry cancelled. Choose a setup method.",
-        clearStatus: "API key input cleared.",
-        emptyStatus: "API key is required.",
-        help: "Enter saves the key. Esc returns to setup choices.",
-        placeholder: "Paste API key",
-        status: "Enter the API key, then press Enter.",
-        submitStatus: "Saving API key...",
-      },
-      prompt: "Choose a login or API key setup method.",
-      response: "Choose how to set up a Coding Plan provider.",
-      title: "Set Up Coding Plan",
+    providerSetupRequired: {
+      help: "Set the ZCODE_VENDOR_* fields in .env, or run `zcode configure --api-key <key>`, then restart.",
+      message: "No available models. Configure a provider to continue.",
+      status: "No available models. Configure a provider.",
+      title: "provider setup required",
     },
     model: {
       requestFailed: (message) => `Model request failed: ${message}`,

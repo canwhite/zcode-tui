@@ -126,8 +126,6 @@ function requiresProviderRuntime(argv: readonly string[]): boolean {
     command === "tui" ||
     command === "app-server" ||
     command === "agent-server" ||
-    command === "login" ||
-    command === "logout" ||
     // configure 要读写内置与个人 Provider Config 的路径，必须先准备好这两个 env。
     command === "configure"
   );

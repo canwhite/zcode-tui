@@ -3,7 +3,7 @@ import {
   formatAvailableCommandNames,
   listCustomCommandsForHelp,
 } from "../command-center-custom.js";
-import { listSkillsForHelp } from "../command-center-skills.js";
+import { findSkillEntry, listSkillsForHelp } from "../command-center-skills.js";
 import { formatNewSessionResult, formatResumeResult } from "./formatters.js";
 import { handleCustomCommand } from "./handlers/custom.js";
 import { handleDwfCommand } from "./handlers/dwf.js";
@@ -25,15 +25,7 @@ import {
   formatSlashCommandHelp,
   parseSlashCommand,
 } from "./slash-commands.js";
-import {
-  buildLoginSelection,
-  emitLoginAuthorizeMessage,
-  formatLoginResult,
-  formatProviderSetupResult,
-  loginSetupResponse,
-  parseApiKeyLoginArgs,
-} from "./login-flow.js";
-import { loginRequiredResponse } from "../tui-login-state.js";
+import { providerSetupRequiredResponse } from "../tui-provider-setup-state.js";
 import type { CommandCenterDeps } from "./types.js";
 
 export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
@@ -43,11 +35,11 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
     const hasAttachments = (promptInput.attachments?.length ?? 0) > 0;
 
     if (!command) {
-      if (await isLoginRequired(deps)) {
+      if (await isProviderSetupRequired(deps)) {
         return {
-          loginRequired: true,
+          providerSetupRequired: true,
           mode: deps.getMode?.(),
-          response: loginRequiredResponse(deps.getLocale?.()),
+          response: providerSetupRequiredResponse(deps.getLocale?.()),
         };
       }
       const app = await deps.getApp();
@@ -64,11 +56,34 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
     if (command.type === "unknown") {
       const customResult = await handleCustomCommand(command.rawName, command.args, deps, options);
       if (customResult) {
-        await recordSlashCommandInHistory(deps, promptInput.text, command);
+        await recordSlashCommandInHistory(deps, promptInput.text);
         return customResult;
       }
-      const customCommands = await listCustomCommandsForHelp(deps);
       const skills = await listSkillsForHelp(deps);
+      // 个人 skill 与内置命令同级呈现（`listSlashCommandSuggestions` 把它们拼进一级清单），
+      // 派发层必须给出对应分支 —— 否则建议列表里点得到的命令一提交就报「未知命令」，
+      // 而那条报错文案还会把同一个 skill 列进「可用命令」，自相矛盾。
+      //
+      // 顺序与 headless 的 `resolveSkillCommandName` 对齐：内置 > 自定义命令 > skill。
+      // 内置命令在 `parseSlashCommand` 阶段即为 `known`，结构上天然优先，够不到这里；
+      // 自定义命令已在上面探测过，故此处只补 skill 这一段。
+      //
+      // 传 `skill.name`（frontmatter 规范名）而不是 `command.rawName`：
+      // `parseSlashCommand` 已把 rawName 小写化，而 skill 加载是**大小写精确匹配**
+      // （adapters skills `matchesSkillRequest`），拿 "no-useeffect" 去加载 `no-useEffect` 会找不到。
+      const skill = findSkillEntry(command.rawName, skills);
+      if (skill) {
+        const app = await deps.getApp();
+        const result = await attachCurrentSessionMetadata(
+          await app.submitPrompt(buildManualSkillPrompt(skill.name, command.args), options),
+          deps,
+          app,
+        );
+        await recordSlashCommandInHistory(deps, promptInput.text);
+        return result;
+      }
+
+      const customCommands = await listCustomCommandsForHelp(deps);
       return {
         mode: deps.getMode?.(),
         response: `Unknown command: /${command.rawName}. Available commands: ${formatAvailableCommandNames(AVAILABLE_COMMANDS, customCommands, skills)}.`,
@@ -82,123 +97,6 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
         return {
           mode: deps.getMode?.(),
           response: formatSlashCommandHelp(command.args, customCommands, skills),
-        };
-      }
-
-      if (command.name === "login") {
-        if (command.args.length === 0) {
-          return {
-            loginRequired: await isLoginRequired(deps),
-            mode: deps.getMode?.(),
-            response: loginSetupResponse(deps.getLocale?.()),
-            selection: buildLoginSelection(deps.getLocale?.()),
-          };
-        }
-        if (command.args === "zai-coding-plan") {
-          if (!deps.login) {
-            return {
-              mode: deps.getMode?.(),
-              response: "Z.AI Coding Plan login is not available in this client.",
-            };
-          }
-
-          return {
-            loginRequired: false,
-            mode: deps.getMode?.(),
-            response: formatLoginResult(
-              await deps.login({
-                abortSignal: options.abortSignal,
-                onAuthorizeUrl: async (data) => {
-                  await emitLoginAuthorizeMessage(
-                    options,
-                    data.authorize_url,
-                    "Z.AI",
-                    await deps.getApp(),
-                  );
-                },
-              }),
-            ),
-          };
-        }
-        if (command.args === "bigmodel-coding-plan") {
-          if (!deps.loginBigmodel) {
-            return {
-              mode: deps.getMode?.(),
-              response: "BigModel Coding Plan login is not available in this client.",
-            };
-          }
-
-          return {
-            loginRequired: false,
-            mode: deps.getMode?.(),
-            response: formatProviderSetupResult(
-              await deps.loginBigmodel({
-                abortSignal: options.abortSignal,
-                onAuthorizeUrl: async (data) => {
-                  await emitLoginAuthorizeMessage(
-                    options,
-                    data.authorize_url,
-                    "BigModel",
-                    await deps.getApp(),
-                  );
-                },
-              }),
-            ),
-          };
-        }
-
-        const apiKeyCommand = parseApiKeyLoginArgs(command.args);
-        if (apiKeyCommand) {
-          if (!deps.configureApiKey) {
-            return {
-              mode: deps.getMode?.(),
-              response: "Manual API key setup is not available in this client.",
-            };
-          }
-          if (!apiKeyCommand.apiKey) {
-            return {
-              loginRequired: await isLoginRequired(deps),
-              mode: deps.getMode?.(),
-              response: `Usage: /login ${apiKeyCommand.kind} <api-key>`,
-            };
-          }
-          return {
-            loginRequired: false,
-            mode: deps.getMode?.(),
-            response: formatProviderSetupResult(
-              await deps.configureApiKey({
-                apiKey: apiKeyCommand.apiKey,
-                providerId: apiKeyCommand.providerId,
-              }),
-            ),
-          };
-        }
-
-        return {
-          mode: deps.getMode?.(),
-          response:
-            "Usage: /login [zai-coding-plan|bigmodel-coding-plan|zai-coding-plan-api-key <api-key>|bigmodel-coding-plan-api-key <api-key>]",
-        };
-      }
-
-      if (command.name === "logout") {
-        if (command.args.length > 0) {
-          return {
-            mode: deps.getMode?.(),
-            response: "Usage: /logout",
-          };
-        }
-        if (!deps.logout) {
-          return {
-            mode: deps.getMode?.(),
-            response: "Logout is not available in this client.",
-          };
-        }
-
-        const result = await deps.logout();
-        return {
-          mode: deps.getMode?.(),
-          response: `Logged out from Coding Plan accounts. Credentials: ${result.credentialsPath}`,
         };
       }
 
@@ -370,7 +268,7 @@ export function createCommandCenter(deps: CommandCenterDeps): TuiSubmitPrompt {
       };
     })();
 
-    await recordSlashCommandInHistory(deps, promptInput.text, command);
+    await recordSlashCommandInHistory(deps, promptInput.text);
     return result;
   };
 }
@@ -381,7 +279,7 @@ function parseForkTarget(args: string): string | undefined {
   return trimmed;
 }
 
-async function isLoginRequired(deps: CommandCenterDeps): Promise<boolean> {
+async function isProviderSetupRequired(deps: CommandCenterDeps): Promise<boolean> {
   if (!deps.hasSelectableModels) return false;
   try {
     return !(await deps.hasSelectableModels());

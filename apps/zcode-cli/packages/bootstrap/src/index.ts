@@ -17,7 +17,7 @@ export type {
   ZCodeAppOptions,
   ZCodeModelOption,
 } from "./app/types.js";
-export * from "./auth-login.js";
+export * from "./coding-plan-config.js";
 export {
   inspectZCodeCustomCommand,
   listZCodeCustomCommands,

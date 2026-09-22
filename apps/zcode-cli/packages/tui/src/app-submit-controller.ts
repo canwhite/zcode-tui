@@ -56,7 +56,14 @@ export function useSubmitValue(input: {
         await input.submitBtw(btwSubmission);
         // `cancel-await` 只撤销「等待侧问内容」态，这次输入仍是用户的命令，必须继续往下走。
         // 在这里 return 会把用户敲的那条命令**静默吞掉**。
-        if (btwSubmission.kind !== "cancel-await") return;
+        if (btwSubmission.kind !== "cancel-await") {
+          // 侧问在两条正常提交路径（idle / busy）**之前**被截获，所以清空输入框这件事
+          // 必须在这里自己做：那两条路各自都会 `setDraftValue("")`，而这里提前 return 了。
+          // 不清的话，`/btw 问题` 会一直留在输入框里，用户下一次回车会把它当成普通提问重发。
+          // 清空值也会顺带丢弃已不在文本中的附件占位符（见 app.tsx 的 setDraftValue）。
+          input.setDraftValue("");
+          return;
+        }
       }
 
       if (input.busy) {

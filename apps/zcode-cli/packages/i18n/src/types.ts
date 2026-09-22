@@ -255,6 +255,8 @@ export interface TuiCopy {
     };
     help: string;
     question(question: string): string;
+    /** 失败态的重试键提示。 */
+    retryHint: string;
     /** 拒答态与正常答案必须显著区分，不能长得像答案。 */
     refused: string;
     title: string;

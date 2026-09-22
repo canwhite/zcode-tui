@@ -81,6 +81,7 @@ type UseTuiKeyboardControlsOptions = {
   /** 浮层正文可见行数；页翻要用它。由 `resolveBtwBodyRows` 统一计算，不在这里重复。 */
   btwVisibleLines: number;
   closeBtw: () => void;
+  retryBtw: () => void;
   scrollBtw: (delta: number) => void;
   selection: SelectionState | undefined;
   setApprovalQueue: Dispatch<SetStateAction<ApprovalPrompt[]>>;
@@ -107,6 +108,7 @@ export function useTuiKeyboardControls({
   btwVisibleLines,
   busy,
   closeBtw,
+  retryBtw,
   copyCurrentSelection,
   draftValue,
   workflowExpansion,
@@ -238,9 +240,14 @@ export function useTuiKeyboardControls({
         // 侧问浮层：排在 Ctrl+C 之后，**保证逃生口永不被浮层吞掉**——浮层若吞掉全部按键，
         // 而侧问又卡住，用户就既关不掉浮层也停不掉主任务（见 app-btw-keyboard.ts）。
         // 优先级与痛点拆解 §4.3 一致：readOnlyView > approval > selection > btw > 其余。
-        if (btw?.focused) {
+        if (btw?.focused && btw.entry) {
           consumeKey(key);
-          handleBtwKey(key, { close: closeBtw, scrollBy: scrollBtw }, btwVisibleLines);
+          handleBtwKey(
+            key,
+            { close: closeBtw, retry: retryBtw, scrollBy: scrollBtw },
+            btwVisibleLines,
+            btw.entry.status,
+          );
           return;
         }
 
@@ -402,6 +409,7 @@ export function useTuiKeyboardControls({
         btw,
         btwVisibleLines,
         closeBtw,
+        retryBtw,
         scrollBtw,
         workflowExpansion,
         busy,

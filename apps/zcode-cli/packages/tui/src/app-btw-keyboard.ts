@@ -1,5 +1,5 @@
 import type { KeyEvent } from "@mbears/opentui-core";
-import { clampBtwScroll } from "./app-btw.js";
+import { clampBtwScroll, type BtwStatus } from "./app-btw.js";
 
 /**
  * 侧问浮层的键位路由。
@@ -15,13 +15,20 @@ import { clampBtwScroll } from "./app-btw.js";
  */
 export function handleBtwKey(
   key: KeyEvent,
-  actions: { close: () => void; scrollBy: (delta: number) => void },
+  actions: { close: () => void; retry: () => void; scrollBy: (delta: number) => void },
   visibleLines: number,
+  status: BtwStatus,
 ): void {
   // `Esc` / `Enter` / `Space` 都是关闭键（F-004：三者关闭浮层并交还焦点），
   // 所以键名分别是 `"escape"` / `"return"` / `"space"` —— 注意 Enter 不是 `"enter"`。
   if (key.name === "escape" || key.name === "return" || key.name === "space") {
     actions.close();
+    return;
+  }
+  // 失败态必须有**手动重试**：重试预算耗尽后只剩一次「裸失败」的话，用户唯一的选择是
+  // 关掉浮层重新把那句话再打一遍。这是「裸失败」与「可恢复」的分界（R-018）。
+  if (key.name === "r" && status === "failed") {
+    actions.retry();
     return;
   }
   if (key.name === "up" || key.name === "down") {

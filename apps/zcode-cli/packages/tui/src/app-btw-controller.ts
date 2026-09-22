@@ -11,6 +11,8 @@ import type { TuiOptions } from "./types.js";
 
 export interface BtwController {
   close: () => void;
+  /** 失败态的手动重试：复用同一条问题原文，不要求用户重新打一遍。 */
+  retry: () => void;
   scroll: (delta: number) => void;
   state: BtwState;
   submit: (submission: BtwSubmission) => Promise<void>;
@@ -117,5 +119,12 @@ export function useBtwController(input: {
     );
   }, []);
 
-  return { close, scroll, state, submit };
+  const retry = useCallback((): void => {
+    const entry = state.entry;
+    // 只在失败态重试：重试一个还在飞的请求只会自己取消自己，重试一个成功的答案没有意义。
+    if (!entry || entry.status !== "failed") return;
+    void runQuestion(entry.question);
+  }, [runQuestion, state.entry]);
+
+  return { close, retry, scroll, state, submit };
 }

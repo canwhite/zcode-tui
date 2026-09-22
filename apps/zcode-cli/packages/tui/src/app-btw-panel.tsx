@@ -5,6 +5,8 @@ import {
   btwHasMoreBelow,
   btwLineWindow,
   elapsedSeconds,
+  resolveBtwBodyRows,
+  resolveBtwPanelHeight,
   wrapDisplayLines,
   type BtwEntry,
 } from "./app-btw.js";
@@ -19,11 +21,6 @@ const h = React.createElement as (
   ...children: React.ReactNode[]
 ) => React.ReactElement;
 
-/** 抽屉占对话框高度的一半；窄终端下留一个下限，免得正文一行都放不下。 */
-const PANEL_HEIGHT_RATIO = 0.5;
-const PANEL_MIN_ROWS = 8;
-/** 边框 2 + padding 2 + 标题 1 + 问题 1 + 状态/帮助 1。 */
-const PANEL_CHROME_ROWS = 7;
 const WAITING_TICK_MS = 1_000;
 
 /**
@@ -86,11 +83,16 @@ export function BtwPanel({
       },
       ...bodyContent({ body, bodyRows, copy, entry, lines, window }),
     ),
-    h(
-      "text",
-      { key: "status", style: { fg: statusColor(entry) } },
-      ...statusContent({ copy, entry, lines, window: window.scroll, bodyRows }),
-    ),
+    // 状态行整体交给一个组件渲染，**不要**写成 `h("text", ..., <stateful/>)`：
+    // 进行中态自己就是一条会重渲染的 `<text>`，嵌进外层 `<text>` 是 text-in-text 嵌套。
+    h(BtwStatusLine, {
+      bodyRows,
+      copy,
+      entry,
+      key: "status",
+      lines,
+      scroll: window.scroll,
+    }),
   );
 }
 
@@ -150,21 +152,30 @@ function bodyContent(input: {
   ];
 }
 
-function statusContent(input: {
+function BtwStatusLine({
+  bodyRows,
+  copy,
+  entry,
+  lines,
+  scroll,
+}: {
+  bodyRows: number;
   copy: TuiCopy;
   entry: BtwEntry;
   lines: readonly string[];
-  window: number;
-  bodyRows: number;
-}): React.ReactNode[] {
-  const { copy, entry, lines, window, bodyRows } = input;
+  scroll: number;
+}): React.ReactElement {
   if (entry.status === "waiting") {
     // 进行中态**只在这里挂载计时器**：非流式下浮层内容不会变化，没有这个时钟
     // 长等待会被当成卡死，进而触发不该发生的逃生动作（Ctrl+C / Esc）。
-    return [h(BtwWaitingStatus, { copy, key: "waiting", startedAt: entry.startedAt })];
+    return h(BtwWaitingStatus, { copy, startedAt: entry.startedAt });
   }
-  if (!btwHasMoreBelow(window, lines.length, bodyRows)) return [copy.btw.help];
-  return [`${copy.btw.help}  ↓${lines.length - window - bodyRows}`];
+  // 失败态把重试键摆出来。键位存在但没人告诉用户，等于不存在。
+  const help = entry.status === "failed" ? `${copy.btw.retryHint}  ${copy.btw.help}` : copy.btw.help;
+  const suffix = btwHasMoreBelow(scroll, lines.length, bodyRows)
+    ? `  ↓${lines.length - scroll - bodyRows}`
+    : "";
+  return h("text", { style: { fg: statusColor(entry) } }, `${help}${suffix}`);
 }
 
 function BtwWaitingStatus({
@@ -223,17 +234,6 @@ function statusColor(entry: BtwEntry): string {
   if (entry.status === "refused") return palette.warning;
   if (entry.status === "failed") return palette.danger;
   return palette.accent;
-}
-
-/** 抽屉高度：对话框高度的一半（带下限，免得正文一行都放不下）。 */
-export function resolveBtwPanelHeight(terminalHeight: number): number {
-  const half = Math.floor(Math.max(0, terminalHeight) * PANEL_HEIGHT_RATIO);
-  return Math.max(PANEL_MIN_ROWS, half);
-}
-
-/** 抽屉里正文可见行数。键盘层页翻需要同一个数，所以导出而不是各算一份。 */
-export function resolveBtwBodyRows(terminalHeight: number): number {
-  return Math.max(1, resolveBtwPanelHeight(terminalHeight) - PANEL_CHROME_ROWS);
 }
 
 function normalizeContentWidth(contentWidth: number | undefined): number {

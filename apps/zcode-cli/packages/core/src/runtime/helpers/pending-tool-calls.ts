@@ -1,4 +1,5 @@
 import { isRuntimeAttachmentEntry, type RuntimeMessageEntry } from "../../agent/message-history.js";
+import type { ModelToolCall } from "../deps.js";
 
 /**
  * 丢弃尾部「尚未兑现」的 assistant tool_use，让快照成为 provider 可接受的合法消息序列。
@@ -22,33 +23,34 @@ import { isRuntimeAttachmentEntry, type RuntimeMessageEntry } from "../../agent/
 export function withoutPendingTrailingToolCalls(
   entries: readonly RuntimeMessageEntry[],
 ): readonly RuntimeMessageEntry[] {
-  let boundary = entries.length;
+  // 从尾部回收「已经兑现」的 tool result。**附件条目要跳过而不是中止**：它们是 system reminder
+  // （shell 环境变化、目标变更、日期变更），既不参与 tool_use/tool_result 配对，也不该让整个
+  // 裁剪放弃——尾巴上多一条提醒就退回原样，等于把悬空 tool_use 照样发给 provider（400）。
+  let assistantIndex = -1;
+  let pendingToolCalls: readonly ModelToolCall[] | undefined;
   const satisfiedToolCallIds = new Set<string>();
 
-  // 从尾部回收「已经兑现」的 tool result，它们定义了尾部区间的起点。
-  while (boundary > 0) {
-    const entry = entries[boundary - 1]!;
-    if (isRuntimeAttachmentEntry(entry)) break;
-    if (entry.message.role !== "tool" || !entry.message.toolCallId) break;
-    satisfiedToolCallIds.add(entry.message.toolCallId);
-    boundary -= 1;
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    const entry = entries[index]!;
+    if (isRuntimeAttachmentEntry(entry)) continue;
+    if (entry.message.role === "tool" && entry.message.toolCallId) {
+      satisfiedToolCallIds.add(entry.message.toolCallId);
+      continue;
+    }
+    // 尾部区间遇到的第一个非附件、非工具结果条目：它要么是发起 tool_use 的 assistant，
+    // 要么说明尾部根本没有悬空调用，两种情况都在这里定性。
+    if (entry.message.role === "assistant" && entry.message.toolCalls?.length) {
+      assistantIndex = index;
+      pendingToolCalls = entry.message.toolCalls;
+    }
+    break;
   }
 
-  const assistant = boundary > 0 ? entries[boundary - 1] : undefined;
-  if (
-    !assistant ||
-    isRuntimeAttachmentEntry(assistant) ||
-    assistant.message.role !== "assistant" ||
-    !assistant.message.toolCalls ||
-    assistant.message.toolCalls.length === 0
-  ) {
-    return entries;
-  }
-
-  const hasPendingToolCall = assistant.message.toolCalls.some(
+  if (assistantIndex === -1 || pendingToolCalls === undefined) return entries;
+  const hasPendingToolCall = pendingToolCalls.some(
     (toolCall) => !satisfiedToolCallIds.has(toolCall.id),
   );
-  // 只要有一条 tool_use 未兑现，这条 assistant 就不能出现在请求里；它已有的部分结果也必须
-  // 一并丢弃——孤立的 tool_result 同样是非法序列。
-  return hasPendingToolCall ? entries.slice(0, boundary - 1) : entries;
+  // 只要有一条 tool_use 未兑现，这条 assistant 就不能出现在请求里；它已有的部分结果（以及
+  // 夹在其中的附件）也必须一并丢弃——孤立的 tool_result 同样是非法序列。
+  return hasPendingToolCall ? entries.slice(0, assistantIndex) : entries;
 }

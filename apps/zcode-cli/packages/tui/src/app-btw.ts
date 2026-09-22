@@ -118,11 +118,8 @@ function wrapParagraph(words: readonly string[], width: number): string[] {
         flush();
         continue;
       }
+      // `room >= 1` 时 `takeDisplayWidth` 至少吃下一个字符，所以 head 必非空。
       const [head, tail] = takeDisplayWidth(rest, room);
-      if (head.length === 0) {
-        flush();
-        continue;
-      }
       current = current.length > 0 ? `${current} ${head}` : head;
       rest = tail;
       // 这一段塞满了就换行；剩下的继续在同一循环里从空行起排。
@@ -182,6 +179,29 @@ export function scrollBtwBy(entry: BtwEntry, delta: number): BtwEntry {
   const upperBound = entry.answer.length + 1;
   const next = Math.min(Math.max(0, entry.scroll + delta), upperBound);
   return next === entry.scroll ? entry : { ...entry, scroll: next };
+}
+
+/** 抽屉占对话框高度的一半。 */
+const PANEL_HEIGHT_RATIO = 0.5;
+const PANEL_MIN_ROWS = 8;
+/** 边框 2 + padding 2 + 标题 1 + 问题 1 + 状态/帮助 1。 */
+const PANEL_CHROME_ROWS = 7;
+
+/**
+ * 抽屉高度：对话框高度的一半。
+ *
+ * 下限保正文至少能放一行，但**上限必须压在终端高度以内**——极矮终端（R-026）下
+ * `max(下限, 一半)` 会算出一个比屏幕还高的抽屉，直接顶穿布局。
+ */
+export function resolveBtwPanelHeight(terminalHeight: number): number {
+  const available = Math.max(1, Math.floor(terminalHeight));
+  const half = Math.floor(available * PANEL_HEIGHT_RATIO);
+  return Math.min(available, Math.max(PANEL_MIN_ROWS, half));
+}
+
+/** 抽屉里正文可见行数。键盘层页翻需要同一个数，所以导出而不是各算一份。 */
+export function resolveBtwBodyRows(terminalHeight: number): number {
+  return Math.max(1, resolveBtwPanelHeight(terminalHeight) - PANEL_CHROME_ROWS);
 }
 
 /** 浮层可滚动的显示行窗口；返回的 `scroll` 已钳制，调用方应据此回写状态。 */

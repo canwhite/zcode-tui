@@ -2,7 +2,7 @@ import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
 import { getZCodeCopy } from "@zcode/i18n";
 import { useTerminalDimensions } from "@mbears/opentui-react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { resolveBtwBodyRows } from "./app-btw-panel.js";
+import { resolveBtwBodyRows } from "./app-btw.js";
 import { useBtwController } from "./app-btw-controller.js";
 import { AppView } from "./app-view.js";
 import type { PromptInputEditor } from "./app-input-pane.js";
@@ -349,6 +349,7 @@ export function TuiApp({
     btwVisibleLines: resolveBtwBodyRows(terminalHeight),
     busy,
     closeBtw: btw.close,
+    retryBtw: btw.retry,
     scrollBtw: btw.scroll,
     copyCurrentSelection,
     effortSelection: effortCommand.selection,

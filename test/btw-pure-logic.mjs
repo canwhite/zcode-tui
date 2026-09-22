@@ -40,6 +40,13 @@ const assistantWithTools = (...ids) => ({
 });
 const toolResult = (id) => ({ message: { content: "ok", role: "tool", toolCallId: id } });
 const userMessage = (text) => ({ message: { content: text, role: "user" } });
+/**
+ * 断言失败时打印的形状。**不能直接 `entry.message.role`**：附件条目没有 `message`，
+ * 而失败详情是在断言求值时就构造的——那样「行为回归」会表现成 TypeError 崩溃，
+ * 看起来像测试基础设施坏了，而不是被判成 FAIL。
+ */
+const shapeOf = (entries) =>
+  entries.map((entry) => (entry.kind === "attachment" ? "attachment" : entry.message.role)).join(",");
 
 {
   // 工具执行刚开始：assistant 已提交、结果一条都还没回来。
@@ -48,7 +55,7 @@ const userMessage = (text) => ({ message: { content: text, role: "user" } });
   assert(
     "R-040 全悬空：丢掉尾部那条带 toolCalls 的 assistant",
     trimmed.length === 1 && trimmed[0].message.role === "user",
-    JSON.stringify(trimmed.map((entry) => entry.message.role)),
+    shapeOf(trimmed),
   );
 }
 
@@ -59,7 +66,7 @@ const userMessage = (text) => ({ message: { content: text, role: "user" } });
   assert(
     "R-040 部分结果：assistant 与其已返回的部分结果一并丢弃（孤立的 tool_result 同样非法）",
     trimmed.length === 1 && trimmed[0].message.role === "user",
-    JSON.stringify(trimmed.map((entry) => entry.message.role)),
+    shapeOf(trimmed),
   );
 }
 
@@ -84,6 +91,45 @@ const userMessage = (text) => ({ message: { content: text, role: "user" } });
   assert(
     "R-040 尾部孤立 tool_result（其 assistant 已被裁掉）：不崩溃且原样返回",
     withoutPendingTrailingToolCalls(entries).length === 2,
+  );
+}
+
+const attachment = (text) => ({ content: text, kind: "attachment", metadata: {} });
+
+{
+  // PM-2：尾部落一条 system reminder（shell 环境变化 / 目标变更 / 日期变更）就放弃裁剪，
+  // 等于把悬空 tool_use 照样发给 provider。附件不参与配对，必须跳过而不是中止。
+  const entries = [userMessage("hi"), assistantWithTools("t1"), attachment("shell changed")];
+  const trimmed = withoutPendingTrailingToolCalls(entries);
+  assert(
+    "PM-2 尾部附件不阻止裁剪：悬空 assistant 仍被丢弃",
+    trimmed.length === 1 && trimmed[0].message.role === "user",
+    shapeOf(trimmed),
+  );
+}
+
+{
+  // PM-2 变体：附件夹在部分结果与 assistant 之间。
+  const entries = [
+    userMessage("hi"),
+    assistantWithTools("t1", "t2"),
+    attachment("goal changed"),
+    toolResult("t1"),
+  ];
+  const trimmed = withoutPendingTrailingToolCalls(entries);
+  assert(
+    "PM-2 附件夹在结果之间：仍按 toolCallId 配对并整段丢弃",
+    trimmed.length === 1 && trimmed[0].message.role === "user",
+    shapeOf(trimmed),
+  );
+}
+
+{
+  // 附件存在但配对完整：不能因为「尾巴不是 tool result」就误裁合法历史。
+  const entries = [userMessage("hi"), assistantWithTools("t1"), toolResult("t1"), attachment("note")];
+  assert(
+    "PM-2 配对完整 + 尾部附件：历史原样保留（附件是合法消息）",
+    withoutPendingTrailingToolCalls(entries).length === 4,
   );
 }
 
@@ -216,23 +262,26 @@ const userMessage = (text) => ({ message: { content: text, role: "user" } });
 // ---------------------------------------------------------------------------
 
 {
-  const actions = { closed: 0, scrolled: [] };
+  const actions = { closed: 0, retried: 0, scrolled: [] };
   const close = () => {
     actions.closed += 1;
   };
+  const retry = () => {
+    actions.retried += 1;
+  };
   const scrollBy = (delta) => actions.scrolled.push(delta);
 
-  keyboard.handleBtwKey({ name: "escape" }, { close, scrollBy }, 10);
-  keyboard.handleBtwKey({ name: "return" }, { close, scrollBy }, 10);
-  keyboard.handleBtwKey({ name: "space" }, { close, scrollBy }, 10);
+  keyboard.handleBtwKey({ name: "escape" }, { close, retry, scrollBy }, 10, "ready");
+  keyboard.handleBtwKey({ name: "return" }, { close, retry, scrollBy }, 10, "ready");
+  keyboard.handleBtwKey({ name: "space" }, { close, retry, scrollBy }, 10, "ready");
   assert(
     "键位：Esc / Enter / 空格 都关闭浮层（F-004）",
     actions.closed === 3,
     `closed=${actions.closed}`,
   );
 
-  keyboard.handleBtwKey({ name: "down" }, { close, scrollBy }, 10);
-  keyboard.handleBtwKey({ name: "up" }, { close, scrollBy }, 10);
+  keyboard.handleBtwKey({ name: "down" }, { close, retry, scrollBy }, 10, "ready");
+  keyboard.handleBtwKey({ name: "up" }, { close, retry, scrollBy }, 10, "ready");
   assert(
     "键位：上下滚动",
     JSON.stringify(actions.scrolled) === "[1,-1]",
@@ -240,14 +289,44 @@ const userMessage = (text) => ({ message: { content: text, role: "user" } });
   );
 
   actions.scrolled.length = 0;
-  keyboard.handleBtwKey({ name: "pagedown" }, { close, scrollBy }, 10);
+  keyboard.handleBtwKey({ name: "pagedown" }, { close, retry, scrollBy }, 10, "ready");
   assert("键位：页翻步长为可见行数 - 1", actions.scrolled[0] === 9, String(actions.scrolled[0]));
+
+  // PM-1：失败态必须能原地重试（R-018 说的「裸失败」与「可恢复」的分界）。
+  keyboard.handleBtwKey({ name: "r" }, { close, retry, scrollBy }, 10, "failed");
+  assert("PM-1 失败态：r 触发重试", actions.retried === 1, `retried=${actions.retried}`);
+  keyboard.handleBtwKey({ name: "r" }, { close, retry, scrollBy }, 10, "ready");
+  keyboard.handleBtwKey({ name: "r" }, { close, retry, scrollBy }, 10, "waiting");
+  assert(
+    "PM-1 非失败态：r 不触发重试（重试在飞请求只会自己取消自己）",
+    actions.retried === 1,
+    `retried=${actions.retried}`,
+  );
+  assert(
+    "PM-1 r 不误触关闭：重试后浮层仍在",
+    actions.closed === 3,
+    `closed=${actions.closed}`,
+  );
 
   assert(
     "键位：Ctrl+C 不被浮层吞掉（R-002 的逃生口）",
     keyboard.shouldConsumeBtwKey({ name: "c", ctrl: true }) === false &&
       keyboard.shouldConsumeBtwKey({ name: "space" }) === true,
   );
+}
+
+// ---------------------------------------------------------------------------
+// 抽屉几何（PM-3）
+// ---------------------------------------------------------------------------
+
+{
+  assert("几何：常规终端取一半", btw.resolveBtwPanelHeight(40) === 20);
+  assert(
+    "PM-3 极矮终端：抽屉不超过终端高度",
+    btw.resolveBtwPanelHeight(6) <= 6 && btw.resolveBtwPanelHeight(1) <= 1,
+    `${btw.resolveBtwPanelHeight(6)} / ${btw.resolveBtwPanelHeight(1)}`,
+  );
+  assert("几何：正文行数恒为正", btw.resolveBtwBodyRows(1) >= 1 && btw.resolveBtwBodyRows(10) >= 1);
 }
 
 // ---------------------------------------------------------------------------

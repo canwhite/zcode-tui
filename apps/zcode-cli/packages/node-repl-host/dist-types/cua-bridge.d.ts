@@ -1,5 +1,5 @@
 import type { NodeReplRequestMeta, NodeReplSession } from "@zcode/core";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type { CallToolResult } from "@modelcontextprotocol/server";
 export declare const NODE_REPL_CUA_BRIDGE_SYMBOL: unique symbol;
 export declare const CUA_UNAVAILABLE_IN_SUBAGENT_MESSAGE = "Computer Use is not available in subagent";
 export interface ActiveCuaNodeReplCall {

@@ -37,7 +37,24 @@ export function officialAssetRelativePath(url: string): string | undefined {
   if (isAbsolute(suffix) || suffix.includes("\0")) return undefined;
 
   const normalized = suffix.split("/").filter((segment) => segment !== "" && segment !== ".");
-  if (normalized.length === 0 || normalized.some((segment) => segment === "..")) return undefined;
+
+  // 本函数必须**自证**其契约（"返回受保护根之下的合法相对路径"），
+  // 不能把安全性寄托在调用方还会再查一次。实测过：只做下面的 `..` 判断时，
+  // `%2e%2e/%2e%2e/etc/passwd` 与 `..\..\etc\passwd` 都能**原样通过本函数**，
+  // 仅靠调用方的二次 relative() 检查才没出事——那是单层防御，且对后来者是个陷阱。
+  if (
+    normalized.length === 0 ||
+    normalized.some(
+      (segment) =>
+        segment === ".." ||
+        // Windows 上反斜杠也是分隔符，含它的段在别的消费路径下可能构成穿越。
+        segment.includes("\\") ||
+        // 百分号编码的 `..`（%2e%2e）不做解码就躲过了字面量判断，直接拒绝任何编码。
+        segment.includes("%"),
+    )
+  ) {
+    return undefined;
+  }
   return normalized.join("/");
 }
 

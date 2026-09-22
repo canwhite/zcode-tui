@@ -96,10 +96,19 @@ assert(
 );
 
 // A2 — npm 豁免完好（封锁不得误伤 npm，否则验收会假失败）
+//
+// 注意这是**在未施加封锁的情况下**测的：问的是"这台机器能否到 npm"，
+// 而不是"我们的封锁有没有把 npm 一起封掉"。两者不同。
+// npm 不可达只可能是机器本身就离线——那恰恰是本验收想覆盖的环境，
+// 因此记 warn 而不判失败，否则验收在最需要它的地方跑不起来。
 const npmReachable = await fetch("https://registry.npmjs.org/-/ping", { method: "HEAD" })
   .then((r) => r.ok)
   .catch(() => false);
-assert("A2 npm 豁免完好（registry.npmjs.org 可达）", npmReachable, "npm 不可达时验收会假失败");
+if (npmReachable) {
+  assert("A2 npm 豁免完好（registry.npmjs.org 可达）", true);
+} else {
+  console.log("  warn  A2 跳过：本机到 npm 不可达（真离线环境）——验收其余断言仍然有效");
+}
 
 // A3 — 断网下市场可列出智谱插件
 const listStorage = mkdtempSync(join(tmpdir(), "zcode-accept-list-"));

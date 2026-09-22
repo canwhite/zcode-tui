@@ -48,16 +48,46 @@ async function sha256File(path) {
 }
 
 /**
- * 需要本地化的条目：有落点、尚未就绪、且未被标记为排除。
+ * 全部**已本地化**的条目：有落点、且未被标记为排除。
  *
- * `vendoring === "excluded"` 用于「环境前提」类资源（目前是 Node 运行时）——
- * 它们在台账里保留登记（对账要看得见），但不随仓库分发：336 MiB 占全部资源的 97%，
- * 而 make install 全程并不需要它。理由与判定见台账的 vendoringExclusions。
+ * 这是 verify / assert / status 的作用域——它们问的是"本地副本现在对不对"，
+ * 与台账里的 status 无关。
+ *
+ * 曾经这里还带 `status !== "ready"` 条件，于是 Step 2.6 把 52 条回填成 ready 之后，
+ * verify 的作用域变成**空集**，却照样打印「✓ 0 条全部匹配」并返回 0——
+ * 一个报告成功、实际什么都没查的校验器。offline-acceptance 的 A6 正是断言在它上面，
+ * 因此也一并变成空转。**判据式校验器绝不能把"没有可查的"当成"查过了没问题"。**
  */
-function vendorable(ledger) {
-  return (ledger.resources ?? []).filter(
-    (r) => r.vendoredPath && r.status !== "ready" && r.vendoring !== "excluded",
-  );
+function vendored(ledger) {
+  return (ledger.resources ?? []).filter((r) => r.vendoredPath && r.vendoring !== "excluded");
+}
+
+/**
+ * fetch 的作用域 = 全部已本地化条目。**不按台账的 status 过滤。**
+ *
+ * 曾经这里按 `status !== "ready"` 过滤，后果是：`status` 是**入库当时的记账快照**，
+ * 不是文件系统的事实。本地副本被删掉之后它仍然是 "ready"，于是 fetch 认为无事可做，
+ * 直接返回——而 verify 的报错又恰恰提示"修复：node scripts/vendor-resources.mjs fetch"，
+ * 用户被指向一条不会执行任何操作的命令，形成死循环。
+ *
+ * 幂等由循环内的 `localState()` 磁盘检查负责（命中即跳过、不发请求），
+ * 那才是真正的事实来源。台账的 status 只用于报告历史，不参与决策。
+ *
+ * `vendoring === "excluded"` 用于「第三方通用包」类资源（Node 运行时、上游源码包）——
+ * 它们在台账里保留登记（对账要看得见），但不随仓库分发。理由见台账的 vendoringExclusions。
+ */
+function fetchable(ledger) {
+  return vendored(ledger);
+}
+
+/** 作用域为空时直接失败：空集上的"全部通过"没有证明力。 */
+function assertNonEmpty(items, what) {
+  if (items.length === 0) {
+    console.error(`[resources] ✗ ${what}的作用域为空——没有任何条目可校验，不得据此判定通过。`);
+    console.error(`  台账里应有已本地化条目；为空说明筛选条件写错了。`);
+    return false;
+  }
+  return true;
 }
 
 /** 本地副本是否已存在且内容与台账一致。不匹配的文件一律视为需要重新取。 */
@@ -91,7 +121,7 @@ export function assertNotIgnored(paths) {
 
 function runStatus({ withHash }) {
   const { ledger } = readLedger();
-  const items = vendorable(ledger);
+  const items = vendored(ledger);
   return Promise.all(items.map(localState)).then((states) => {
     let ok = 0;
     let missing = 0;
@@ -114,9 +144,17 @@ function runStatus({ withHash }) {
   });
 }
 
-function runVerify() {
-  const { ledger } = readLedger();
-  const items = vendorable(ledger);
+/**
+ * 校验本地副本。传入 items 时只校验该子集——
+ * 否则 `fetch --only X` 会在 X 成功、但别处本就不完整时返回 1，
+ * 把"你请求的工作失败了"与"仓库整体不完整"两件事混成一个退出码。
+ */
+function runVerify(items) {
+  if (!items) {
+    const { ledger } = readLedger();
+    items = vendored(ledger);
+  }
+  if (!assertNonEmpty(items, "verify")) return 1;
   return Promise.all(items.map(localState)).then((states) => {
     const bad = [];
     items.forEach((r, i) => {
@@ -139,7 +177,9 @@ function runVerify() {
 
 function runAssert() {
   const { ledger } = readLedger();
-  const paths = vendorable(ledger).map((r) => r.vendoredPath);
+  const entries = vendored(ledger);
+  if (!assertNonEmpty(entries, "assert")) return 1;
+  const paths = entries.map((r) => r.vendoredPath);
   const offenders = assertNotIgnored(paths);
   if (offenders.length === 0) {
     console.log(`[resources] ✓ ${paths.length} 条落点均未被任何 .gitignore 命中`);
@@ -181,7 +221,7 @@ async function runFetch(args) {
     onlyIndex >= 0 ? new Set((args[onlyIndex + 1] ?? "").split(",").filter(Boolean)) : null;
 
   const { ledger } = readLedger();
-  let items = vendorable(ledger);
+  let items = fetchable(ledger);
   if (only) {
     items = items.filter((r) => only.has(r.id));
     const found = new Set(items.map((r) => r.id));
@@ -239,7 +279,7 @@ async function runFetch(args) {
     return 1;
   }
   if (dryRun) return 0;
-  return runVerify();
+  return runVerify(items);
 }
 
 // 同 remote-resources.mjs：只有作为入口直接执行时才跑 CLI，

@@ -8,6 +8,7 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
 } from "@zcode/provider-node";
 import {
+  isZhipuOfficialAssetUrl,
   readVendoredOfficialAsset,
   resolveVendoredOfficialAssetPath,
   resolveVendoredOfficialRoot,
@@ -438,11 +439,22 @@ function checkVendoredOfficialResources(): DoctorCheck {
     };
   }
 
-  const declared = plugins.filter((p) => typeof p.source?.url === "string");
+  // 只有**智谱自家 CDN** 的来源才要求本地副本。
+  //
+  // 不能把清单里所有带 url 的插件都算进分母：官方市场 schema 允许条目指向第三方来源
+  // （GitHub 等），而按本仓库的资源判据，第三方通用包**不本地化**。若把它们算作"缺失"，
+  // doctor 会为一个**按设计就不该存在**的本地副本永久失败——而 doctor 的退出码会被
+  // `make install` 透传（install.mjs 的收口自检），于是安装会坏在一个修不好的报错上，
+  // 且给的修复建议（vendor-resources fetch）对这个插件根本不适用。
+  const declared = plugins.filter(
+    (p) => typeof p.source?.url === "string" && isZhipuOfficialAssetUrl(String(p.source.url)),
+  );
+  const thirdParty = plugins.length - declared.length;
   const missing = declared.filter(
     (p) => resolveVendoredOfficialAssetPath(String(p.source?.url)) === undefined,
   );
   const coverage = declared.length === 0 ? 0 : (declared.length - missing.length) / declared.length;
+  const thirdPartyNote = thirdParty > 0 ? `，另有 ${thirdParty} 个第三方来源插件按判据不本地化` : "";
 
   if (missing.length > 0) {
     return {
@@ -454,7 +466,7 @@ function checkVendoredOfficialResources(): DoctorCheck {
           .slice(0, 3)
           .map((p) => String(p.name ?? "?"))
           .join("、") || "—"
-      }${missing.length > 3 ? ` 等 ${missing.length} 个` : ""}`,
+      }${missing.length > 3 ? ` 等 ${missing.length} 个` : ""}${thirdPartyNote}`,
       fix: "在仓库根执行 node scripts/vendor-resources.mjs fetch",
     };
   }
@@ -463,7 +475,7 @@ function checkVendoredOfficialResources(): DoctorCheck {
     id: "plugins.vendored",
     label: "官方插件本地化",
     status: "pass",
-    detail: `覆盖率 100%（${declared.length}/${declared.length}），断网可列出并安装`,
+    detail: `覆盖率 100%（${declared.length}/${declared.length}），断网可列出并安装${thirdPartyNote}`,
   };
 }
 

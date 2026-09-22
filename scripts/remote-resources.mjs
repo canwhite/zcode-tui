@@ -160,6 +160,7 @@ function scanRoots(root) {
  */
 export function scanFetchSites(root = repoRoot) {
   const sites = [];
+  let scannedFiles = 0;
   for (const base of scanRoots(root)) {
     for (const file of walk(base)) {
       const rel = relative(root, file);
@@ -167,6 +168,7 @@ export function scanFetchSites(root = repoRoot) {
       if (rel.includes(".test.")) continue;
 
       const lines = readFileSync(file, "utf8").split(/\r?\n/);
+      scannedFiles += 1;
       const state = { inBlock: false };
       let ignored = false;
       for (let i = 0; i < lines.length; i += 1) {
@@ -201,7 +203,7 @@ export function scanFetchSites(root = repoRoot) {
       }
     }
   }
-  return { sites };
+  return { sites, scannedFiles };
 }
 
 function collectHosts(ledger) {
@@ -238,7 +240,7 @@ function collectHosts(ledger) {
 export function check(root = repoRoot) {
   const { ledger } = readLedger(root);
   const { resourceHosts, exemptHosts, nonResourceHosts } = collectHosts(ledger);
-  const { sites } = scanFetchSites(root);
+  const { sites, scannedFiles } = scanFetchSites(root);
 
   const unexplained = [];
   const dynamicSites = [];
@@ -323,9 +325,22 @@ export function check(root = repoRoot) {
       ? `台账未登记发布工具链版本 ${ledger.nodeVersion}`
       : null;
 
+  // 空覆盖不得算通过。
+  //
+  // 与 vendor-resources 的"空作用域"是同一类缺陷：扫描根配置错了、文件被排除光了、
+  // 或解析器整体失效时，sites 会变成空集——而"没有未解释的获取点"在空集上恒真。
+  // 实测过：把扫描根指向不存在的目录并清空 dynamicSites 声明，check 会打印
+  // 「✓ 对账通过」并返回 0，实际上一个文件都没读。**判据式校验器绝不能把
+  // "没有可查的"当成"查过了没问题"。**
+  const coverageOk = scannedFiles > 0;
+  const sitesOk = sites.length > 0;
+
   return {
     ledger,
     sites,
+    scannedFiles,
+    coverageOk,
+    sitesOk,
     unexplained,
     dynamicSites,
     undeclaredDynamic,
@@ -425,6 +440,9 @@ function runCheck() {
   const {
     ledger,
     sites,
+    scannedFiles,
+    coverageOk,
+    sitesOk,
     unexplained,
     dynamicSites,
     undeclaredDynamic,
@@ -435,6 +453,7 @@ function runCheck() {
 
   console.log(`[resources] 台账条目：${(ledger.resources ?? []).length}`);
   console.log(
+    `[resources] 扫描文件数：${scannedFiles}`,
     `[resources] 源码获取点：${sites.length}（其中静态解析不出 host 的：${dynamicSites.length}，已声明：${(ledger.dynamicSites ?? []).length}）`,
   );
   console.log(
@@ -442,6 +461,19 @@ function runCheck() {
   );
 
   let failed = false;
+
+  if (!coverageOk) {
+    failed = true;
+    console.error(`\n[resources] ✗ 扫描覆盖为零：一个源文件都没读到。`);
+    console.error(`  这通常意味着扫描根配置错误；此时"差集为空"不构成任何结论。`);
+  }
+  if (!sitesOk) {
+    failed = true;
+    console.error(`\n[resources] ✗ 未发现任何源码获取点。`);
+    console.error(
+      `  本仓库必然存在获取点（nodejs.org / codeload 等）；为零说明解析失效，不得据此判定通过。`,
+    );
+  }
 
   if (unexplained.length > 0) {
     failed = true;

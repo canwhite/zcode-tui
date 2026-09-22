@@ -19,12 +19,12 @@
 
 ## 2. 前提闭合情况
 
-| # | 前提 | 状态 | 依据 |
-|---|------|------|------|
-| ① | key 来源与受影响用户一致 | ✅ | `~/.zcode/v2/credentials.json` 仅有 `account-provider:*` 键、无 `oauth:*` 键 → 由 `configureCodingPlanApiKey`（非登录路径）写入。`~/.zcode/v2/provider_config.json` 的 `defaultModelSelection.providerId` = `account:bigmodel-individual-coding-plan`，即运行时走账号型 provider + 凭据库。该 key 在 `/api/anthropic` 可用（**套餐**端点；标准 key 走 `/api/paas/v4`）→ 确属套餐 key |
-| ② | 走真实客户端，非裸 curl | ✅ | 用 `node apps/zcode-cli/packages/cli/dist/zcode.cjs -p ...` 真实调用；探针打在 `resolveOfficialCodingPlanGatewayUrl` 入口与各返回分支 |
-| ③ | 两条路由都测 | ⚠️ **部分** | 仅测 route #1（`bigmodel`）。route #2（`api.z.ai`）在本机**无 zai 套餐凭据，不可测** |
-| ④ | 临时开关测完即删 | ✅ | 探针随 Step 1 删除 `official-coding-plan-gateway.ts` 一并消失（该文件即探针所在处） |
+| #   | 前提                     | 状态        | 依据                                                                                                                                                                                                                                                                                                                                                                                 |
+| --- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ①   | key 来源与受影响用户一致 | ✅          | `~/.zcode/v2/credentials.json` 仅有 `account-provider:*` 键、无 `oauth:*` 键 → 由 `configureCodingPlanApiKey`（非登录路径）写入。`~/.zcode/v2/provider_config.json` 的 `defaultModelSelection.providerId` = `account:bigmodel-individual-coding-plan`，即运行时走账号型 provider + 凭据库。该 key 在 `/api/anthropic` 可用（**套餐**端点；标准 key 走 `/api/paas/v4`）→ 确属套餐 key |
+| ②   | 走真实客户端，非裸 curl  | ✅          | 用 `node apps/zcode-cli/packages/cli/dist/zcode.cjs -p ...` 真实调用；探针打在 `resolveOfficialCodingPlanGatewayUrl` 入口与各返回分支                                                                                                                                                                                                                                                |
+| ③   | 两条路由都测             | ⚠️ **部分** | 仅测 route #1（`bigmodel`）。route #2（`api.z.ai`）在本机**无 zai 套餐凭据，不可测**                                                                                                                                                                                                                                                                                                 |
+| ④   | 临时开关测完即删         | ✅          | 探针随 Step 1 删除 `official-coding-plan-gateway.ts` 一并消失（该文件即探针所在处）                                                                                                                                                                                                                                                                                                  |
 
 ## 3. 方法
 
@@ -43,10 +43,10 @@
 
 ## 4. 结果
 
-| 状态 | 实际请求 URL | 退出码 | 响应 |
-|------|-------------|--------|------|
-| 网关 ON（默认） | `https://open.bigmodel.cn/api/anthropic/v1/messages` → **改写** → `https://zcode.z.ai/api/v1/ultra/anthropic/v1/messages` | 0 | `PONG` |
-| 网关 OFF（直连） | `https://open.bigmodel.cn/api/anthropic/v1/messages`（**未改写**） | 0 | `PONG` |
+| 状态             | 实际请求 URL                                                                                                              | 退出码 | 响应   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
+| 网关 ON（默认）  | `https://open.bigmodel.cn/api/anthropic/v1/messages` → **改写** → `https://zcode.z.ai/api/v1/ultra/anthropic/v1/messages` | 0      | `PONG` |
+| 网关 OFF（直连） | `https://open.bigmodel.cn/api/anthropic/v1/messages`（**未改写**）                                                        | 0      | `PONG` |
 
 原始探针输出：
 
@@ -54,6 +54,7 @@
 [DEBUG-S0-] entry url=https://open.bigmodel.cn/api/anthropic/v1/messages
 [DEBUG-S0-] viaGateway=true from=https://open.bigmodel.cn/api/anthropic/v1/messages to=https://zcode.z.ai/api/v1/ultra/anthropic/v1/messages
 ```
+
 ```
 [DEBUG-S0-] entry url=https://open.bigmodel.cn/api/anthropic/v1/messages
 [DEBUG-S0-] viaGateway=false url=https://open.bigmodel.cn/api/anthropic/v1/messages reason=forced-off
@@ -61,10 +62,10 @@
 
 用量元数据比对（`model_usage` 表，按时间序对应上述两次运行）：
 
-| 运行 | 状态 | input | output | raw_usage 字段集 | provider_metadata |
-|------|------|-------|--------|------------------|-------------------|
-| 16:01:08 | 网关 ON | 34406 | 41 | `inputTokens/outputTokens/totalTokens/cacheReadTokens/cacheWriteTokens` | `{"rawFinishReason":"end_turn"}` |
-| 16:02:11 | 直连 | 34406 | 4 | **同上，字段集完全一致** | **同上** |
+| 运行     | 状态    | input | output | raw_usage 字段集                                                        | provider_metadata                |
+| -------- | ------- | ----- | ------ | ----------------------------------------------------------------------- | -------------------------------- |
+| 16:01:08 | 网关 ON | 34406 | 41     | `inputTokens/outputTokens/totalTokens/cacheReadTokens/cacheWriteTokens` | `{"rawFinishReason":"end_turn"}` |
+| 16:02:11 | 直连    | 34406 | 4      | **同上，字段集完全一致**                                                | **同上**                         |
 
 > 两次 output 差异（41 vs 4）系模型对同一提示的输出长度不同，非链路差异。
 > 输入 token 数一致（34406），缓存读一致（34368）。

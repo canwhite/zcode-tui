@@ -9,17 +9,17 @@ import {
   type SessionTaskType,
   type SessionStorePort,
   type TraceContext,
-} from "@zcode/contracts";
-import type { McpTelemetryTracker } from "@zcode/adapters";
-import type { WorkspaceHookPolicyProvider } from "@zcode/core";
-import type { AccountProviderConfigSnapshot } from "@zcode/provider";
+} from "@qcode/contracts";
+import type { McpTelemetryTracker } from "@qcode/adapters";
+import type { WorkspaceHookPolicyProvider } from "@qcode/core";
+import type { AccountProviderConfigSnapshot } from "@qcode/provider";
 import {
   zcodeProtocolErrorCodes,
   type ZCodeDeliveryKind,
   type ModelSelection,
   type ZCodeModelContextBudgetStrategy,
   type ZCodeProtocolMessage,
-  type ZCodeProtocolMethod,
+  type QCodeProtocolMethod,
   type ZCodeProtocolNotification,
   type ZCodeProtocolRequest,
   type ZCodeProtocolRequestId,
@@ -27,7 +27,7 @@ import {
   type ZCodeSessionMode,
   type ZCodeSessionPersistence,
   type ZCodeWorkspaceRef,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type { ZCodeApp, ZCodeAppOptions } from "../app/types.js";
 import type { V4InteractionRegistry } from "../zcode-protocol-v4/interaction-registry.js";
 import type { ConversationV4Gateway } from "../zcode-protocol-v4/v4-gateway.js";
@@ -150,7 +150,7 @@ export interface ZCodeProtocolAgentServerContext {
   sessions: Map<string, ZCodeProtocolSessionRecord>;
   notify(notification: ZCodeProtocolNotification): void;
   requestClient<T>(
-    method: ZCodeProtocolMethod,
+    method: QCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
     options?: ZCodeProtocolClientRequestOptions,

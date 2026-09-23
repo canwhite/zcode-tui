@@ -2,7 +2,7 @@ import {
   createChildTraceContext,
   type WorkflowGraphCollection,
   type WorkflowRunSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { emitExpansionEvents, exhaustCollection } from "./collection-events.js";
 import type { WorkflowCollectionPlannerRuntime } from "./collection-runtime.js";
 import {

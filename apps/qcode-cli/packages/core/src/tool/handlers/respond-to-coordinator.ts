@@ -8,7 +8,7 @@ import {
   type RespondToCoordinatorInput,
   type RespondToCoordinatorOutput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 
 const MAX_RESPOND_TO_COORDINATOR_MODEL_BYTES = 4_096;

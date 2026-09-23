@@ -6,8 +6,8 @@ import { existsSync } from "node:fs";
 import { access, mkdir, readdir, stat, unlink } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { promisify } from "node:util";
-import { windowsPathToGitBashPath } from "@zcode/contracts";
-import type { ExecutionShellDialect } from "@zcode/contracts";
+import { windowsPathToGitBashPath } from "@qcode/contracts";
+import type { ExecutionShellDialect } from "@qcode/contracts";
 import type { StartupShellDialect } from "./bash-startup-script.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -361,9 +361,9 @@ function pathExportLines(pathValue: string): string[] {
   return [
     "",
     "# Add PATH to the file",
-    "cat >> \"$SNAPSHOT_FILE\" << 'PATH_END_ZCODE_SHELL_INIT_SNAPSHOT'",
+    "cat >> \"$SNAPSHOT_FILE\" << 'PATH_END_QCODE_SHELL_INIT_SNAPSHOT'",
     `export PATH=${shellQuoteAlways(pathValue)}`,
-    "PATH_END_ZCODE_SHELL_INIT_SNAPSHOT",
+    "PATH_END_QCODE_SHELL_INIT_SNAPSHOT",
   ];
 }
 

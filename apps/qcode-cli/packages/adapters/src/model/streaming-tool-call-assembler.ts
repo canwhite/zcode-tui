@@ -1,4 +1,4 @@
-import type { Logger, ModelStreamEvent, ModelToolCall } from "@zcode/contracts";
+import type { Logger, ModelStreamEvent, ModelToolCall } from "@qcode/contracts";
 import { normalizeModelToolInput } from "./tool-input-normalization.js";
 import { normalizeModelToolName } from "./tool-call-validation.js";
 

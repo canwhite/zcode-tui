@@ -1,4 +1,4 @@
-import type { BashInput } from "@zcode/contracts";
+import type { BashInput } from "@qcode/contracts";
 
 export function isBashAutoBackgroundEligible(input: BashInput): boolean {
   if (input.run_in_background === true) return false;

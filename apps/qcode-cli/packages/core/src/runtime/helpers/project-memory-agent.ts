@@ -1,5 +1,5 @@
 import type { Model, ModelInputMessage, ModelToolContract, TraceContext } from "../deps.js";
-import type { AgentTelemetryCausation, ModelApiOperation } from "@zcode/contracts";
+import type { AgentTelemetryCausation, ModelApiOperation } from "@qcode/contracts";
 import {
   PermissionService,
   createDenyPermissionBroker,

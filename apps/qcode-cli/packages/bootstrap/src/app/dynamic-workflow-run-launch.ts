@@ -14,14 +14,14 @@ import { randomUUID } from "node:crypto";
 import {
   boundDynamicWorkflowRunEventPayload,
   CoreErrorType,
-  ZCODE_DWF_CHILD_COMMAND,
+  QCODE_DWF_CHILD_COMMAND,
   type CreateSessionTaskLinkInput,
   type DynamicWorkflowRunEvent,
   type DynamicWorkflowRunProgressPayload,
   type SessionId,
-} from "@zcode/contracts";
-import type { AgentRuntime } from "@zcode/core";
-import { parseModelPickerValue, type ModelSelection } from "@zcode/shared/model-selection";
+} from "@qcode/contracts";
+import type { AgentRuntime } from "@qcode/core";
+import { parseModelPickerValue, type ModelSelection } from "@qcode/shared/model-selection";
 import {
   type ActorSubmitProfile,
   refToString,
@@ -35,8 +35,8 @@ import {
   type RunEvent,
   type RunSettlement,
   type ValidateFn,
-} from "@zcode/dynamic-workflow";
-import { runWorkflowScript } from "@zcode/dynamic-workflow-runtime";
+} from "@qcode/dynamic-workflow";
+import { runWorkflowScript } from "@qcode/dynamic-workflow-runtime";
 import { createJournalSequenceCapture } from "./dynamic-workflow-run-sequence-capture.js";
 import { isResumableSettlement } from "./dynamic-workflow-run-observation.js";
 import {
@@ -352,7 +352,7 @@ export function launchDynamicWorkflowRun(
 export function dynamicWorkflowChildSpawn(
   isSea: boolean = isSeaRuntime(),
 ): { argsPrefix: readonly string[] } | undefined {
-  return isSea ? { argsPrefix: [ZCODE_DWF_CHILD_COMMAND] } : undefined;
+  return isSea ? { argsPrefix: [QCODE_DWF_CHILD_COMMAND] } : undefined;
 }
 
 /** SEA 运行时探针（official-plugin-runtime.ts 私有同名 helper 的本地镜像，刻意不跨文件复用）。 */

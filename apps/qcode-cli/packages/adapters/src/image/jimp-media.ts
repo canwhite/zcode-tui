@@ -1,5 +1,5 @@
 import { JimpMime } from "jimp";
-import { detectImageMediaType } from "@zcode/contracts";
+import { detectImageMediaType } from "@qcode/contracts";
 
 type JimpOutputMime =
   | typeof JimpMime.bmp

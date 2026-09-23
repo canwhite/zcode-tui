@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OFFICIAL_MCP_TOOL_ERROR_CODES } from "@zcode/shared";
+import { OFFICIAL_MCP_TOOL_ERROR_CODES } from "@qcode/shared";
 
 import {
   CREATE_WORKFLOW_DISPLAY_MAX_DIAGNOSTICS,

@@ -2,7 +2,7 @@ import {
   createImageProcessorError,
   type ImagePrepareForModelRequest,
   type ImagePrepareForModelResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { createImageBudget, fitsImageBudget } from "./image-budget.js";
 
 export function prepareWebpPassthrough(

@@ -1,4 +1,4 @@
-import type { GoalStatus } from "@zcode/contracts";
+import type { GoalStatus } from "@qcode/contracts";
 
 /**
  * 普通 queue 的唯一自动提升闸门。fail-open 不在这里开旁路：verifier 仍先把

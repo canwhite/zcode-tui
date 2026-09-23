@@ -1,5 +1,5 @@
 import type { TraceContext, TurnState } from "./deps.js";
-import type { BackgroundResultOriginMeta, WorkflowLaunchMeta } from "@zcode/contracts";
+import type { BackgroundResultOriginMeta, WorkflowLaunchMeta } from "@qcode/contracts";
 import type {
   ActiveTurnStartReservation,
   ContinueActiveTargetLoopOptions,

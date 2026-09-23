@@ -39,7 +39,7 @@
 // 唯一的例外是 `git.diff` 的**补丁文本**：它不是我们解析的路径列表，而是一段带 `a/… b/…`
 // 头的整体输出，没法在事后剥前缀。那一条因此用 git 自己的 `--relative` 让基准对齐。
 
-import { WorkflowError } from "@zcode/dynamic-workflow";
+import { WorkflowError } from "@qcode/dynamic-workflow";
 
 /**
  * 一次 git 世界读取要跑的一条命令。`argv` 不含 `"git"` 本身——可执行文件名由执行侧提供，

@@ -8,17 +8,17 @@ import {
   traceContextToLogContext,
   type ToolExecutionSpanWriter,
   type SessionEvent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   OFFICIAL_CUA_FRAME_MODEL_CONTENT_PROTECTION,
   attestOfficialCuaFrameContent,
-} from "@zcode/zcode-cua/frame-contract";
+} from "@qcode/zcode-cua/frame-contract";
 import {
   normalizeToolExecutionInput,
   prepareInitialToolExecutionInput,
 } from "../input-normalization.js";
 import { hasOfficialCuaFrameAuthority } from "../../mcp/image-normalization.js";
-import type { SkillTelemetryMetadata } from "@zcode/contracts";
+import type { SkillTelemetryMetadata } from "@qcode/contracts";
 import type { ToolExecutionContext, ToolExecutionResult } from "../types.js";
 import type { ToolEntry } from "../types.js";
 import type { BackgroundTaskTracker } from "./background-tasks.js";

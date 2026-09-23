@@ -5,7 +5,7 @@ import {
   type HookJSONOutput,
   type HookPermissionDecision,
   type HookSpecificOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { HookRunResult } from "./types.js";
 
 export function processHookOutput(

@@ -4,7 +4,7 @@ import {
   isHttpClientPortError,
   type HttpClientResponse,
   type WebFetchRedirect,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 import {
   DEFAULT_WEBFETCH_TIMEOUT_MS,

@@ -1,4 +1,4 @@
-import { zcodeWorkspaceUpdateDynamicWorkflowPolicyParamsSchema } from "@zcode/shared";
+import { zcodeWorkspaceUpdateDynamicWorkflowPolicyParamsSchema } from "@qcode/shared";
 import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-types.js";
 
 /**

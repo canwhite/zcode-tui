@@ -13,7 +13,7 @@ import {
   LAST_TOOL_NAME_MAX_CHARS,
   LAST_TOOL_TARGET_MAX_CHARS,
   type AskLastTool,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 
 /**
  * 按优先级探测的入参键。命中第一个**非空字符串**即为目标；路径族保尾（文件名才是分辨点），

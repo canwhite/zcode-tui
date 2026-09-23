@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import {
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   zcodeProtocolNotifications,
   zcodeProviderRuntimeHeadersResponseSchema,
   type ZCodeWorkspaceRef,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type { ZCodeAppOptions } from "../app/types.js";
 import {
   ProtocolRequestError,
@@ -31,7 +31,7 @@ export function createProviderRuntimeHeadersPort(
       let result;
       try {
         result = await context.requestClient(
-          zcodeProtocolMethods.interactionRequestProviderRuntimeHeaders,
+          qcodeProtocolMethods.interactionRequestProviderRuntimeHeaders,
           {
             // 同一毫秒内的并发请求不能共用关联键，否则 pending 应答会覆盖或串用。
             requestId,

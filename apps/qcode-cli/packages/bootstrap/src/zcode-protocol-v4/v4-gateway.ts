@@ -1,10 +1,10 @@
 import { LocalTtftRecorder } from "./local-ttft.js";
-import { localTtftNow, localTtftFactsSchema } from "@zcode/shared/zcode-protocol-v4";
+import { localTtftNow, localTtftFactsSchema } from "@qcode/shared/zcode-protocol-v4";
 import {
   backgroundBashOutputResultSchema,
   v4BackgroundBashOutputParamsSchema,
   type BackgroundBashOutputResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 // V4 conversation 网关（host 通道层 CLI 侧）。
 // 职责：per-session ConversationTopicPublisher 注册表 + flushWindowMs 定时调度
 // + v4/command → CommandInbox → 宿主 executor 的收口。
@@ -27,11 +27,11 @@ import type {
   TargetChangedPayload,
   TurnId,
   FileSystemErrorCode,
-} from "@zcode/contracts";
-import type { ConversationSnapshot } from "@zcode/shared/zcode-protocol-v4";
-import { SessionEventType, isFileSystemPortError } from "@zcode/contracts";
-import type { ZCodeWorkspaceRef } from "@zcode/shared";
-import { extractMarkdownArtifactImageRefs } from "@zcode/shared";
+} from "@qcode/contracts";
+import type { ConversationSnapshot } from "@qcode/shared/zcode-protocol-v4";
+import { SessionEventType, isFileSystemPortError } from "@qcode/contracts";
+import type { ZCodeWorkspaceRef } from "@qcode/shared";
+import { extractMarkdownArtifactImageRefs } from "@qcode/shared";
 import type {
   CommandAck,
   AttachmentRef,
@@ -71,11 +71,11 @@ import type {
   ConversationTelemetryFact,
   CuaPermissionObservation,
   ConversationOpenTiming,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import {
   DELIVERY_PROFILES,
   PROTOCOL_V4_LIMITS,
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  QCODE_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
   readZCodeAttachmentFaultCode,
   encodeTopicWireFrames,
@@ -121,7 +121,7 @@ import {
   v4ConversationResyncParamsSchema,
   v4ConversationSubscribeParamsSchema,
   v4ConversationUnsubscribeParamsSchema,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import { AttachmentUploadRegistry } from "./attachment-upload-registry.js";
 import {
   ColdSessionResumeCoordinator,
@@ -226,7 +226,7 @@ export interface V4GatewayHost {
   emitWireFrame(frame: RoutedTopicWireFrame): void;
   /** 当前进程 live ingest 的无正文事实；不缓存、不进入 topic replay。 */
   emitConversationTelemetryFact?(fact: ConversationTelemetryFact): void;
-  emitLocalTtftFacts?(facts: import("@zcode/shared").LocalTtftFacts): void;
+  emitLocalTtftFacts?(facts: import("@qcode/shared").LocalTtftFacts): void;
   /** 当前进程 live request_access 权限事实；不缓存、不进入 topic replay。 */
   emitCuaPermissionObservation?(observation: CuaPermissionObservation): void;
   /**
@@ -548,7 +548,7 @@ const MISSING_ATTACHMENT_FS_CODES = new Set<FileSystemErrorCode>([
 function toShareStatFault(error: unknown): unknown {
   if (readZCodeAttachmentFaultCode(error)) return error;
   if (isFileSystemPortError(error) && MISSING_ATTACHMENT_FS_CODES.has(error.code)) {
-    return new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound, {
+    return new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound, {
       cause: error,
     });
   }
@@ -2024,7 +2024,7 @@ export class ConversationV4Gateway {
   ): Promise<V4ConversationAttachmentReadResult> {
     const params = v4ConversationAttachmentReadParamsSchema.parse(rawParams);
     if (!this.host.readSessionAttachment) {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.readUnsupported);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.readUnsupported);
     }
     const existingReady = this.readyFlights.get(params.sessionId);
     const publisher = existingReady
@@ -2039,11 +2039,11 @@ export class ConversationV4Gateway {
           candidate.rowId === params.target.rowId && candidate.entityId === params.target.entityId,
       );
     if (row?.kind !== "userInput") {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
     }
     const attachment = row.attachments?.[params.attachmentIndex];
     if (!attachment || (attachment.ref !== params.ref && attachment.previewRef !== params.ref)) {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
     }
     const messageId = publisher.getMessageIdForRow(row.rowId) ?? undefined;
     let payload: { bytes: Uint8Array; mediaType: string };
@@ -2077,7 +2077,7 @@ export class ConversationV4Gateway {
   ): Promise<V4ConversationAttachmentStatResult> {
     const params = v4ConversationAttachmentStatParamsSchema.parse(rawParams);
     if (!this.host.statSessionAttachment) {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
     }
     const existingReady = this.readyFlights.get(params.sessionId);
     const publisher = existingReady
@@ -2092,11 +2092,11 @@ export class ConversationV4Gateway {
           candidate.rowId === params.target.rowId && candidate.entityId === params.target.entityId,
       );
     if (row?.kind !== "userInput") {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
     }
     const attachment = row.attachments?.[params.attachmentIndex];
     if (!attachment || (attachment.ref !== params.ref && attachment.previewRef !== params.ref)) {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
     }
     const messageId = publisher.getMessageIdForRow(row.rowId) ?? undefined;
     let result: { totalBytes: number; mediaType: string; mtimeMs?: number };
@@ -2116,7 +2116,7 @@ export class ConversationV4Gateway {
     // 于是 share 预检把「已知容量超限」这个确定阻断降级成 deferred 并静默丢内容。
     // 上限放宽后仍需要一个显式出口：真的超过协议可表达范围时给出稳定码。
     if (result.totalBytes > PROTOCOL_V4_LIMITS.attachmentStatMaxBytes) {
-      throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge);
+      throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge);
     }
     return v4ConversationAttachmentStatResultSchema.parse(result);
   }
@@ -2273,10 +2273,10 @@ export class ConversationV4Gateway {
           !resultMime.startsWith("video/") &&
           resultMime !== "application/pdf"
         ) {
-          throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.previewNotMedia);
+          throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.previewNotMedia);
         }
         if (result.bytes.byteLength > maxBytes) {
-          throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.previewTooLarge);
+          throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.previewTooLarge);
         }
         const current = this.binaryReadCache.get(key);
         if (current) {
@@ -3354,7 +3354,7 @@ export class ConversationV4Gateway {
         )
         .filter((facts) => facts !== undefined);
       const candidates = related.length ? related : [this.localTtft.forSession(sessionId)];
-      const observations: import("@zcode/shared").LocalTtftFacts[] = [];
+      const observations: import("@qcode/shared").LocalTtftFacts[] = [];
       for (const facts of candidates) {
         if (!facts || observations.some((item) => item.observationId === facts.observationId))
           continue;

@@ -9,8 +9,8 @@
 // 一条纪律贯穿全文：**不知道就不说**。没有时间戳就不给年龄，没有阶段就不提阶段位置，
 // 查不到停驻表就明说「不知道」，绝不用 0 或「unknown」冒充一个事实。
 
-import type { GetWorkflowRunOutput } from "@zcode/contracts";
-import { GET_WORKFLOW_RUN_SUMMARY_MAX_CHARS } from "@zcode/contracts";
+import type { GetWorkflowRunOutput } from "@qcode/contracts";
+import { GET_WORKFLOW_RUN_SUMMARY_MAX_CHARS } from "@qcode/contracts";
 import {
   formatRelativeAge,
   formatWorkflowRunCount,

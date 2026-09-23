@@ -3,7 +3,7 @@ import {
   type ExecutionEmbeddedSearchPrelude,
   type ExecutionShellSelection,
   windowsPathToGitBashPath,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 type EmbeddedSearchPreludeShellDialect = ExecutionShellSelection["dialect"];
 type EmbeddedSearchCommandBackend = Exclude<EmbeddedSearchBackend, { kind: "native-binaries" }>;

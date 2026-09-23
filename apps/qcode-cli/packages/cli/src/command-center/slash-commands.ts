@@ -1,4 +1,4 @@
-import type { TuiSlashCommandSuggestion } from "@zcode/tui";
+import type { TuiSlashCommandSuggestion } from "@qcode/tui";
 import {
   findCustomCommandHelpEntry,
   formatAvailableCommandNames,

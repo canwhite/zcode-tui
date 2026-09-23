@@ -1,4 +1,4 @@
-import type { TuiPromptInput, TuiSubmitPromptResult } from "@zcode/tui";
+import type { TuiPromptInput, TuiSubmitPromptResult } from "@qcode/tui";
 import type { CommandCenterApp, CommandCenterDeps } from "./types.js";
 
 export function normalizeTuiPromptInput(input: TuiPromptInput): Exclude<TuiPromptInput, string> {

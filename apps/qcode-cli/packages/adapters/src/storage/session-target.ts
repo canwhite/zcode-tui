@@ -4,7 +4,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
-import type { SessionId, SessionGoal, GoalStatus } from "@zcode/contracts";
+import type { SessionId, SessionGoal, GoalStatus } from "@qcode/contracts";
 
 interface TargetRow {
   session_id: string;

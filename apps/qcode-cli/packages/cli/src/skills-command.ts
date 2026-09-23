@@ -1,16 +1,16 @@
-import { formatJson } from "@zcode/core";
-import type { Logger } from "@zcode/contracts";
-import type { RunContext, GlobalOptions } from "@zcode/shared-types";
+import { formatJson } from "@qcode/core";
+import type { Logger } from "@qcode/contracts";
+import type { RunContext, GlobalOptions } from "@qcode/shared-types";
 import type {
   inspectZCodeSkill,
   InspectZCodeSkillOptions,
   listZCodeSkills,
   ListZCodeSkillsOptions,
   ZCodeSkillInspection,
-} from "@zcode/bootstrap";
+} from "@qcode/bootstrap";
 import type { CliEnv } from "./env.js";
 
-type BootstrapModule = typeof import("@zcode/bootstrap");
+type BootstrapModule = typeof import("@qcode/bootstrap");
 type CliSkillListOutcome = Awaited<ReturnType<typeof listZCodeSkills>>;
 type CliSkillListItem = CliSkillListOutcome["skills"][number];
 
@@ -59,7 +59,7 @@ async function runSkillsListCommand(
   try {
     const env = deps.env ?? process.env;
     const workingDirectory = (deps.cwd ?? process.cwd)();
-    const bootstrap = deps.loadBootstrapModule ?? (() => import("@zcode/bootstrap"));
+    const bootstrap = deps.loadBootstrapModule ?? (() => import("@qcode/bootstrap"));
     const listSkills = deps.listSkills ?? (await bootstrap()).listZCodeSkills;
     const outcome = await listSkills({
       env,
@@ -87,7 +87,7 @@ async function runSkillsInspectCommand(
   try {
     const env = deps.env ?? process.env;
     const workingDirectory = (deps.cwd ?? process.cwd)();
-    const bootstrap = deps.loadBootstrapModule ?? (() => import("@zcode/bootstrap"));
+    const bootstrap = deps.loadBootstrapModule ?? (() => import("@qcode/bootstrap"));
     const inspectSkill = deps.inspectSkill ?? (await bootstrap()).inspectZCodeSkill;
     const inspection = await inspectSkill({
       env,

@@ -1,4 +1,4 @@
-import type { WorkflowGraph, WorkflowGraphEdge, WorkflowRunStatus } from "@zcode/contracts";
+import type { WorkflowGraph, WorkflowGraphEdge, WorkflowRunStatus } from "@qcode/contracts";
 
 export function phaseNodeId(phase: string): string {
   return `phase:${phase}`;

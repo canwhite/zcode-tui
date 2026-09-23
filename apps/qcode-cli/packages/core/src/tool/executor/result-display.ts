@@ -6,7 +6,7 @@ import {
   CUA_TARGET_APP_DISPLAY_META_KEY,
   cuaTargetAppDisplaySchema,
   nodeReplCuaAppDisplaySchema,
-  ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY,
+  QCODE_MCP_NODE_REPL_CUA_APP_META_KEY,
   SEND_MESSAGE_TOOL_NAME,
   SendMessageOutputSchema,
   TASK_OUTPUT_DISPLAY_MAX_OUTPUT_CHARS,
@@ -18,7 +18,7 @@ import {
   type DiffHunk,
   type NodeReplCuaAppDisplay,
   type ToolResultDisplayPayload,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { createBashResultDisplay } from "./bash-result-display.js";
 import { countPatchLines } from "../diff.js";
 import { boundDisplayText } from "./display-text.js";
@@ -28,11 +28,11 @@ import { createWorkflowObservationDisplay } from "./workflow-observation-display
 // 拆到 create-workflow-display.ts 后保持既有导出面（handlers/create-workflow.ts 仍从这里 import）。
 export { createCreateWorkflowDisplay } from "./create-workflow-display.js";
 import { isRecord } from "./utils.js";
-import { parseOfficialMcpToolError, type OfficialMcpToolErrorCode } from "@zcode/shared";
+import { parseOfficialMcpToolError, type OfficialMcpToolErrorCode } from "@qcode/shared";
 import {
   CUA_REQUEST_ACCESS_STATUS_META_KEY,
   cuaRequestAccessStatusSchema,
-} from "@zcode/zcode-cua/request-access-contract";
+} from "@qcode/zcode-cua/request-access-contract";
 
 const MAX_DISPLAY_DIFF_HUNKS = 8;
 const MAX_DISPLAY_DIFF_LINES = 160;
@@ -349,7 +349,7 @@ function safeJson(value: unknown): string {
 function readNodeReplCuaApp(output: Record<string, unknown>): NodeReplCuaAppDisplay | undefined {
   const meta = isRecord(output._meta) ? output._meta : undefined;
   const parsed = nodeReplCuaAppDisplaySchema.safeParse(
-    meta?.[ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY],
+    meta?.[QCODE_MCP_NODE_REPL_CUA_APP_META_KEY],
   );
   return parsed.success ? parsed.data : undefined;
 }

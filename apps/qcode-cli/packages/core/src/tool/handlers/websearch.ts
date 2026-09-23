@@ -20,7 +20,7 @@ import {
   type ModelToolContract,
   type WebSearchInput,
   type WebSearchOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 import { auxiliaryModelOptions } from "../../model/auxiliary-model-options.js";
 import { buildWebSearchOutput, formatWebSearchModelContent } from "./websearch-results.js";

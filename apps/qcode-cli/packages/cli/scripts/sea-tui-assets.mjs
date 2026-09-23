@@ -125,12 +125,12 @@ const workspacePackageParentDirectories = (root) => {
 };
 
 const runtimePackageNames = async ({ root, target, workspacePackageDirectories }) => {
-  const tuiDirectory = workspacePackageDirectories.get("@zcode/tui");
+  const tuiDirectory = workspacePackageDirectories.get("@qcode/tui");
   if (!tuiDirectory) {
     throw new Error("Missing @zcode/tui workspace package.");
   }
   const queue = [
-    { fromDirectory: tuiDirectory, packageName: "@zcode/tui" },
+    { fromDirectory: tuiDirectory, packageName: "@qcode/tui" },
     { fromDirectory: tuiDirectory, packageName: opentuiCorePackageName },
     { fromDirectory: tuiDirectory, packageName: opentuiReactPackageName },
     { fromDirectory: tuiDirectory, packageName: "react" },

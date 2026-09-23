@@ -10,7 +10,7 @@
 // 与 workflow-actor-tools.ts 是同一个接缝上的姊妹模块：一个给出工具面，一个给出模型面，
 // 都由 driver 侧的 runtime 工厂在造 AgentRuntime 时展开。
 
-import type { ModelSelection } from "@zcode/shared/model-selection";
+import type { ModelSelection } from "@qcode/shared/model-selection";
 import { parseProviderQualifiedModelSelection } from "./provider-registry-selection.js";
 
 /** 解析模型面需要的宿主侧事实。 */

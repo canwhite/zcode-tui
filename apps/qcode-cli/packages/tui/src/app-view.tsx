@@ -1,4 +1,4 @@
-import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
+import type { ModelUsageSummary, TodoItem, TurnId } from "@qcode/contracts";
 import React from "react";
 import { ApprovalPanel } from "./app-approval-panel.js";
 import { BtwPanel } from "./app-btw-panel.js";
@@ -61,7 +61,7 @@ export function AppView(props: {
   busy: boolean;
   cacheStats?: CacheStats;
   contextUsage: ContextUsage;
-  copy: ReturnType<typeof import("@zcode/i18n").getZCodeCopy>["tui"];
+  copy: ReturnType<typeof import("@qcode/i18n").getZCodeCopy>["tui"];
   copyCurrentSelection: () => boolean;
   draft: string;
   editorRef: React.MutableRefObject<PromptInputEditor | null>;
@@ -270,7 +270,7 @@ function ComposerInputArea(props: {
   busy: boolean;
   contentWidth: number;
   contextUsage: ContextUsage;
-  copy: ReturnType<typeof import("@zcode/i18n").getZCodeCopy>["tui"];
+  copy: ReturnType<typeof import("@qcode/i18n").getZCodeCopy>["tui"];
   draft: string;
   editorRef: React.MutableRefObject<PromptInputEditor | null>;
   effortOptions: readonly TuiEffortOption[];

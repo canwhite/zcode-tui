@@ -1,6 +1,6 @@
 import { stat } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
-import type { SkillRoot, SkillSource } from "@zcode/contracts";
+import type { SkillRoot, SkillSource } from "@qcode/contracts";
 import { CONFIG_HOME_DIR, getUserConfigHome, resolveUserHomeDir } from "../config-home/index.js";
 
 const GIT_MARKER = ".git";
@@ -8,7 +8,7 @@ const HOME_PREFIX = "~/";
 const PRIORITY_STEP = 10;
 const SKILLS_DIR = "skills";
 const CLAUDE_DIR = CONFIG_HOME_DIR;
-const ZCODE_DIR = ".zcode";
+const QCODE_DIR = ".zcode";
 const AGENTS_DIR = ".agents";
 
 export interface SkillRootResolutionOptions {
@@ -28,9 +28,9 @@ export async function resolveDefaultSkillRoots(
   const includeZcode = options.includeZcodeSkills ?? true;
   const env = options.env ?? process.env;
   // 使用者家目录与配置家目录是**两个独立解析**，不要互相推导：
-  // 前者用于 `.agents`，后者用于 `.claude`。ZCODE_CONFIG_HOME 只该影响后者。
+  // 前者用于 `.agents`，后者用于 `.claude`。QCODE_CONFIG_HOME 只该影响后者。
   const userHome = options.homeDirectory ?? resolveUserHomeDir(env);
-  // 配置家目录走 getUserConfigHome —— 它承载 ZCODE_CONFIG_HOME 覆盖；
+  // 配置家目录走 getUserConfigHome —— 它承载 QCODE_CONFIG_HOME 覆盖；
   // 直接用 userHome 拼 `.claude` 会让覆盖失效。
   const userConfigHome = options.homeDirectory
     ? join(resolve(options.homeDirectory), CONFIG_HOME_DIR)
@@ -105,11 +105,11 @@ async function pathExists(path: string): Promise<boolean> {
  * 用户级 skill 根。
  *
  * 两个入参各有独立来源，**不要用一个推导另一个**：
- * - `configHome` 是配置家目录（`~/.claude`），可被 `ZCODE_CONFIG_HOME` 覆盖；
+ * - `configHome` 是配置家目录（`~/.claude`），可被 `QCODE_CONFIG_HOME` 覆盖；
  * - `userHome` 是**使用者家目录**，`.agents` 必须挂在它下面。
  *
  * 早期版本用 `dirname(configHome)` 推导 `.agents`，在
- * `ZCODE_CONFIG_HOME=/opt/x/cfg` 这类自定义落点下会静默指向 `/opt/x/.agents`
+ * `QCODE_CONFIG_HOME=/opt/x/cfg` 这类自定义落点下会静默指向 `/opt/x/.agents`
  * —— 换了落点就读错地方，且没有任何报错。两者必须分开解析。
  *
  * 不读 `~/.zcode/skills`：用户级配置面已统一到 `.claude`。
@@ -138,7 +138,7 @@ function userSkillRoots(
 function projectSkillRoots(baseDirectory: string, nextPriority: () => number): SkillRoot[] {
   return [
     root(join(baseDirectory, CLAUDE_DIR, SKILLS_DIR), "project", "claude", nextPriority()),
-    root(join(baseDirectory, ZCODE_DIR, SKILLS_DIR), "project", "qcode", nextPriority()),
+    root(join(baseDirectory, QCODE_DIR, SKILLS_DIR), "project", "qcode", nextPriority()),
     root(join(baseDirectory, AGENTS_DIR, SKILLS_DIR), "project", "agents", nextPriority()),
   ];
 }

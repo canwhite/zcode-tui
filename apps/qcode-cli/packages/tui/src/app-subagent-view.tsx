@@ -1,5 +1,5 @@
 import React from "react";
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import { ContentPane } from "./app-transcript-components.js";
 import { palette } from "./app-model.js";
 import { truncateDisplay } from "./app-terminal-width.js";

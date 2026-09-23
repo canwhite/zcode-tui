@@ -36,7 +36,7 @@ import {
   type FileSystemStatResult,
   type FileSystemWriteTextRequest,
   type FileSystemWriteTextResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   applyRequestedLineEndings,
   decodeTextBuffer,

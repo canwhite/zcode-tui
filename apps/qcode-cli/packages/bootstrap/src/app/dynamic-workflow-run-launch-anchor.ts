@@ -11,9 +11,9 @@
 // 选型（`subagentModel`）与脚本来自哪个文件（`scriptPath`）。四者都只在建 run 那一世写一次、引擎一概不读、都零 SQL——`dwf_run` 上
 // 没有对应的列。
 
-import type { TraceContext } from "@zcode/contracts";
-import type { JournalStorePort } from "@zcode/dynamic-workflow";
-import { uuidv7 } from "@zcode/shared";
+import type { TraceContext } from "@qcode/contracts";
+import type { JournalStorePort } from "@qcode/dynamic-workflow";
+import { uuidv7 } from "@qcode/shared";
 
 export interface RunLaunchAnchor {
   /** 发起 run 那一轮的 inputId（中枢直接启动为铸出的 UUID v7）。 */

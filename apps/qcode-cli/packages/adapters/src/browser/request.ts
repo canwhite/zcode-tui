@@ -1,4 +1,4 @@
-import type { BrowserCommand, BrowserErrorCode } from "@zcode/contracts";
+import type { BrowserCommand, BrowserErrorCode } from "@qcode/contracts";
 
 export function abortError(): Error {
   return new DOMException("Browser command cancelled", "AbortError");

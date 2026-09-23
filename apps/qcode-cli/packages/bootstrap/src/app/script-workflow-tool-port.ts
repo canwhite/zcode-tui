@@ -16,7 +16,7 @@ import {
   type WorkflowStartRequest,
   type WorkflowTaskSnapshot,
   type WorkflowTaskStatus,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { readWorkflowScriptDocument } from "./script-workflow-meta.js";
 import type { ScriptWorkflowRuntime } from "./script-workflow-runtime.js";
 import { isScriptWorkflowStore } from "./script-workflow-utils.js";

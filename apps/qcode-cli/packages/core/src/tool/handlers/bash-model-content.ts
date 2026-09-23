@@ -3,7 +3,7 @@ import {
   parseImageDataUrl,
   type BashOutput,
   type ModelMessageContent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { formatPersistedOutputEnvelope } from "../result-persistence-format.js";
 import { isBashProviderErrorStatus } from "./bash-semantics.js";
 

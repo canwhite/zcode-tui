@@ -120,7 +120,7 @@ const appWorkspaceSessionEntrySchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
-const qcodeEndpointOriginSchema = z.preprocess((value) => {
+const zcodeEndpointOriginSchema = z.preprocess((value) => {
   if (typeof value !== "string") {
     return undefined;
   }
@@ -140,14 +140,14 @@ function sanitizeZCodeEndpointOrigin(value: unknown): unknown {
     return value;
   }
   const raw = value as Record<string, unknown>;
-  if (!("qcodeEndpointOrigin" in raw)) {
+  if (!("zcodeEndpointOrigin" in raw)) {
     return value;
   }
-  const parsed = qcodeEndpointOriginSchema.safeParse(raw.qcodeEndpointOrigin);
+  const parsed = zcodeEndpointOriginSchema.safeParse(raw.zcodeEndpointOrigin);
   if (parsed.success && typeof parsed.data === "string") {
-    return { ...raw, qcodeEndpointOrigin: parsed.data };
+    return { ...raw, zcodeEndpointOrigin: parsed.data };
   }
-  const { qcodeEndpointOrigin: _qcodeEndpointOrigin, ...next } = raw;
+  const { zcodeEndpointOrigin: _zcodeEndpointOrigin, ...next } = raw;
   // 非生产 endpoint override 是开发辅助字段，坏值只丢弃该字段，不能拖垮整个 settings 读取。
   return next;
 }
@@ -471,7 +471,7 @@ const appSettingsObjectSchema = z.object({
   autoDownloadAndInstallUpdates: z.boolean().default(false),
   skippedElectronUpdateVersions: skippedElectronUpdateVersionsSchema,
   settingsSyncFirstRunPromptHandled: z.boolean().optional(),
-  qcodeEndpointOrigin: qcodeEndpointOriginSchema.optional(),
+  zcodeEndpointOrigin: zcodeEndpointOriginSchema.optional(),
 });
 
 export const appSettingsSchema = z.preprocess(
@@ -558,5 +558,5 @@ export const appSettingsPatchSchema = z.object({
     .partialRecord(electronReleaseChannelSchema, nonEmptyStringSchema)
     .optional(),
   settingsSyncFirstRunPromptHandled: z.boolean().optional(),
-  qcodeEndpointOrigin: qcodeEndpointOriginSchema.optional(),
+  zcodeEndpointOrigin: zcodeEndpointOriginSchema.optional(),
 });

@@ -12,7 +12,7 @@
 ## 用法
 
 ```ts
-import { runWorkflowScript } from "@zcode/dynamic-workflow-runtime";
+import { runWorkflowScript } from "@qcode/dynamic-workflow-runtime";
 
 const settlement = await runWorkflowScript({
   scriptText,                 // 或 lowered: <async 函数体>

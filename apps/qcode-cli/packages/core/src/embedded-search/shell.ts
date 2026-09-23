@@ -1,4 +1,4 @@
-import type { ExecutionShellSelection } from "@zcode/contracts";
+import type { ExecutionShellSelection } from "@qcode/contracts";
 
 // provider-visible embedded branch 已默认开启；执行层仅在明确支持 POSIX
 // shell function 的 session shell 中注入 find()/grep() alias。

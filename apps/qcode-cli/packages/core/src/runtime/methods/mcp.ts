@@ -1,9 +1,9 @@
 import {
   getCapturedZCodeCuaBrokerCredentials,
-  ZCODE_CUA_OFFICIAL_PLUGIN_ID,
-  ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
-  ZCODE_PLUGIN_ID_ENV_KEY,
-} from "@zcode/shared";
+  QCODE_CUA_OFFICIAL_PLUGIN_ID,
+  QCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
+  QCODE_PLUGIN_ID_ENV_KEY,
+} from "@qcode/shared";
 import { registerMcpTools, traceContextToLogContext } from "../deps.js";
 import type { McpConnectionSnapshot, McpServerConfig, TraceContext } from "../deps.js";
 import type { AgentRuntimeInternal } from "../internal.js";
@@ -26,9 +26,9 @@ export function computeOfficialCuaServerNames(
     if (!trustedServerNames.has(name)) continue;
     if (config.type !== "stdio") continue;
     if (
-      config.env?.[ZCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() !==
-        ZCODE_CUA_OFFICIAL_PLUGIN_ID ||
-      config.env?.[ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim() !== expectedAuthority
+      config.env?.[QCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() !==
+        QCODE_CUA_OFFICIAL_PLUGIN_ID ||
+      config.env?.[QCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim() !== expectedAuthority
     ) {
       continue;
     }

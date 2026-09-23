@@ -1,4 +1,4 @@
-import { deriveWorkflowSessionLinks, type ExpertWorkflowRunSnapshot } from "@zcode/contracts";
+import { deriveWorkflowSessionLinks, type ExpertWorkflowRunSnapshot } from "@qcode/contracts";
 import { reconcileWorkflowSnapshotForResume, type WorkflowGraphNodeChange } from "../lifecycle.js";
 import { phaseNodeId } from "./ids.js";
 import { dedupeWorkflowNodeChanges, type ExpertWorkflowRuntimeContext } from "./runtime-context.js";

@@ -6,12 +6,12 @@ import type {
   CommandPayloadMap,
   CommandResult,
   SubmissionMode,
-} from "@zcode/shared/zcode-protocol-v4";
-import type { ModelSelection } from "@zcode/shared";
+} from "@qcode/shared/zcode-protocol-v4";
+import type { ModelSelection } from "@qcode/shared";
 import { createModelExecutionContext } from "../../../zcode-protocol/model-execution.js";
 import type { SteerTurnOptions } from "../../../app/types.js";
 import { parseProviderQualifiedModelSelection } from "../../../app/provider-registry-selection.js";
-import type { TurnAttachment } from "@zcode/core";
+import type { TurnAttachment } from "@qcode/core";
 import { mapAttachmentRefsToTurnAttachments } from "../attachment-refs.js";
 import { inputIntentMetadata } from "../input-intent.js";
 import { startPromptTurn, turnBackgroundAttributionOf } from "../prompt-turn.js";
@@ -437,4 +437,4 @@ export async function preemptActiveTurnAndWait(
 }
 
 export const sessionFlowHandlers = { sendText, stop };
-import { resolveExecutionState } from "@zcode/shared";
+import { resolveExecutionState } from "@qcode/shared";

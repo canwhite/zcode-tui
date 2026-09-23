@@ -2,7 +2,7 @@ import {
   type WorkflowDefinition,
   WorkflowDefinitionSchema,
   type WorkflowStrategy,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export const BUILT_IN_EXPERT_WORKFLOW_KIND = "expert";
 export const BUILT_IN_EXPERT_WORKFLOW_DEFINITION_ID = "expert";

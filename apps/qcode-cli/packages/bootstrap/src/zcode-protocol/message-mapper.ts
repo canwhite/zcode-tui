@@ -1,5 +1,5 @@
-import type { ZCodeMessagePart, ZCodeMessageWithParts, ZCodeToolState } from "@zcode/shared";
-import type { MessagePart, MessageWithParts, ToolState } from "@zcode/contracts";
+import type { ZCodeMessagePart, ZCodeMessageWithParts, ZCodeToolState } from "@qcode/shared";
+import type { MessagePart, MessageWithParts, ToolState } from "@qcode/contracts";
 import { shouldHideInvalidToolCallFromProduct } from "../tool-call-product-visibility.js";
 
 export function mapMessageWithParts(message: MessageWithParts): ZCodeMessageWithParts {

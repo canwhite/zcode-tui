@@ -6,8 +6,8 @@ import type {
   grantWorkspaceHookTrust,
   inspectWorkspaceHookTrust,
   revokeWorkspaceHookTrustCli,
-} from "@zcode/bootstrap";
-import type { RunContext } from "@zcode/shared-types";
+} from "@qcode/bootstrap";
+import type { RunContext } from "@qcode/shared-types";
 import type { RunDependencies } from "./cli-types.js";
 
 const USAGE = `Usage:
@@ -23,7 +23,7 @@ type Grant = typeof grantWorkspaceHookTrust;
 type Revoke = typeof revokeWorkspaceHookTrustCli;
 
 type HooksCommandDependencies = RunDependencies & {
-  loadBootstrapModule?: () => Promise<typeof import("@zcode/bootstrap")>;
+  loadBootstrapModule?: () => Promise<typeof import("@qcode/bootstrap")>;
   inspectWorkspaceHookTrust?: Inspect;
   grantWorkspaceHookTrust?: Grant;
   revokeWorkspaceHookTrustCli?: Revoke;
@@ -54,7 +54,7 @@ export async function runHooksCommand(
     (deps.cwd ?? process.cwd)(),
     deps.userConfigPath,
   );
-  const bootstrap = deps.loadBootstrapModule ?? (() => import("@zcode/bootstrap"));
+  const bootstrap = deps.loadBootstrapModule ?? (() => import("@qcode/bootstrap"));
   try {
     let status: WorkspaceHookTrustCliStatus;
     if (action === "status" || action === "review") {

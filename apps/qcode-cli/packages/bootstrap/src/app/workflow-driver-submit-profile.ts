@@ -12,7 +12,7 @@
 //     以 DriverError 让**这个 ask** 失败并说清是哪个站点，而不是让它耗尽 nudge 后以
 //     ResultNotSubmitted 失败、把分析问题伪装成模型问题。
 
-import { submitResultToolEntry } from "@zcode/core";
+import { submitResultToolEntry } from "@qcode/core";
 import {
   GENERIC_SUBMIT_PROFILE,
   canonicalJson,
@@ -21,7 +21,7 @@ import {
   type AskMessage,
   type InstanceRef,
   type WorkflowReportSink,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import type { AgentRuntimeWorkflowDriverDeps, SessionState } from "./workflow-driver-types.js";
 
 /** 静态 profile 与 ask 不符时的日志事件名。 */

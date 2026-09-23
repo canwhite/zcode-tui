@@ -1,4 +1,4 @@
-import { BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES, type ZCodeSlashCommand } from "@zcode/shared";
+import { BUILTIN_QCODE_SLASH_COMMAND_HELP_ENTRIES, type ZCodeSlashCommand } from "@qcode/shared";
 import {
   listZCodeCustomCommands,
   type ListZCodeCustomCommandsOptions,
@@ -77,7 +77,7 @@ function pinWorkflowAfterGoal(commands: ZCodeSlashCommand[]): ZCodeSlashCommand[
 
 function listAppProtocolBuiltinSlashCommands(): ZCodeSlashCommand[] {
   const sharedBuiltins = APP_PROTOCOL_VISIBLE_BUILTIN_SLASH_COMMAND_NAMES.flatMap((name) => {
-    const command = BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES.find((entry) => entry.name === name);
+    const command = BUILTIN_QCODE_SLASH_COMMAND_HELP_ENTRIES.find((entry) => entry.name === name);
     if (!command) return [];
     return [
       {

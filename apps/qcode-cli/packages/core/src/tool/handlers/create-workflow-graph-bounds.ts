@@ -30,7 +30,7 @@ import {
   type CreateWorkflowParticipant,
   type CreateWorkflowPhase,
   type CreateWorkflowStep,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   FLOW_ABORT,
   FLOW_ENTRY,
@@ -41,7 +41,7 @@ import {
   UNPHASED,
   // 浏览器端回放视图直接复用本函数：走 /projections
   // 子路径而非根桶，根桶会把 typescript 编译器一起拖进浏览器包。语义与根桶导出完全相同。
-} from "@zcode/dynamic-workflow/projections";
+} from "@qcode/dynamic-workflow/projections";
 // 阶段边的折叠与归约（含有环输入上的缩点规则）单独成模块，见该文件的文件头。
 import { foldPhaseEdges, type RawEdge } from "./create-workflow-graph-fold.js";
 

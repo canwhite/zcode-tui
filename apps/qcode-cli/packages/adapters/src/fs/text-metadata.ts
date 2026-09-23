@@ -4,7 +4,7 @@ import {
   createFileSystemError,
   type FileSystemLineEndings,
   type FileSystemTextEncoding,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import iconv from "iconv-lite";
 
 const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;

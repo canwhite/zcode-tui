@@ -2,11 +2,11 @@
 // 本分支全部改动的清单见 README.md「本分支的改动」。
 import { dirname } from "node:path";
 import { extractDisallowedToolsArgs, parseGlobalArgs } from "./arguments.js";
-import { createNodeLoggerFactory } from "@zcode/adapters";
-import { getRuntimeInfo, type PresentationSurface } from "@zcode/core";
-import { color, formatJson, supportsColor } from "@zcode/core";
-import { getZCodeCopy, isUiLocale, type UiLocale } from "@zcode/i18n";
-import type { RunContext, GlobalOptions, GlobalOutputFormat } from "@zcode/shared-types";
+import { createNodeLoggerFactory } from "@qcode/adapters";
+import { getRuntimeInfo, type PresentationSurface } from "@qcode/core";
+import { color, formatJson, supportsColor } from "@qcode/core";
+import { getZCodeCopy, isUiLocale, type UiLocale } from "@qcode/i18n";
+import type { RunContext, GlobalOptions, GlobalOutputFormat } from "@qcode/shared-types";
 import {
   applyCliRuntimeEnvSanitization,
   loadCliDotenv,
@@ -29,7 +29,7 @@ import {
   resolveVendor,
 } from "./vendor.js";
 import { writePersonalVendor } from "./personal-vendor.js";
-import { ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV } from "@zcode/provider-node";
+import { QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV } from "@qcode/provider-node";
 import { formatCliHelp } from "./help.js";
 import { runHooksCommand } from "./hooks-trust-command.js";
 import { detectCliLocale } from "./locale.js";
@@ -323,7 +323,7 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
     if (!parsed.ok) {
       // 未配置厂商是合法状态，不算失败：跳过即可，由安装流程决定是否提示。
       if (parsed.notConfigured) {
-        ctx.stdout.write("未配置厂商（.env 中缺少 ZCODE_VENDOR_* 字段），跳过。\n");
+        ctx.stdout.write("未配置厂商（.env 中缺少 QCODE_VENDOR_* 字段），跳过。\n");
         return 0;
       }
       ctx.stderr.write(`${parsed.reason}\n`);
@@ -331,7 +331,7 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
       return 1;
     }
 
-    const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+    const vendors = readBuiltinVendors(env[QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
     const resolved = resolveVendor(parsed.config, vendors);
     if (!resolved.ok) {
       ctx.stderr.write(`${resolved.reason}\n`);
@@ -369,14 +369,14 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
     }
 
     // 自定义端点的模型不做清单校验（本就没有清单，见 resolveVendor），但**声明里
-    // 可能残留着内置厂商的模型**——换 base url 却忘了改 ZCODE_VENDOR_MODEL。
+    // 可能残留着内置厂商的模型**——换 base url 却忘了改 QCODE_VENDOR_MODEL。
     // 这会写出一个"端点 A + 模型 B"的组合，且不报错，直到发请求才失败。
     if (!parsed.config.vendorName) {
       const owner = vendors.find((candidate) => candidate.modelIds.includes(model));
       if (owner) {
         ctx.stderr.write(
           `提示：模型 ${model} 是内置厂商 ${owner.id} 的模型，但你配置的是自建端点 ${baseUrl}。\n` +
-            `      如果确实要用该端点，请把 ZCODE_VENDOR_MODEL 改成该端点支持的模型名。\n`,
+            `      如果确实要用该端点，请把 QCODE_VENDOR_MODEL 改成该端点支持的模型名。\n`,
         );
       }
     }

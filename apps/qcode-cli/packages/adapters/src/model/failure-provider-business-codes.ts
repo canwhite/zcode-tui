@@ -5,7 +5,7 @@ import {
   type ModelErrorCode as ModelErrorCodeType,
   type ModelFailureReason,
   type ModelRetryReason,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { isNetworkFailure, isTimeoutFailure } from "./failure-inspection.js";
 import type { ProviderBusinessError } from "./model-execution.js";
 

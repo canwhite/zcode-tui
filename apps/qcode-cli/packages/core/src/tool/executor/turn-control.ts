@@ -5,7 +5,7 @@ import {
   CREATE_WORKFLOW_TOOL_NAME,
   EXIT_PLAN_MODE_TOOL_NAME,
   type CollaborationMode,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolExecutionResult } from "../types.js";
 
 const DEFAULT_EXIT_PLAN_DENIED_MESSAGE = `Permission denied for ${EXIT_PLAN_MODE_TOOL_NAME}`;

@@ -11,7 +11,7 @@ import {
   type Model,
   type ModelReasoningContentBlock,
   type TokenUsageInfo,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { SYSTEM_REMINDER_SOURCES, type SystemReminderSource } from "../system-reminder/source.js";
 
 // Tool call from model (simple type, no brand)

@@ -9,7 +9,7 @@
 //   node test/offline-acceptance.mjs              跑全部断言
 //   node test/offline-acceptance.mjs --with-clean 额外验证 make clean 后资源存活
 //
-// 前置：需要已构建的 CLI 产物（apps/qcode-cli/packages/cli/dist/zcode.cjs）。
+// 前置：需要已构建的 CLI 产物（apps/zcode-cli/packages/cli/dist/zcode.cjs）。
 //       未构建时本脚本直接失败并给出构建命令，不静默跳过。
 
 import { spawnSync } from "node:child_process";
@@ -20,7 +20,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
 
 /** 封锁全部非 npm 出网：把代理指向一个必定拒绝连接的端口。 */
 const DEAD_PROXY = "http://127.0.0.1:9";

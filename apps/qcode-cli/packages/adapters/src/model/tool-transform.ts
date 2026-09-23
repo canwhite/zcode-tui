@@ -4,7 +4,7 @@
 
 import { anthropic } from "@ai-sdk/anthropic";
 import { jsonSchema, tool, type ToolSet } from "ai";
-import { ModelErrorCode, type JsonSchema, type ModelToolContract } from "@zcode/contracts";
+import { ModelErrorCode, type JsonSchema, type ModelToolContract } from "@qcode/contracts";
 import { AiSdkModelAdapterError } from "./errors.js";
 import { isAnthropicFirstPartyModelId, toStrictToolSchema } from "./strict-tool-schema.js";
 

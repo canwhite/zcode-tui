@@ -10,7 +10,7 @@ import type {
   ResolvedUserInstructions,
   SkillLoadOutcome,
   UserInstructionsOptions,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { AutoCompactPolicyConfig } from "../compact/index.js";
 import type { AgentProfile } from "../subagent/profile.js";
 
@@ -22,7 +22,7 @@ export type {
   ResolvedUserInstructionSource,
   ResolvedUserInstructions,
   UserInstructionsOptions,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 // -----------------------------------------------
 // Context Source

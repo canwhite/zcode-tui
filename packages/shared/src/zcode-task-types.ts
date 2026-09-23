@@ -2,7 +2,7 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
 // 剩余 29 个导出：workspace 预热/workspace 事件、turn steer 结果、session binding/import、
 // trace/input/query id 工厂函数、ZCodeError、ZCodeTaskCreateResult 等。
-// 消费者：services 旧栈（qcodeAgentService/zcodeTaskServiceAdapter/zcodeTaskService）、
+// 消费者：services 旧栈（zcodeAgentService/zcodeTaskServiceAdapter/zcodeTaskService）、
 // UI 旧 store/投影。明星承重类型（ZCodeTaskMeta/ZCodeStreamEvent/ZCodeTaskSnapshot 等）
 // 已迁 zcode-task-types-core.ts（幸存面）。本文件与旧 task service 组同生命周期。
 import { createUuid } from "./uuid.js";
@@ -43,10 +43,10 @@ export function createQueryId(): QueryId {
 }
 
 /** cron 定时任务生成的 session 默认归入的系统分组固定 id。 */
-export const CRON_DEFAULT_GROUP_ID = "qcode-default-group-cron";
+export const CRON_DEFAULT_GROUP_ID = "zcode-default-group-cron";
 
 /** 闲时任务已派发会话默认归入的系统分组固定 id（与 cron 分组同构）。 */
-export const OFF_PEAK_DEFAULT_GROUP_ID = "qcode-default-group-off-peak";
+export const OFF_PEAK_DEFAULT_GROUP_ID = "zcode-default-group-off-peak";
 
 type CronTaskIdentity = Pick<ZCodeTaskMeta, "cronAutomationId"> & {
   automationId?: string;

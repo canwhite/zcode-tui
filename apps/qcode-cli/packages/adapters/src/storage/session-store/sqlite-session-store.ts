@@ -58,9 +58,9 @@ import type {
   UpdateSessionInput,
   UpdateScriptWorkflowRunInput,
   UsageStorePort,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 // 端口留在领域包 @zcode/dynamic-workflow，这里只做类型引用：adapters 运行时不依赖它。
-import type { JournalStorePort } from "@zcode/dynamic-workflow";
+import type { JournalStorePort } from "@qcode/dynamic-workflow";
 import {
   accountSessionTargetUsage,
   clearSessionTarget,

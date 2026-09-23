@@ -2,14 +2,14 @@ import {
   SessionEventType,
   type ModelNetworkStatusPayload,
   type SessionEvent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   SESSION_DEBUG_LIMITS,
   calculateOutputTps,
   sessionDebugParamsSchema,
   zcodeTaskNetworkDebugStatusFromPayload,
   type SessionDebugSnapshot,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import { requireSession, type ZCodeProtocolAgentServerContext } from "./server-types.js";
 
 type SessionRecord = { app: { sessionId: string } };

@@ -26,7 +26,7 @@ import {
   type FileSystemReadTextResult,
   type FileSystemStatResult,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { createStructuredPatch } from "../diff.js";
 import { stampMemoryOriginSessionId } from "../../memory/origin-session.js";
 import {

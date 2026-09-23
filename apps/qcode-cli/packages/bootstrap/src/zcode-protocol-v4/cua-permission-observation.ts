@@ -1,10 +1,10 @@
-import { SessionEventType, type SessionEvent, type ToolCallResultPayload } from "@zcode/contracts";
+import { SessionEventType, type SessionEvent, type ToolCallResultPayload } from "@qcode/contracts";
 import {
   cuaPermissionObservationSchema,
   cuaRequestAccessStatusSchema,
   requiredCuaPermissionsForRequestAccessStatus,
   type CuaPermissionObservation,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

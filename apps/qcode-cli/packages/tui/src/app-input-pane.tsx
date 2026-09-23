@@ -1,5 +1,5 @@
 import type { TextareaRenderable } from "@mbears/opentui-core";
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import React from "react";
 import { DEFAULT_TUI_COPY } from "./app-locale.js";
 import { palette } from "./app-model.js";

@@ -1,4 +1,4 @@
-import type { TokenUsageInfo } from "@zcode/contracts";
+import type { TokenUsageInfo } from "@qcode/contracts";
 
 export interface PersistedTokenUsageBaseline {
   cacheReadTokens: number;

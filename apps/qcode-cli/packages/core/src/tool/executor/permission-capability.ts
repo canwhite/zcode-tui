@@ -1,4 +1,4 @@
-import type { ModelToolSideEffectScope } from "@zcode/contracts";
+import type { ModelToolSideEffectScope } from "@qcode/contracts";
 import type { PermissionToolCapability } from "../../permission/service.js";
 import type { ToolEntry, ToolRuntimePermissionCapabilityContext } from "../types.js";
 import type { ToolExecutorDeps } from "./types.js";

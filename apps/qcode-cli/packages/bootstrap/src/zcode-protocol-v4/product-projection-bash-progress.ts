@@ -2,13 +2,13 @@ import {
   executionOutputPreviewSchema,
   type ConversationDelta,
   type ToolCallRow,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import {
   SessionEventType,
   type SessionEvent,
   type ToolCallProgressPayload,
   type ToolCallStartedPayload,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 /** 进度只能更新已运行的 Bash，不创建行、不把终态或后台任务复活。 */
 export function projectToolActivity(

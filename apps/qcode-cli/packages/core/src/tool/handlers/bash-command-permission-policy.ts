@@ -1,4 +1,4 @@
-import type { PermissionRuleValue, PermissionUpdate } from "@zcode/contracts";
+import type { PermissionRuleValue, PermissionUpdate } from "@qcode/contracts";
 import type { ToolPermissionRulePolicy, ToolRuntimePermissionCapabilityContext } from "../types.js";
 import {
   analyzeBashCommand,

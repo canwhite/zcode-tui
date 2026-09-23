@@ -10,7 +10,7 @@ import {
   type ReducibleEdge,
   // 与 bounds 同一条理由：走 /projections 子路径而非根桶，根桶会把 typescript 编译器
   // 一起拖进浏览器包（作品集回放在浏览器里复用这条链路）。
-} from "@zcode/dynamic-workflow/projections";
+} from "@qcode/dynamic-workflow/projections";
 
 /** 折叠前的一条边：种类已经坍缩成「是不是回边」。 */
 export interface RawEdge {

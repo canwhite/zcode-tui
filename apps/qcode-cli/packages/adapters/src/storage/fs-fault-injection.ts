@@ -1,5 +1,5 @@
-export const ZCODE_E2E_FS_FAULTS_ENV = "ZCODE_E2E_FS_FAULTS";
-export const ZCODE_E2E_FS_FAULTS_ALLOW_ENV = "ZCODE_E2E_FS_FAULTS_ALLOW";
+export const QCODE_E2E_FS_FAULTS_ENV = "QCODE_E2E_FS_FAULTS";
+export const QCODE_E2E_FS_FAULTS_ALLOW_ENV = "QCODE_E2E_FS_FAULTS_ALLOW";
 
 type StorageFsFaultOperation =
   | "appendFile"
@@ -122,13 +122,13 @@ function parseRules(rawValue: string): StorageFsFaultRule[] {
     parsed = JSON.parse(rawValue);
   } catch (error) {
     throw new Error(
-      `Invalid ${ZCODE_E2E_FS_FAULTS_ENV}: ${
+      `Invalid ${QCODE_E2E_FS_FAULTS_ENV}: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
   }
   if (!Array.isArray(parsed)) {
-    throw new Error(`Invalid ${ZCODE_E2E_FS_FAULTS_ENV}: expected a JSON array`);
+    throw new Error(`Invalid ${QCODE_E2E_FS_FAULTS_ENV}: expected a JSON array`);
   }
   return parsed.map((rule, index) => {
     if (typeof rule !== "object" || rule === null || Array.isArray(rule)) {
@@ -215,8 +215,8 @@ let injectedForTests: StorageFsFaultInjector | null = null;
 function createStorageFsFaultInjectorFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): StorageFsFaultInjector {
-  const rawValue = env[ZCODE_E2E_FS_FAULTS_ENV]?.trim();
-  if (!rawValue || (env.ZCODE_ENV !== "test" && env[ZCODE_E2E_FS_FAULTS_ALLOW_ENV] !== "1")) {
+  const rawValue = env[QCODE_E2E_FS_FAULTS_ENV]?.trim();
+  if (!rawValue || (env.QCODE_ENV !== "test" && env[QCODE_E2E_FS_FAULTS_ALLOW_ENV] !== "1")) {
     return createStorageFsFaultInjector();
   }
   return createStorageFsFaultInjector(parseRules(rawValue));

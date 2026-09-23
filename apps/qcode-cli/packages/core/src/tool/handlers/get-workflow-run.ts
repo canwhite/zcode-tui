@@ -23,7 +23,7 @@ import {
   GetWorkflowRunOutputSchema,
   type GetWorkflowRunInput,
   type GetWorkflowRunOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { serializeWorkflowArtifact } from "../executor/workflow-artifact.js";
 // ⚠ 两个 artifact：上面那个序列化的是脚本的**顶层返回值**（进 `<result>`），下面这个描述的是
 // 脚本经 `artifact.*` **发布给用户看的产出**（进 `<artifacts>`）。同一个词两个义，本文件两者都出现。

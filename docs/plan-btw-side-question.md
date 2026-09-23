@@ -44,8 +44,8 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 1. **同步四处清单**。`/btw` 必须同时出现在「可解析」与「可见」两条链路上，缺一处就会出现「能跑但补全里没有」或反之：
    - `packages/shared/src/zcode-slash-command-help.ts:9` —— 加一条 help entry（name/usage/summary/details）。`AVAILABLE_COMMANDS`（`command-center/slash-commands.ts:19`）与 `/help` 文案都由它派生，加这一条即可自动覆盖。
-   - `apps/qcode-cli/packages/cli/src/command-center/slash-command-types.ts` —— 加联合类型分支。
-   - `apps/qcode-cli/packages/cli/src/command-center/slash-commands.ts:23` 的手写 if-chain —— 加 `rawName === "btw"`，**必须放在 `:195` 的 `/skill` 特殊解析之前**。
+   - `apps/zcode-cli/packages/cli/src/command-center/slash-command-types.ts` —— 加联合类型分支。
+   - `apps/zcode-cli/packages/cli/src/command-center/slash-commands.ts:23` 的手写 if-chain —— 加 `rawName === "btw"`，**必须放在 `:195` 的 `/skill` 特殊解析之前**。
    - 验证 `bootstrap/src/slash-command-surface.ts:19-27` 是否真的从 builtin 集合自动派生 `RESERVED_SLASH_COMMAND_NAMES`；若是则无需手改，若否则补上（否则用户的自定义命令/skill 可以静默遮蔽 `/btw`）。
 2. **headless 显式拒绝**。`cli/src/prompt-command.ts:81-306` 的 `-p` 路径不做特判时，`/btw ...` 会被当作普通 prompt 发给 agent——脚本里写 `/btw` 会变成一次**带工具的正常 turn**，属于静默且可能产生副作用的错误行为。
    **落点必须是 `prompt-command.ts:96-135` 那条早于路由判断的 `if (command.name === "help")` 早退链**，返回「`/btw` 仅在交互式 TUI 中可用」并**不发起任何模型请求**。
@@ -56,7 +56,7 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 
 > **先作为独立切片做（R-024）**：步骤 3 是全计划的风险集中点——R-001 / R-017 / R-018 / R-019 全落在它身上。不要按 1→12 平推，**先把步骤 3 单独跑通**（一次隔离侧问调用 + 断言 A5 通过），确认走通后再推进阶段三起的 UI 工作，避免沉没成本。
 
-3. **新增隔离的侧问调用**。新文件 `apps/qcode-cli/packages/core/src/runtime/methods/btw-model-request.ts`（< 400 行），形态对齐 `compact-summary-model-request.ts`：
+3. **新增隔离的侧问调用**。新文件 `apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.ts`（< 400 行），形态对齐 `compact-summary-model-request.ts`：
    - 模型句柄：`createRuntimeModel(this, { selection: this.getSessionModelSelection() })`（与 `compact-active.ts:174-178` 一致，满足「复用主会话模型」）。
    - 上下文：`[...this.messageHistory.borrowReadOnlyRuntimeEntries()]` 同步浅快照（对齐 `project-memory-agent.ts:67-70`），再经 `buildRuntimeProviderRequestMessages`（`core/src/runtime/helpers/runtime-provider-request-messages.ts:9-24`）转成 provider 消息。
    - 调用：`runWithModelInvocationContext(ctx, () => model.streamText(request))`，**本地 reduce 迭代器**，delta 经普通回调推出。
@@ -127,7 +127,7 @@ return [...updated, appendTextPart({ content: "", id: assistantMessageId, parts:
 - **Lint**：`pnpm lint` — 零错误。
 - **架构检查**：`pnpm architecture:check` — 通过（关注新增文件行数与 tui→cli 边界）。
 
-**自动化验收**：`node test/btw-side-question.mjs`（前置：已构建 `apps/qcode-cli/packages/cli/dist/zcode.cjs`）
+**自动化验收**：`node test/btw-side-question.mjs`（前置：已构建 `apps/zcode-cli/packages/cli/dist/zcode.cjs`）
 
 | # | 断言 | 为什么它能证伪 |
 |---|------|----------------|

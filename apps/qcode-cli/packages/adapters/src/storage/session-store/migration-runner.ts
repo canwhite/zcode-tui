@@ -3,7 +3,7 @@ import {
   databaseMigrationIdSchema,
   databaseStartupErrorDetails,
   type DatabaseMigrationFacts,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import { createHash } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
 import { SqliteSessionMigrationError } from "./errors.js";

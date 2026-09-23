@@ -31,7 +31,7 @@ import type {
   InternalExecutionRunOptions,
   PreparedChildSpawn,
 } from "./execution-adapter-types.js";
-import type { ExecutionRequest, ExecutionRunOptions } from "@zcode/contracts";
+import type { ExecutionRequest, ExecutionRunOptions } from "@qcode/contracts";
 
 export class NodeExecutionAdapterProcess extends NodeExecutionAdapterResults {
   protected trackBashResources(

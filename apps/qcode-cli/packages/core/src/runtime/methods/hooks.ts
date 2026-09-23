@@ -1,6 +1,6 @@
 import { HookEventName } from "../deps.js";
 import type { HookRunResult, Model, TraceContext, TurnState } from "../deps.js";
-import type { HookEventName as HookEventNameType } from "@zcode/contracts";
+import type { HookEventName as HookEventNameType } from "@qcode/contracts";
 import type { AgentRuntimeInternal } from "../internal.js";
 import {
   systemReminderAttachmentEntry,

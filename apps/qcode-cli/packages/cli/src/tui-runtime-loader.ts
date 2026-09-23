@@ -4,7 +4,7 @@ import { chmod, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises"
 import { homedir, platform, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { runTui } from "@zcode/tui";
+import type { runTui } from "@qcode/tui";
 
 declare const __CLI_VERSION__: string;
 
@@ -36,7 +36,7 @@ export const loadTuiRuntime = async (): Promise<TuiRuntimeModule> => {
   const sea = await import("node:sea");
 
   if (!sea.isSea()) {
-    return await import("@zcode/tui");
+    return await import("@qcode/tui");
   }
 
   const runtimeDirectory = await ensureSeaTuiRuntime(sea);

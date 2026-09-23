@@ -15,7 +15,7 @@ import {
   type FileSystemTextEncoding,
   type WriteInput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { createStructuredPatch } from "../diff.js";
 import { stampMemoryOriginSessionId } from "../../memory/origin-session.js";
 import { resolveWorkspacePath } from "../path-policy.js";

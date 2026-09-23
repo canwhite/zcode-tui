@@ -9,7 +9,7 @@ import type {
   SessionActionAvailability,
   SessionControl,
   StatePatch,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 /**
  * 冷恢复合成事件的 traceId 哨兵。

@@ -4,8 +4,8 @@ import {
   JsOutputSchema,
   JsOutputJsonSchema,
   type JsOutput,
-} from "@zcode/contracts";
-import type { SessionId } from "@zcode/contracts";
+} from "@qcode/contracts";
+import type { SessionId } from "@qcode/contracts";
 import { isAbsolute, resolve } from "node:path";
 import { NodeReplSession } from "../../repl/node-repl-session.js";
 import { setupBrowserRuntime } from "../../browser-client/index.js";
@@ -24,7 +24,7 @@ const activeToolContexts = new Map<SessionId, ToolExecutionContext>();
 const browserRuntimeGenerations = new Map<SessionId, number>();
 let browserRuntimeGenerationSequence = 0;
 
-function isBrowserSurfaceSideEffect(command: import("@zcode/contracts").BrowserCommand): boolean {
+function isBrowserSurfaceSideEffect(command: import("@qcode/contracts").BrowserCommand): boolean {
   if (command.method === "playwright" && command.action.name === "locator") {
     return [
       "click",
@@ -58,7 +58,7 @@ function isBrowserSurfaceSideEffect(command: import("@zcode/contracts").BrowserC
 }
 
 function isAutoScreenshotTriggerCommand(
-  command: import("@zcode/contracts").BrowserCommand,
+  command: import("@qcode/contracts").BrowserCommand,
 ): boolean {
   if (
     command.method === "capabilities" ||

@@ -1,7 +1,7 @@
 import {
   zcodeProviderUpdateAccountConfigParamsSchema,
   type ZCodeProviderUpdateAccountConfigResult,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import { parseProcessAccountProviderConfigSnapshot } from "../app/process-provider-registry-runtime.js";
 import {
   parseParams,

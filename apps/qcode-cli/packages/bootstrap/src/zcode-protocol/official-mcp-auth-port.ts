@@ -4,10 +4,10 @@
    不持久化、不进日志。 */
 import {
   zcodeOfficialMcpAuthHeadersResponseSchema,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   type ZCodeWorkspaceRef,
-} from "@zcode/shared";
-import type { OfficialMcpAuthHeadersPort } from "@zcode/contracts";
+} from "@qcode/shared";
+import type { OfficialMcpAuthHeadersPort } from "@qcode/contracts";
 import type { ZCodeProtocolAgentServerContext } from "./server-types.js";
 
 let requestSequence = 0;
@@ -57,7 +57,7 @@ export function createOfficialMcpAuthHeadersPort(input: {
       requestSequence += 1;
       try {
         return await context.requestClient(
-          zcodeProtocolMethods.interactionRequestOfficialMcpAuthHeaders,
+          qcodeProtocolMethods.interactionRequestOfficialMcpAuthHeaders,
           {
             mcpKey: request.mcpKey,
             pluginId: request.pluginId,

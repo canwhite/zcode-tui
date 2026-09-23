@@ -5,8 +5,8 @@ import {
   type ModelInputFormat,
   type ModelMessageContent,
   type ModelMessageContentBlock,
-} from "@zcode/contracts";
-import { containsOfficialCuaImageRefCredentialText } from "@zcode/zcode-cua/frame-contract";
+} from "@qcode/contracts";
+import { containsOfficialCuaImageRefCredentialText } from "@qcode/zcode-cua/frame-contract";
 import { dataUrlToDataContent, unsupportedInputMediaText } from "./media-transform-policy.js";
 
 type AiSdkUserContent = Extract<AiSdkModelMessage, { role: "user" }>["content"];

@@ -2,8 +2,8 @@ import { watch, type FSWatcher } from "node:fs";
 import { createHash } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
-import type { ProviderConfigLayerSnapshot, ProviderSource } from "@zcode/provider";
-import { atomicWritePrivateTextFile, withFileLock } from "@zcode/shared/node";
+import type { ProviderConfigLayerSnapshot, ProviderSource } from "@qcode/provider";
+import { atomicWritePrivateTextFile, withFileLock } from "@qcode/shared/node";
 import {
   decodeZCodeBuiltinRelease,
   encodeZCodeBuiltinRelease,

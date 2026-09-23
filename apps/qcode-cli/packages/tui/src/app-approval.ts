@@ -1,5 +1,5 @@
-import type { PermissionBrokerRequest, PermissionBrokerResult } from "@zcode/contracts";
-import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@zcode/shared";
+import type { PermissionBrokerRequest, PermissionBrokerResult } from "@qcode/contracts";
+import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@qcode/shared";
 import type { KeyEvent } from "@mbears/opentui-core";
 import type React from "react";
 import type { ApprovalDecision, ApprovalPrompt } from "./app-model.js";

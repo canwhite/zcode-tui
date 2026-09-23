@@ -1,10 +1,10 @@
 import React from "react";
-import { SessionEventType, type SessionEvent } from "@zcode/contracts";
+import { SessionEventType, type SessionEvent } from "@qcode/contracts";
 import type {
   ZCodeSessionSubagentsResult,
   ZCodeSessionRunningSubagent,
   ZCodeSessionEndedSubagent,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type { TuiOptions } from "./types.js";
 import { changesSubagentDirectory } from "./app-subagent-events.js";
 import {

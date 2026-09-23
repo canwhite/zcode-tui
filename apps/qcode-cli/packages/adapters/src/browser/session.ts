@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { BrowserContext, Dialog, Page, ViewportSize } from "playwright-core";
-import type { BrowserTabSummary } from "@zcode/contracts";
+import type { BrowserTabSummary } from "@qcode/contracts";
 
 interface ManagedCdpTab {
   id: string;

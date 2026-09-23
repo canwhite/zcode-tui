@@ -1,6 +1,6 @@
 import React from "react";
 import { useTerminalDimensions } from "@mbears/opentui-react";
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import { palette } from "./app-model.js";
 import { SidebarSectionHeader } from "./app-sidebar-section-header.js";
 import { SIDEBAR_CONTENT_WIDTH } from "./app-sidebar-layout.js";

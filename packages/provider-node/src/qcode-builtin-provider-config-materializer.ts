@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { atomicWritePrivateTextFile, withFileLock } from "@zcode/shared/node";
+import { atomicWritePrivateTextFile, withFileLock } from "@qcode/shared/node";
 import {
   decodeZCodeBuiltinRelease,
   serializeZCodeBuiltinRelease,

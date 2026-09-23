@@ -8,9 +8,9 @@
 // 这里的每一条探测都遵守同一条纪律：store 是端口、实现可替换，所以按能力探测而不是 instanceof；
 // 缺席即**可见降级**（对应读面不实现 / 回空 / 不构造），绝不静默退回内存实现。
 
-import type { DwfRunIntrospectionQueries, DwfRunSessionListItem } from "@zcode/adapters/storage";
-import type { CreateSessionTaskLinkInput, Logger, SessionStorePort } from "@zcode/contracts";
-import type { JournalStorePort, RunRecord } from "@zcode/dynamic-workflow";
+import type { DwfRunIntrospectionQueries, DwfRunSessionListItem } from "@qcode/adapters/storage";
+import type { CreateSessionTaskLinkInput, Logger, SessionStorePort } from "@qcode/contracts";
+import type { JournalStorePort, RunRecord } from "@qcode/dynamic-workflow";
 
 /** task link 落库面（生产是 SqliteSessionStore；测试传 spy）。 */
 export interface DynamicWorkflowTaskLinkStore {

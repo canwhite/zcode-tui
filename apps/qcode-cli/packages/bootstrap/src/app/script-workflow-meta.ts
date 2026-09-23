@@ -6,7 +6,7 @@ import {
   type FileSystemPort,
   type TraceContext,
   type WorkflowScriptMeta,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 const META_EXPORT_PATTERN = /export\s+const\s+meta\s*=/;
 const META_EVAL_TIMEOUT_MS = 5_000;

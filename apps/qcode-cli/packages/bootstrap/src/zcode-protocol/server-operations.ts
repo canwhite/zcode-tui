@@ -4,11 +4,11 @@ import {
   TASK_LIST_SESSION_TYPES,
   isTaskListSessionType,
 } from "../zcode-protocol-v4/task-list-session-membership.js";
-import { resolveEffectiveBashShellSelection } from "@zcode/adapters/exec";
+import { resolveEffectiveBashShellSelection } from "@qcode/adapters/exec";
 import { inputIntentMetadata } from "../zcode-protocol-v4/commands/input-intent.js";
 import { createModelExecutionContext } from "./model-execution.js";
 import type { SendInputOptions } from "../app/types.js";
-import { repairPersistedRemoteSessionPaths, type TurnAttachment } from "@zcode/core";
+import { repairPersistedRemoteSessionPaths, type TurnAttachment } from "@qcode/core";
 import {
   CoreErrorType,
   SESSION_ENTRY_TARGET_COMPLETION_VERIFICATION,
@@ -39,12 +39,12 @@ import {
   type TurnId,
   type UsageStorePort,
   type WorkspaceId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
-  DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
-  ZCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+  DEFAULT_QCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+  QCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
   zcodeProtocolErrorCodes,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   zcodeSessionCancelBackgroundTaskParamsSchema,
   zcodeSessionCompactParamsSchema,
   zcodeSessionCloseParamsSchema,
@@ -81,7 +81,7 @@ import {
   type ZCodeSessionResumeParams,
   type ZCodeSessionPersistence,
   type ZCodeStateUpdatedNotification,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import {
   buildSessionSnapshot,
   buildWorkspaceRef,
@@ -640,7 +640,7 @@ function mapProtocolSessionEvent(
     context.logger?.debug("ZCode Protocol session event filtered", {
       event: "qcode_protocol.session_event.filtered",
       eventId: String(event.id),
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       payloadKind: stringValue(payload.kind),
       sessionEventSequenceNumber: event.sequenceNumber,
       sessionEventType: event.type,
@@ -775,7 +775,7 @@ function logProtocolSessionEventSent(
     event: "qcode_protocol.session_event.sent",
     eventId: mappedEvent.eventId,
     method: "session/event",
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     payloadKeys: Object.keys(payload).sort(),
     payloadKind: typeof payload.kind === "string" ? payload.kind : undefined,
     payloadSummary: summarizeProtocolPayload(payload),
@@ -1200,7 +1200,7 @@ async function persistImportedSessionHistory(params: {
   params.context.logger?.info("ZCode Protocol imported history persisted", {
     event: "qcode_protocol.session_import.persisted",
     messageCount: importedHistory.messages.length,
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     removedMessageCount,
     sessionId: params.sessionId,
     source: importedHistory.source,
@@ -1259,7 +1259,7 @@ async function createSessionWithProjection<T>(
     hasInitialModel: params.model !== undefined,
     hasInitialThoughtLevel: params.thoughtLevel !== undefined,
     inboundTraceId: trace?.traceId,
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     persistence: params.persistence,
     sessionId,
     status: "started",
@@ -1308,7 +1308,7 @@ async function createSessionWithProjection<T>(
         // 不能把不支持的档位硬塞给 runtime，否则创建阶段会抛 Unsupported reasoning effort。
         context.logger?.warn("ZCode Protocol session/create skipped unsupported thought level", {
           event: "qcode_protocol.session_create.thought_level_skipped",
-          module: "bootstrap.zcode_protocol",
+          module: "bootstrap.qcode_protocol",
           requestedThoughtLevel: initialThoughtLevel,
           sessionId,
           supportedThoughtLevels: record.app.listThoughtLevels(),
@@ -1341,7 +1341,7 @@ async function createSessionWithProjection<T>(
       hasInitialModel: initialModel !== undefined,
       hasInitialThoughtLevel: initialThoughtLevel !== undefined,
       messageCount: createdSnapshotResult.messageCount,
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       persistence: params.persistence,
       recordCreateDurationMs,
       rootTraceId: record.traceContext.traceId,
@@ -1360,7 +1360,7 @@ async function createSessionWithProjection<T>(
       durationMs: Date.now() - startedAt,
       errorMessage: error instanceof Error ? error.message : String(error),
       event: "qcode_protocol.session_create.failed",
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       persistence: params.persistence,
       recordCreateDurationMs,
       rootTraceId: record.traceContext.traceId,
@@ -1417,7 +1417,7 @@ export async function activateSessionForResume(
     activeBeforeWait,
     event: "qcode_protocol.session.resume_started",
     hasSessionStore: Boolean(context.deps.sessionStore),
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     sessionId: params.sessionId,
   });
   // 再激活闸门：该 session 正在容量去激活（app.close 收尾未完成）时先等待，
@@ -1437,7 +1437,7 @@ export async function activateSessionForResume(
       durationMs: Math.max(0, Date.now() - resumeStartedAt),
       event: "qcode_protocol.session.resume_persisted_missing",
       hasSessionStore: Boolean(context.deps.sessionStore),
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       sessionId: params.sessionId,
     });
     throw new ProtocolRequestError(
@@ -1503,7 +1503,7 @@ export async function activateSessionForResume(
     activeSessionCount: context.sessions.size,
     durationMs: Math.max(0, Date.now() - resumeStartedAt),
     event: "qcode_protocol.session.resume_completed",
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     persistedMessageCount: persistedMessages.length,
     sessionId: params.sessionId,
     traceId: record.traceContext.traceId,
@@ -1552,7 +1552,7 @@ async function repairLegacyRemoteSessionWorkspaceForResume(
       event: "qcode_protocol.session_resume.legacy_remote_workspace_repair_rejected",
       legacyWorkspaceDirectory,
       legacyWorkspaceIdentity: legacyRemote.workspaceIdentity,
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       repaired,
       sessionId: session.id,
       workspacePath: legacyRemote.workspacePath,
@@ -1577,7 +1577,7 @@ async function repairLegacyRemoteSessionWorkspaceForResume(
       event: "qcode_protocol.session_resume.legacy_remote_workspace_repaired",
       legacyWorkspaceDirectory,
       legacyWorkspaceIdentity: legacyRemote.workspaceIdentity,
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       sessionId: session.id,
       workspacePath: legacyRemote.workspacePath,
     });
@@ -1694,7 +1694,7 @@ export async function listSessionSubagents(
       activeSessionCount: context.sessions.size,
       activeSession: Boolean(liveParent),
       event: "qcode_protocol.session.persisted_missing",
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       operation: "session_subagents",
       sessionId: params.sessionId,
     });
@@ -2989,7 +2989,7 @@ export function onSessionEvent(
       // 桌面 v4 主链没有旧 session/event 的 deliveryKind 订阅，顶部提示不能继续
       // 依赖该旧门控；这里只发送无内容的生命周期元数据，并与 v4 投影并行、互不阻断。
       context.notify({
-        method: zcodeProtocolMethods.computerUseOperationEvent,
+        method: qcodeProtocolMethods.computerUseOperationEvent,
         params: computerUseOperationEvent,
       });
       // 这条 notify 过去只在抛错时有日志，成功路径无痕，于是「agent 压根没发」
@@ -3160,25 +3160,25 @@ async function requestSessionRuntimePreferences(
   const traceId = trace?.traceId as TraceId | undefined;
   context.logger?.debug("ZCode Protocol runtime preferences request started", {
     event: "qcode_protocol.runtime_preferences.request_started",
-    module: "bootstrap.zcode_protocol",
+    module: "bootstrap.qcode_protocol",
     scope,
     sessionId,
     traceId,
   });
   try {
     const result = await context.requestClient(
-      zcodeProtocolMethods.sessionRequestRuntimePreferences,
+      qcodeProtocolMethods.sessionRequestRuntimePreferences,
       { sessionId, scope },
       zcodeSessionRuntimePreferencesResultSchema,
       {
-        timeoutMs: ZCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+        timeoutMs: QCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
         ...(trace ? { trace } : {}),
       },
     );
     context.logger?.debug("ZCode Protocol runtime preferences response received", {
       durationMs: Math.max(0, Date.now() - startedAt),
       event: "qcode_protocol.runtime_preferences.response_received",
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       scope,
       sessionId,
       traceId,
@@ -3192,7 +3192,7 @@ async function requestSessionRuntimePreferences(
       errorCode,
       errorMessage,
       event: "qcode_protocol.runtime_preferences.request_failed",
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       scope,
       sessionId,
       traceId,
@@ -3215,7 +3215,7 @@ async function requestSessionRuntimePreferences(
       return {
         askUserQuestionAutoResolutionEnabled: true,
         memoryEnabled: false,
-        modelContextBudgetStrategy: DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+        modelContextBudgetStrategy: DEFAULT_QCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
         nativeSearchEnhancementsEnabled: true,
       };
     }
@@ -3233,7 +3233,7 @@ async function resolveSessionStartupPreferences(
     const inheritedShellSelection = source.parent.app.runtime.getSessionShellSelection();
     return {
       memoryEnabled: source.parent.memoryEnabled,
-      modelContextBudgetStrategy: DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+      modelContextBudgetStrategy: DEFAULT_QCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
       nativeSearchEnhancementsEnabled: source.parent.nativeSearchEnhancementsEnabled,
       resolveInitialBashShellSelection: async () => inheritedShellSelection,
     };
@@ -3251,7 +3251,7 @@ async function resolveSessionStartupPreferences(
   );
   return {
     memoryEnabled: runtimePreferences.memoryEnabled,
-    modelContextBudgetStrategy: DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+    modelContextBudgetStrategy: DEFAULT_QCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
     nativeSearchEnhancementsEnabled: runtimePreferences.nativeSearchEnhancementsEnabled,
     resolveInitialBashShellSelection: async () => {
       const executionPreferences = await requestSessionRuntimePreferences(
@@ -3592,7 +3592,7 @@ async function snapshotWithDiagnostics(
       durationMs: totalDurationMs,
       event: "qcode_protocol.session_snapshot.slow",
       messageCount: messages.length,
-      module: "bootstrap.zcode_protocol",
+      module: "bootstrap.qcode_protocol",
       phaseDurationsMs,
       sessionId: record.app.sessionId,
       status: "completed",

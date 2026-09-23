@@ -14,12 +14,12 @@ export interface ProviderSource<TSnapshot> {
 
 export interface ProviderConfigSnapshot {
   readonly revision: string;
-  readonly qcodeBuiltinRevision: string;
+  readonly zcodeBuiltinRevision: string;
   readonly personalRevision: string;
-  readonly qcodeBuiltinProviders: ProviderConfigMap;
-  readonly qcodeBuiltinProviderTemplates: ProviderTemplateMap;
+  readonly zcodeBuiltinProviders: ProviderConfigMap;
+  readonly zcodeBuiltinProviderTemplates: ProviderTemplateMap;
   readonly personalProviders: ProviderConfigMap;
-  readonly qcodeBuiltinModelRules: ModelConfigRules;
+  readonly zcodeBuiltinModelRules: ModelConfigRules;
   readonly personalModels: ModelConfigRules;
   readonly personalProviderOrder?: readonly string[];
 }
@@ -36,7 +36,7 @@ export function createFailClosedAccountProviderConfigSnapshot(
   config: ProviderConfigSnapshot,
 ): AccountProviderConfigSnapshot {
   const unentitledProviders = new ProviderConfigMap(
-    config.qcodeBuiltinProviders.entries().flatMap(([providerId, provider]) =>
+    config.zcodeBuiltinProviders.entries().flatMap(([providerId, provider]) =>
       provider.access?.type === "zhipu-account"
         ? ([
             [
@@ -49,7 +49,7 @@ export function createFailClosedAccountProviderConfigSnapshot(
         : [],
     ),
   );
-  return createAccountProviderConfigSnapshot(config.qcodeBuiltinRevision, unentitledProviders);
+  return createAccountProviderConfigSnapshot(config.zcodeBuiltinRevision, unentitledProviders);
 }
 
 export function createAccountProviderConfigSnapshot(

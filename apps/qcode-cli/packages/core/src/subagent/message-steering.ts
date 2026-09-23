@@ -1,4 +1,4 @@
-import type { TraceContext, TurnSteerInput, TurnSteerResult } from "@zcode/contracts";
+import type { TraceContext, TurnSteerInput, TurnSteerResult } from "@qcode/contracts";
 import type { RuntimeTaskMessageSink } from "../runtime-task/registry.js";
 
 interface SteerableRuntime {

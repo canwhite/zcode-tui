@@ -4,8 +4,8 @@ import {
   type SessionEvent,
   type TodoItem,
   type TurnId,
-} from "@zcode/contracts";
-import type { TuiCopy } from "@zcode/i18n";
+} from "@qcode/contracts";
+import type { TuiCopy } from "@qcode/i18n";
 import type React from "react";
 import type {
   CacheStats,

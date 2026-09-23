@@ -6,7 +6,7 @@ import {
   parseImageDataUrl,
   type ParsedImageDataUrl,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 
 const MAX_IMAGE_FILE_BYTES = 20 * 1024 * 1024;

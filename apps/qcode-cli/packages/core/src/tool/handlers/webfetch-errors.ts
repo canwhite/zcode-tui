@@ -1,4 +1,4 @@
-import { CoreErrorType, createCoreError } from "@zcode/contracts";
+import { CoreErrorType, createCoreError } from "@qcode/contracts";
 import { WEBFETCH_TOOL_NAME } from "./webfetch-constants.js";
 
 type WebFetchErrorCode = keyof typeof WEBFETCH_ERROR_CODE_MAP;

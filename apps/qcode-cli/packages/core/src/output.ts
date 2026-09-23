@@ -1,4 +1,4 @@
-import type { JsonValue } from "@zcode/shared-types";
+import type { JsonValue } from "@qcode/shared-types";
 
 export { type JsonValue };
 

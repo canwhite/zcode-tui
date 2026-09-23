@@ -1,4 +1,4 @@
-import { detectLocale, resolveLocale, type SupportedLocale, type UiLocale } from "@zcode/i18n";
+import { detectLocale, resolveLocale, type SupportedLocale, type UiLocale } from "@qcode/i18n";
 import type { CliEnv } from "./env.js";
 
 export function detectCliLocale(env: CliEnv | NodeJS.ProcessEnv): SupportedLocale | undefined {

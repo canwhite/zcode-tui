@@ -1,5 +1,5 @@
 import type { TuiWriteClipboardText } from "./types.js";
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 
 export type SelectionCopyResult =
   | {

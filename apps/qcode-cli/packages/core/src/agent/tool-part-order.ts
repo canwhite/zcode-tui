@@ -1,4 +1,4 @@
-import type { ToolPart } from "@zcode/contracts";
+import type { ToolPart } from "@qcode/contracts";
 
 export function selectToolPartsForHistory(parts: ToolPart[]): ToolPart[] {
   // 提前执行失败或断流恢复会另建 part；同一声明只恢复最后新建的记录，旧 part 迟到更新不影响选择。

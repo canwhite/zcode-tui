@@ -10,7 +10,7 @@
 
 - 痛点 A：`make install` 不存在——安装口令分散在 `mise.toml`、`pnpm bootstrap`、README 三处，没有单一入口。
 - 痛点 B：安装完 `zcode` 并没有出现在终端——`@zcode/cli` 的 `bin.zcode` 指向仓库内 `dist/zcode.cjs`，仓库外无法调用（当前环境实测 `zcode not found`）。
-- 痛点 C：成功与否全靠自己发现——`zcode doctor`（`apps/qcode-cli/packages/cli/src/run.ts:188`）只打印 runtime/version/packaging，**不校验配置连不连得通、`.env` 到底有没有被读到、核心命令是否齐全**。
+- 痛点 C：成功与否全靠自己发现——`zcode doctor`（`apps/zcode-cli/packages/cli/src/run.ts:188`）只打印 runtime/version/packaging，**不校验配置连不连得通、`.env` 到底有没有被读到、核心命令是否齐全**。
 - 痛点 D：`.env` 全靠手抄 `.env.example`——漏配 `ZCODE_BASE_URL` 时静默回退到默认线上地址（`packages/shared/src/zcodeEndpoint.ts:132`），用户以为自己配了，实际没有。
 - 痛点 E：工作区只有清空、没有裁剪——`pnpm clean`（`scripts/clean.mjs`）删的是 `node_modules` 与 `dist` 全量，`make clear` 想要的是"移除多余 npm 包但 `zcode` 仍能跑"。
 
@@ -104,7 +104,7 @@ InstallStep:
 
 # 全局暴露的产物（新实体）
 CliArtifact:
-  entry: string             # 仓库内绝对路径，如 apps/qcode-cli/packages/cli/dist/zcode.cjs
+  entry: string             # 仓库内绝对路径，如 apps/zcode-cli/packages/cli/dist/zcode.cjs
   version: string           # 来自 CLI 构建，对应 zcode --version
   linkedTarget: string      # 全局 bin 目录中的落点路径
   exposedAt: datetime
@@ -179,7 +179,7 @@ flowchart LR
 - `if 全局 bin 目录 ∈ PATH` → 直接全局安装；`else` → 安装后输出 PATH 配置指引，并把该目录加入自检项
 - `if 项目根 .env 已存在` → 只校验不覆盖；`else` → 从 `.env.example` 生成
 - `if target == prune` → 删构建/发布/开发期包，随后强制自检；`if target == clean` → 删 `node_modules` 与 `dist`，不做自检
-- `if 自检发现 `.env` 未被读到` → 提示 CLI 的 `.env` 查找是从 cwd 逐级向上（`apps/qcode-cli/packages/cli/src/env.ts:50`），全局启动时不在仓库树内
+- `if 自检发现 `.env` 未被读到` → 提示 CLI 的 `.env` 查找是从 cwd 逐级向上（`apps/zcode-cli/packages/cli/src/env.ts:50`），全局启动时不在仓库树内
 
 ## 5. 形容词 / 副词衍生：潜在需求
 
@@ -198,7 +198,7 @@ flowchart LR
 - **PATH 边界**：全局 bin 目录存在但与 PATH 不交集（实测 `pnpm bin -g` 直接报该错误）。
 - **`.env` 边界（关键）**：CLI 从 cwd 向上寻找 `.env`（`env.ts:50`）。配在**项目根**的 `.env` 只有在 cwd 位于该项目树下时才被读到——这与"任意目录直接输入 zcode"存在张力，见第 9 章。
 - **离线边界**：npm registry 之外的远程资源不可达时，安装仍应尽量闭环（承接 pp1 的"不依赖远程资源"）。
-- **裁剪边界**：`apps/qcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 会为多平台拉取可选依赖，属于"看似冗余但可能是跨平台必需"的高风险裁剪区。
+- **裁剪边界**：`apps/zcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 会为多平台拉取可选依赖，属于"看似冗余但可能是跨平台必需"的高风险裁剪区。
 
 ### 5.3 非功能性需求
 
@@ -354,12 +354,12 @@ flowchart LR
 
 ## 9. 待澄清
 
-- **`.env` 位置与全局启动存在直接冲突（最高优先）**：已确认配置配在**项目根 `.env`**，但 CLI 是从进程 cwd 逐级向上寻找 `.env`（`apps/qcode-cli/packages/cli/src/env.ts:50`）。而"直接在终端输入 zcode"意味着 cwd 可能在任意目录。两者不可同时成立，除非：(a) 安装时同时把关键变量写入 shell profile；(b) 支持 `ZCODE_ENV_FILE` 之类的显式路径指向项目根 `.env`；(c) 接受"必须在仓库目录下启动"。**需要从中选一**，否则 F-004 的验收无法定义。
-- **"多余的 npm 包"的判定口径未定**：是按 `package.json` 的 `devDependencies` / 构建脚本引用，还是按运行时实际 require 闭包？`apps/qcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 会引入跨平台可选依赖，是否算冗余需确认（第 5.2 节裁剪边界）。
+- **`.env` 位置与全局启动存在直接冲突（最高优先）**：已确认配置配在**项目根 `.env`**，但 CLI 是从进程 cwd 逐级向上寻找 `.env`（`apps/zcode-cli/packages/cli/src/env.ts:50`）。而"直接在终端输入 zcode"意味着 cwd 可能在任意目录。两者不可同时成立，除非：(a) 安装时同时把关键变量写入 shell profile；(b) 支持 `ZCODE_ENV_FILE` 之类的显式路径指向项目根 `.env`；(c) 接受"必须在仓库目录下启动"。**需要从中选一**，否则 F-004 的验收无法定义。
+- **"多余的 npm 包"的判定口径未定**：是按 `package.json` 的 `devDependencies` / 构建脚本引用，还是按运行时实际 require 闭包？`apps/zcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 会引入跨平台可选依赖，是否算冗余需确认（第 5.2 节裁剪边界）。
 - **`make clear` 的 target 命名**：已确定 `prune` / `clean` 分开，但具体叫什么名字、是否保留 `make clear` 作为兼容别名待确认。
 - **Feature 数量超限说明**：本次为 10 个（超单痛点默认 3-8）。理由：用户在同一条诉求里明确要求了两类能力（一键安装 + 工作区清理），其中 `make clear` 自身又分裂为语义互斥的两个 target。若需收敛，建议把 F-009、F-010 移出本痛点范围单独立项。
 - **P0 数量为 5，处于上限**：F-001 ~ F-005 每一个都是"去掉之后核心规则不成立"的必要项，非分摊结果。若需进一步压缩 MVP，唯一可讨论的是把 F-005（自检）降级为验收手段而非独立 Feature，但那样 F-006 的裁剪将失去安全网。
-- **是否需要支持 Windows**：`apps/qcode-cli/pnpm-workspace.yaml` 声明了 win32 架构，但 Makefile 本身在 Windows 上不可用。若目标环境不含 Windows，可显式声明不支持以简化 F-002。
+- **是否需要支持 Windows**：`apps/zcode-cli/pnpm-workspace.yaml` 声明了 win32 架构，但 Makefile 本身在 Windows 上不可用。若目标环境不含 Windows，可显式声明不支持以简化 F-002。
 - **离线要求的强度**：pp1 提出"除 npm 包之外不要依赖远程资源"。本痛点的 F-009 只做了降级处理，是否需要做到完全离线安装（内置 npm 缓存）待确认。
 
 > Next step:

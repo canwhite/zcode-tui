@@ -10,8 +10,8 @@
 //      内容（超限/解不开 → 只保留展示元信息，不伪造内容）。
 // 2. 本地路径 ref（desktop 直传绝对路径）——按旧 mapProtocolPromptAttachment 的
 //    localPath 分支映射为 path 引用，core 已有读取阈值与降级策略。
-import type { TurnAttachment } from "@zcode/core";
-import type { AttachmentRef } from "@zcode/shared/zcode-protocol-v4";
+import type { TurnAttachment } from "@qcode/core";
+import type { AttachmentRef } from "@qcode/shared/zcode-protocol-v4";
 import type { ZCodeApp } from "../../app/types.js";
 
 const URI_REF_PATTERN = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//;

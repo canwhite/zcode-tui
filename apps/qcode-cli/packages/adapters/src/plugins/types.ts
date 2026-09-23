@@ -7,7 +7,7 @@ import type {
   PluginManifest,
   PluginSource,
   SkillRoot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export interface PluginCandidate {
   defaultEnabled: boolean;

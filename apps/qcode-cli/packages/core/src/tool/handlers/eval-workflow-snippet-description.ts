@@ -2,7 +2,7 @@
 // current API surface — the same constant the compiler is fed, so the contract in
 // this description can never drift from what typechecks
 
-import { SNIPPET_FACADE_DTS } from "@zcode/dynamic-workflow";
+import { SNIPPET_FACADE_DTS } from "@qcode/dynamic-workflow";
 
 const INTRO = [
   "Compile and run a small dynamic-workflow TypeScript snippet synchronously, against the same compiler, sandbox, and world-read execution path a real workflow run uses.",

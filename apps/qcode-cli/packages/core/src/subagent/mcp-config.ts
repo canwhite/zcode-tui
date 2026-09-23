@@ -1,4 +1,4 @@
-import type { McpServerStatus } from "@zcode/contracts";
+import type { McpServerStatus } from "@qcode/contracts";
 import { matchesModelVisibleMcpServerName } from "../mcp/name.js";
 
 export function matchesRequiredMcpServer(

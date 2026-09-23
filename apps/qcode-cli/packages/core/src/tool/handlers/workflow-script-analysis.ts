@@ -10,7 +10,7 @@
 // 存脚本前也要编译，而且必须是同一个检查器——「能存下来但跑不起来」是这个特性最难解释的
 // 一种坏掉方式。
 
-import { analyzeWorkflowScript, type AnalyzeResult } from "@zcode/dynamic-workflow";
+import { analyzeWorkflowScript, type AnalyzeResult } from "@qcode/dynamic-workflow";
 
 let lastAnalysis: { script: string; result: AnalyzeResult } | null = null;
 

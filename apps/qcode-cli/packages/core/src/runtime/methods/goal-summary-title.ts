@@ -1,6 +1,6 @@
 import { traceContextToLogContext } from "../deps.js";
 import type { TraceContext } from "../deps.js";
-import type { AgentTelemetryCausation } from "@zcode/contracts";
+import type { AgentTelemetryCausation } from "@qcode/contracts";
 import type { AgentRuntimeInternal } from "../internal.js";
 import {
   GOAL_SUMMARY_TITLE_QUERY_SOURCE,

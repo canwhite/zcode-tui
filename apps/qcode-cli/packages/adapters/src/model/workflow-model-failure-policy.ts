@@ -12,10 +12,10 @@
  * 到 driver 时策略表必判 stop（同一函数、同一输入）。
  */
 
-import { ModelErrorCode, ModelFailureReason } from "@zcode/contracts";
+import { ModelErrorCode, ModelFailureReason } from "@qcode/contracts";
 import type { ClassifiedModelFailure } from "./failure-classifier.js";
 import { isRetryableFailure } from "./failure-classifier.js";
-import type { ModelRetryBudget } from "@zcode/contracts";
+import type { ModelRetryBudget } from "@qcode/contracts";
 import { isUnboundedRetryBudget } from "./retry-budget.js";
 
 /** `ProviderStop` 的判定键：通知文案表按它选句子（不是按 reason）。 */

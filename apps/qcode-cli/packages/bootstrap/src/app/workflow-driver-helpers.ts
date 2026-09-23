@@ -11,8 +11,8 @@ import {
   type SessionId,
   type SubmitVerdict as ContractsSubmitVerdict,
   type SubmitViolation,
-} from "@zcode/contracts";
-import type { TurnResult } from "@zcode/core";
+} from "@qcode/contracts";
+import type { TurnResult } from "@qcode/core";
 import {
   refToString,
   WorkflowError,
@@ -22,7 +22,7 @@ import {
   type PersonaSpec,
   type Violation,
   type WorkflowReportSink,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import type { ActorToolCounts } from "./workflow-driver-tool-activity.js";
 import type { Deferred, SessionState } from "./workflow-driver-types.js";
 

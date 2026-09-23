@@ -1,8 +1,8 @@
 import {
   createManagedCdpBrowserRuntime,
   type ManagedCdpBrowserRuntime,
-} from "@zcode/adapters/browser";
-import type { GlobalOptions } from "@zcode/shared-types";
+} from "@qcode/adapters/browser";
+import type { GlobalOptions } from "@qcode/shared-types";
 import type { RunDependencies } from "./cli-types.js";
 import { loadCliPlaywrightChromium } from "./sea-playwright-runtime.js";
 

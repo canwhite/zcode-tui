@@ -2,7 +2,7 @@
 // 契约：identifiers-only、固定模板、fail closed。
 // 本文件不做任何 I/O，live inventory 由 runtime 侧（runtime/methods/plugin-reference.ts）注入，
 // 以保证 unit 可测且行为对 retry / provider replay 确定。
-import type { PluginReferenceCatalog, PluginReferenceCatalogEntry } from "@zcode/contracts";
+import type { PluginReferenceCatalog, PluginReferenceCatalogEntry } from "@qcode/contracts";
 import { isValidPluginStableId } from "./references.js";
 
 export const MAX_PLUGIN_REFERENCE_SKILLS = 32;

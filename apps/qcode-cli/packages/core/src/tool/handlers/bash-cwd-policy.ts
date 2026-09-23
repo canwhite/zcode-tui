@@ -1,6 +1,6 @@
 import { realpathSync } from "node:fs";
 import { platform as currentPlatform } from "node:process";
-import type { ExecutionResult } from "@zcode/contracts";
+import type { ExecutionResult } from "@qcode/contracts";
 import {
   getToolPathApi,
   normalizeToolPathForComparison,

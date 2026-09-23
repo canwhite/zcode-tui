@@ -2,7 +2,7 @@ import type {
   JsonSchema,
   McpToolAnnotations,
   McpToolDescriptor,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export function normalizeMcpToolDescriptor(
   serverName: string,

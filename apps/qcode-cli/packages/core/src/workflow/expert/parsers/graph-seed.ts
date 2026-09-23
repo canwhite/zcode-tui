@@ -2,7 +2,7 @@ import {
   WorkflowGraphSeedSchema,
   type WorkflowGraphEdge,
   type WorkflowGraphSeed,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { edgeId } from "../ids.js";
 import {
   isRecord,

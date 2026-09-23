@@ -1,7 +1,7 @@
 import type { Dirent } from "node:fs";
 import { readdir, unlink } from "node:fs/promises";
 import { join } from "node:path";
-import type { Logger } from "@zcode/contracts";
+import type { Logger } from "@qcode/contracts";
 
 export const LOG_RETENTION_DAYS = 7;
 export const LOG_CLEANUP_STARTUP_DELAY_MS = 60_000;

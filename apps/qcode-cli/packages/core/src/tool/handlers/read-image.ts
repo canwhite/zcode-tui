@@ -11,7 +11,7 @@ import {
   isImageProcessorPortError,
   type ReadImageOutput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 
 type SupportedReadImageMime = ReadImageOutput["mimeType"];

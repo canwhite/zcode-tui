@@ -11,7 +11,7 @@ import type {
   SessionInputRecord,
   SessionInputStatus,
   TurnInputIntentMetadata,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { encodeJson } from "../json.js";
 import { messages as readMessages, saveMessage, savePart } from "./messages.js";
 import * as sessionEntryRepository from "./session-entries.js";

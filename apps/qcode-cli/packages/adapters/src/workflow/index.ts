@@ -11,13 +11,13 @@ import type {
   WorkflowRunSnapshot,
   WorkflowRunListItem,
   WorkflowStorePort,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   WorkflowDefinitionSchema,
   WorkflowEventSchema,
   WorkflowGraphRecordSchema,
   WorkflowRunSnapshotSchema,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export interface NodeWorkflowStoreOptions {
   rootDir?: string;

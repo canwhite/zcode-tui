@@ -1,6 +1,6 @@
 import { modelMessageContentToText, traceContextToLogContext, estimateTokens } from "../deps.js";
 import type { ModelInputMessage, ModelToolContract, TraceContext } from "../deps.js";
-import type { ContextUsageBreakdownItem } from "@zcode/contracts";
+import type { ContextUsageBreakdownItem } from "@qcode/contracts";
 import {
   measureUtf8Bytes,
   findLatestUserMessageFromEnd,

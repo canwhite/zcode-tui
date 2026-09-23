@@ -1,6 +1,6 @@
 import { createCoreError, CoreErrorType, type ModelSelection } from "../deps.js";
 import { cloneModelSelection } from "../model-selection.js";
-import type { EffectiveModelSelectionResult } from "@zcode/shared/model-selection";
+import type { EffectiveModelSelectionResult } from "@qcode/shared/model-selection";
 
 const SUBAGENT_SELECTION_MESSAGES = {
   "selection-missing": "No model selected / 未选择模型",

@@ -11,7 +11,7 @@ import type {
   ModelUsageRecord,
   ToolUsageRecord,
   TurnUsageRecord,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { encodeJson } from "../json.js";
 
 const USAGE_RETENTION_DAYS = 30;

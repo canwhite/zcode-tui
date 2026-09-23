@@ -14,7 +14,7 @@
 //
 // 唯一的 I/O 是 journal 读与转录条数读（两者都经窄端口注入），本模块自己不碰会话存储实现。
 
-import type { Logger, SessionId } from "@zcode/contracts";
+import type { Logger, SessionId } from "@qcode/contracts";
 import type {
   ActorRecord,
   ImportedActorCandidate,
@@ -23,7 +23,7 @@ import type {
   ImportedWorldEntry,
   NodeRecord,
   RunRecord,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { TERMINAL_RUN_STATUSES } from "./dynamic-workflow-run-observation.js";
 import type { ActorTranscriptStore } from "./workflow-actor-transcript.js";
 

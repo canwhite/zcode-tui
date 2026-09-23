@@ -1,4 +1,4 @@
-import type { ProviderEndpointIdentity } from "@zcode/contracts/telemetry";
+import type { ProviderEndpointIdentity } from "@qcode/contracts/telemetry";
 
 export const PROVIDER_ENDPOINT_SANITIZER_VERSION = "1";
 

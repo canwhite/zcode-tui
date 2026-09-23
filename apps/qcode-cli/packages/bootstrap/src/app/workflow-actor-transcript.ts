@@ -25,14 +25,14 @@ import {
   type MessageWithParts,
   type PartId,
   type SessionId,
-} from "@zcode/contracts";
-import { cloneMessageForFork, clonePartForFork } from "@zcode/core";
-import { WorkflowError, type ActorSessionSeed } from "@zcode/dynamic-workflow";
+} from "@qcode/contracts";
+import { cloneMessageForFork, clonePartForFork } from "@qcode/core";
+import { WorkflowError, type ActorSessionSeed } from "@qcode/dynamic-workflow";
 
 /**
  * driver 侧需要的会话转录存取面：读一个会话的全部消息、写一条消息 / 一个 part。
  *
- * 结构上是 {@link import("@zcode/contracts").SessionStorePort} 的真子集，所以生产直接把
+ * 结构上是 {@link import("@qcode/contracts").SessionStorePort} 的真子集，所以生产直接把
  * session store 传进来即可。窄化的理由与 run service 的 journal / task-link 端口同款：driver
  * 只需要这三个方法，声明成整个 store 会让"driver 依赖会话存储的全部能力"变成一句真话。
  */

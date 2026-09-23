@@ -8,7 +8,7 @@
 //   2. **可被直接单测**。run service 拖着 AgentRuntime / 引擎 / journal 一整条依赖链；
 //      一个纯函数不该为了被断言而付那份代价。
 
-import type { DynamicWorkflowRunSummary } from "@zcode/contracts";
+import type { DynamicWorkflowRunSummary } from "@qcode/contracts";
 
 /**
  * 脚本派生标签的字符上限。80 是一行列表能读完的长度；派生值是启发式，越长越不像标签。

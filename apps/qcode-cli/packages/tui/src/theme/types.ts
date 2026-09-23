@@ -1,4 +1,4 @@
-import type { UiThemeMode, UiThemePreference } from "@zcode/contracts";
+import type { UiThemeMode, UiThemePreference } from "@qcode/contracts";
 
 export type { UiThemeMode as TuiThemeMode, UiThemePreference as TuiThemePreference };
 

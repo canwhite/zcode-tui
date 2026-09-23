@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
-import { createConfig } from "@zcode/adapters/config";
-import { createNodeSkillAdapter } from "@zcode/adapters/skills";
-import type { Logger, SkillContent, SkillDiagnostic, SkillLoadOutcome } from "@zcode/contracts";
+import { createConfig } from "@qcode/adapters/config";
+import { createNodeSkillAdapter } from "@qcode/adapters/skills";
+import type { Logger, SkillContent, SkillDiagnostic, SkillLoadOutcome } from "@qcode/contracts";
 import { resolveZCodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 

@@ -1,5 +1,5 @@
 import type { DatabaseSync, SQLInputValue } from "node:sqlite";
-import type { SessionId } from "@zcode/contracts";
+import type { SessionId } from "@qcode/contracts";
 import type { SessionStoreDebugCounts } from "../options.js";
 
 export function debugMigrationIds(db: DatabaseSync): string[] {

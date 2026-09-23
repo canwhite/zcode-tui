@@ -6,7 +6,7 @@
 // 用一次无效决策打断模型自己的改错回路。这与 CreateWorkflow 对编不过的脚本的处理是同一条
 // 原则（create-workflow.ts 的 `prepareApproval` 注释）。
 
-import type { SavedWorkflowArgDeclaration, SavedWorkflowArgsDeclaration } from "@zcode/contracts";
+import type { SavedWorkflowArgDeclaration, SavedWorkflowArgsDeclaration } from "@qcode/contracts";
 
 export type WorkflowArgsValidation =
   | { ok: true; args: Record<string, unknown> }

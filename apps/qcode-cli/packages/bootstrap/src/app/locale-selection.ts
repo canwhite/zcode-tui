@@ -1,4 +1,4 @@
-import type { ConfigResult } from "@zcode/adapters/config";
+import type { ConfigResult } from "@qcode/adapters/config";
 
 export function getLocaleConfigPath(configResult: ConfigResult): string {
   const project = configResult.sources.project;

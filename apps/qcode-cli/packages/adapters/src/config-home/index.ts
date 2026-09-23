@@ -41,11 +41,11 @@ export function resolveUserHomeDir(env: NodeJS.ProcessEnv = process.env): string
  *
  * 只解析路径，**不创建目录**。需要自举时显式调用 {@link ensureUserConfigHome}。
  *
- * `ZCODE_CONFIG_HOME` 可覆盖落点 —— 与既有的 `ZCODE_STORAGE_DIR` 同一惯例，
+ * `QCODE_CONFIG_HOME` 可覆盖落点 —— 与既有的 `QCODE_STORAGE_DIR` 同一惯例，
  * 供测试与隔离环境使用。
  */
 export function getUserConfigHome(env: NodeJS.ProcessEnv = process.env): string {
-  const override = env.ZCODE_CONFIG_HOME?.trim();
+  const override = env.QCODE_CONFIG_HOME?.trim();
   if (override && override.length > 0) {
     return resolve(override);
   }
@@ -70,7 +70,7 @@ export async function isUserConfigHomeAvailable(
 }
 
 /** 关闭自举的开关。设成 `1` / `true` 即只读不写。 */
-export const CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV = "ZCODE_NO_CONFIG_HOME_BOOTSTRAP";
+export const CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV = "QCODE_NO_CONFIG_HOME_BOOTSTRAP";
 
 export interface ConfigHomeBootstrapOutcome {
   /** 家目录绝对路径。 */
@@ -114,7 +114,7 @@ const README_CONTENT = `# ZCode 个人配置
 ## 说明
 
 - 本项目**不会**修改你已有的配置，也不会往里写除本文件之外的内容。
-- 设 \`ZCODE_NO_CONFIG_HOME_BOOTSTRAP=1\` 可关闭本目录的自动创建。
+- 设 \`QCODE_NO_CONFIG_HOME_BOOTSTRAP=1\` 可关闭本目录的自动创建。
 `;
 
 /**
@@ -136,7 +136,7 @@ const README_CONTENT = `# ZCode 个人配置
  *   下次启动误判为「用户已有配置」，从而静默遮蔽真实状态
  *   （见 Pre-Mortem「自举出的空 ~/.claude 静默遮蔽全部配置来源」）。
  * - **绝不抛错**：失败降级为 `error`，调用方告警即可，不阻断启动。
- * - **可关闭**：`ZCODE_NO_CONFIG_HOME_BOOTSTRAP=1` 时只读不写。
+ * - **可关闭**：`QCODE_NO_CONFIG_HOME_BOOTSTRAP=1` 时只读不写。
  */
 export async function ensureUserConfigHome(
   env: NodeJS.ProcessEnv = process.env,

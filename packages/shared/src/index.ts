@@ -68,9 +68,9 @@ export {
   QCODE_TELEMETRY_REPORT_ENDPOINT,
   QCODE_ARMS_RUM_ENDPOINT,
   QCODE_TELEMETRY_ENABLED,
-  mapZCodeEnvToArmsRumEnv,
-  normalizeZCodeEnv,
-  normalizeZCodeProductFlavor,
+  mapQCodeEnvToArmsRumEnv,
+  normalizeQCodeEnv,
+  normalizeQCodeProductFlavor,
 } from "./env.js";
 export * from "./errors.js";
 export type { SessionCreateSource } from "./sessionCreateSource.js";
@@ -97,7 +97,7 @@ export * from "./zcode-session-task-status.js";
 export * from "./zcode-tool-projection-memory.js";
 export * from "./zcode-slash-command-help.js";
 export * from "./zcodeEndpoint.js";
-export * from "./qcode-agent-policy.js";
+export * from "./zcode-agent-policy.js";
 export * from "./zcode-media-policy.js";
 export * from "./media-preview.js";
 export * from "./plugin-display-name.js";

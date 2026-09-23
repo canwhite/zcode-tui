@@ -2,7 +2,7 @@ import type {
   WorkflowGraphCollection,
   WorkflowGraphNode,
   WorkflowRunSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { collectionNodeIdsForGraph, nodeById } from "./graph.js";
 
 export function buildDefaultNodePrompt(

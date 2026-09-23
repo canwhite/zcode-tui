@@ -15,7 +15,7 @@ import {
   SAVE_WORKFLOW_TOOL_NAME,
   SUBMIT_RESULT_TOOL_NAME,
   type JsonSchema,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry } from "../types.js";
 import type { AgentProfile } from "../../subagent/profile.js";
 import { readToolEntry } from "./read.js";

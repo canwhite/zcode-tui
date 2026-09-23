@@ -1,5 +1,5 @@
 import type { ModelMessageContentBlock } from "../deps.js";
-import { containsOfficialCuaImageRefCredentialText } from "@zcode/zcode-cua/frame-contract";
+import { containsOfficialCuaImageRefCredentialText } from "@qcode/zcode-cua/frame-contract";
 
 const OFFICIAL_CUA_RASTER_UNAVAILABLE_TEXT =
   "This CUA raster is not visible in this request. " +

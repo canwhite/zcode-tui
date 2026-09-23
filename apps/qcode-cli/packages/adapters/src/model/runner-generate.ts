@@ -1,10 +1,10 @@
-import type { Logger, ModelStatusSink, ModelTextResult } from "@zcode/contracts";
+import type { Logger, ModelStatusSink, ModelTextResult } from "@qcode/contracts";
 import {
   ModelErrorCode,
   ModelProtocolError,
   ModelRetryReason,
   ModelTransportKind as ModelTransportKindValue,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { classifyModelFailure, inspectProviderFailure } from "./failure-classifier.js";
 import type { ClassifiedModelFailure } from "./failure-classifier.js";
 import { getResponseHeaders, unwrapRetryError } from "./failure-inspection.js";

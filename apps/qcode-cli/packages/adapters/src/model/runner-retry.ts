@@ -1,4 +1,4 @@
-import { ModelErrorCode, ModelFailureReason, type Logger } from "@zcode/contracts";
+import { ModelErrorCode, ModelFailureReason, type Logger } from "@qcode/contracts";
 import { isProviderBusinessError } from "./model-execution.js";
 import { findProviderBusinessError, type ClassifiedModelFailure } from "./failure-classifier.js";
 import { readMappedAiSdkProviderBusinessError } from "./failure-ai-sdk-provider-error.js";

@@ -5,7 +5,7 @@ import type {
   InputHistoryKind,
   ProjectId,
   SessionId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { decodeJson, encodeJson } from "../json.js";
 import type { InputHistoryRow } from "../rows.js";
 

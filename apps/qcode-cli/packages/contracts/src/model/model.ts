@@ -7,10 +7,10 @@ import type {
   ModelTextResult,
   ModelToolContract,
 } from "./index.js";
-import { modelSelectionSchema, type ModelSelection } from "@zcode/shared/model-selection";
-import type { ModelPropertiesData, ModelOptionSpecsData } from "@zcode/shared/model-config";
+import { modelSelectionSchema, type ModelSelection } from "@qcode/shared/model-selection";
+import type { ModelPropertiesData, ModelOptionSpecsData } from "@qcode/shared/model-config";
 
-export type { ModelSelection } from "@zcode/shared/model-selection";
+export type { ModelSelection } from "@qcode/shared/model-selection";
 
 // 仅保留 CLI 公共类型名，字段来自同一数据 Schema，不复制 Provider 配置定义。
 export type {
@@ -18,7 +18,7 @@ export type {
   ModelOutputFormatData as ModelOutputFormat,
   EnumOptionSpecData as EnumOptionSpec,
   LimitOptionSpecData as LimitOptionSpec,
-} from "@zcode/shared/model-config";
+} from "@qcode/shared/model-config";
 export type ModelOptionSpecs = ModelOptionSpecsData;
 export type ModelProperties = ModelPropertiesData;
 export type ModelPropertiesInput = ModelProperties;

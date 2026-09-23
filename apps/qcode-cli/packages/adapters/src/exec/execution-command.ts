@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { extname } from "node:path";
-import { sanitizeZCodeRuntimeEnvInPlace } from "@zcode/shared";
+import { sanitizeZCodeRuntimeEnvInPlace } from "@qcode/shared";
 import { applyNetworkEgressEnv, type NetworkEgressEnvPolicy } from "../network/subprocess-env.js";
 import {
   resolveEffectiveBashShellSelection,
@@ -12,7 +12,7 @@ import type {
   ExecutionCommand,
   ExecutionEnvOverlay,
   ExecutionShellDialect,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 const WINDOWS_COMMAND_SHIM_EXTENSIONS = new Set([".cmd", ".bat"]);
 

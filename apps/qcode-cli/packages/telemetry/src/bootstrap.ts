@@ -9,8 +9,8 @@ import type {
   ModelExecutionTelemetryPort,
   TelemetryIdentitySnapshot,
   TelemetryResourceContext,
-} from "@zcode/contracts/telemetry";
-import type { ModelStatusSink } from "@zcode/contracts/model";
+} from "@qcode/contracts/telemetry";
+import type { ModelStatusSink } from "@qcode/contracts/model";
 import { NoopAgentExecutionTelemetry } from "./agent-trace-runtime.js";
 
 type EnvRecord = Record<string, string | undefined>;
@@ -121,13 +121,13 @@ export async function prepareModelTelemetryEnv(
   env: EnvRecord,
   options: PrepareModelTelemetryOptions = {},
 ): Promise<EnvRecord> {
-  if (!resolveOtlpTraceEndpoint(env) || isExplicitlyDisabled(env.ZCODE_MODEL_TELEMETRY_ENABLED)) {
+  if (!resolveOtlpTraceEndpoint(env) || isExplicitlyDisabled(env.QCODE_MODEL_TELEMETRY_ENABLED)) {
     return env;
   }
-  const existingInstallationId = normalizeTelemetryDeviceMid(env.ZCODE_TELEMETRY_DEVICE_MID);
+  const existingInstallationId = normalizeTelemetryDeviceMid(env.QCODE_TELEMETRY_DEVICE_MID);
   const installationId =
-    existingInstallationId ?? (await resolveStandaloneDeviceMid(env.ZCODE_HOME?.trim()));
-  const preparedEnv = installationId ? { ...env, ZCODE_TELEMETRY_DEVICE_MID: installationId } : env;
+    existingInstallationId ?? (await resolveStandaloneDeviceMid(env.QCODE_HOME?.trim()));
+  const preparedEnv = installationId ? { ...env, QCODE_TELEMETRY_DEVICE_MID: installationId } : env;
 
   if (!preparingOwner && !preparedOwner) {
     preparingOwner = createPreparedOwner(preparedEnv, options);
@@ -156,19 +156,19 @@ async function createPreparedOwner(
   const metricEndpoint = resolveOtlpMetricEndpoint(env);
   const identity = resolveTelemetryIdentity(env);
   const resource: TelemetryResourceContext = {
-    buildCommitId: normalizeBuildCommitId(options.buildCommitId ?? env.ZCODE_BUILD_COMMIT_ID),
+    buildCommitId: normalizeBuildCommitId(options.buildCommitId ?? env.QCODE_BUILD_COMMIT_ID),
     cliVersion: normalizeVersion(options.cliVersion),
     deploymentEnvironment:
-      env.ZCODE_ENV ??
-      env.ZCODE_RUNTIME_ENV ??
+      env.QCODE_ENV ??
+      env.QCODE_RUNTIME_ENV ??
       resourceAttributesFromEnv(env)["deployment.environment.name"],
-    installationId: normalizeTelemetryDeviceMid(env.ZCODE_TELEMETRY_DEVICE_MID),
-    productVersion: normalizeVersion(options.productVersion ?? env.ZCODE_APP_VERSION),
+    installationId: normalizeTelemetryDeviceMid(env.QCODE_TELEMETRY_DEVICE_MID),
+    productVersion: normalizeVersion(options.productVersion ?? env.QCODE_APP_VERSION),
     runtimeDistribution:
       options.runtimeDistribution ??
-      resolveRuntimeDistribution(env.ZCODE_TELEMETRY_RUNTIME_DISTRIBUTION),
+      resolveRuntimeDistribution(env.QCODE_TELEMETRY_RUNTIME_DISTRIBUTION),
     runtimeSurface:
-      options.runtimeSurface ?? resolveRuntimeSurface(env.ZCODE_TELEMETRY_RUNTIME_SURFACE),
+      options.runtimeSurface ?? resolveRuntimeSurface(env.QCODE_TELEMETRY_RUNTIME_SURFACE),
     serviceInstanceId: randomUUID(),
     serviceName: env.OTEL_SERVICE_NAME?.trim() || "qcode-cli-agent",
   };
@@ -196,8 +196,8 @@ async function createPreparedOwner(
 }
 
 function resolveTelemetryIdentity(env: EnvRecord): TelemetryIdentitySnapshot {
-  const userSubjectId = normalizeTelemetryId(env.ZCODE_TELEMETRY_USER_SUBJECT_ID);
-  const configuredState = env.ZCODE_TELEMETRY_IDENTITY_STATE?.trim();
+  const userSubjectId = normalizeTelemetryId(env.QCODE_TELEMETRY_USER_SUBJECT_ID);
+  const configuredState = env.QCODE_TELEMETRY_IDENTITY_STATE?.trim();
   const identityState =
     configuredState === "authenticated" ||
     configuredState === "anonymous" ||
@@ -205,7 +205,7 @@ function resolveTelemetryIdentity(env: EnvRecord): TelemetryIdentitySnapshot {
       ? configuredState
       : userSubjectId
         ? "authenticated"
-        : normalizeTelemetryDeviceMid(env.ZCODE_TELEMETRY_DEVICE_MID)
+        : normalizeTelemetryDeviceMid(env.QCODE_TELEMETRY_DEVICE_MID)
           ? "anonymous"
           : "unknown";
   return { identityState, ...(userSubjectId ? { userSubjectId } : {}) };

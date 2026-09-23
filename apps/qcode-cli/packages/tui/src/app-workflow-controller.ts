@@ -3,8 +3,8 @@
 // 只管状态与派生：镜像本体、卡片联接表、展开集合。会话事件的接线留在 app.tsx
 // （订阅要拿到 applySessionEvent，而后者反过来要拿本 hook 的 setter，放一起会绕成环）。
 import React from "react";
-import type { TuiCopy } from "@zcode/i18n";
-import type { WorkflowRunProgressEnvelope } from "@zcode/shared/zcode-protocol-v4";
+import type { TuiCopy } from "@qcode/i18n";
+import type { WorkflowRunProgressEnvelope } from "@qcode/shared/zcode-protocol-v4";
 import type { Message } from "./app-model.js";
 import type { TuiOptions } from "./types.js";
 import { useWorkflowRunSeeding } from "./app-workflow-seed.js";

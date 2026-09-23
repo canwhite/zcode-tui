@@ -1,4 +1,4 @@
-import { CoreErrorType, createCoreError, isCoreError } from "@zcode/contracts";
+import { CoreErrorType, createCoreError, isCoreError } from "@qcode/contracts";
 import { projectExecutionErrorPayload } from "../../errors/error-payload.js";
 import type { ExecutableToolCall, ToolExecutionResult, ToolHandlerFailure } from "../types.js";
 import { getInitialInputValidationModelContent } from "./validation.js";

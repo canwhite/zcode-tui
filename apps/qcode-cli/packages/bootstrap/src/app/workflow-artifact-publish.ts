@@ -33,14 +33,14 @@ import {
   type SessionId,
   type ToolArtifactStorePort,
   type ToolArtifactWriteResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   ARTIFACT_CAPS,
   ARTIFACT_ID_PATTERN,
   WorkflowError,
   type ArtifactPublishRequest,
   type ArtifactVersionRecord,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { resolveWithinWorkspace, toWorkspaceRelative } from "./workflow-world-read.js";
 
 /** 产物发布需要的端口与基准目录（driver deps 的一个子集，同 {@link WorldReadDeps}）。 */

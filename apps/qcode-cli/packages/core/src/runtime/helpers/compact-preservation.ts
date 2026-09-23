@@ -3,7 +3,7 @@ import type {
   MessageId,
   SessionId,
   SessionStorePort,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { isCompactPreservableSessionMessage } from "../../agent/compact-session.js";
 import { activeSessionMessages } from "../../agent/session-history-hydrator.js";
 import { isRuntimeAttachmentEntry, type RuntimeMessageEntry } from "../../agent/message-history.js";

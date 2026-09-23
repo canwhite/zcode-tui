@@ -15,10 +15,10 @@ import type {
   AgentTelemetryCausation,
   AgentTelemetryExecutionContext,
   AgentTelemetryScope,
-} from "@zcode/contracts/telemetry";
+} from "@qcode/contracts/telemetry";
 import { claimSanitizedTelemetryError } from "./error-sanitizer.js";
 
-const ACTIVE_WRITER_CONTEXT_KEY = createContextKey("@zcode/telemetry/active-writer-v4");
+const ACTIVE_WRITER_CONTEXT_KEY = createContextKey("@qcode/telemetry/active-writer-v4");
 const SAFE_ID_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/u;
 const SAFE_ENUM_PATTERN = /^[a-z0-9_./:-]{1,128}$/u;
 const SAFE_IDENTIFIER_PATTERN = /^[A-Za-z0-9._:/-]{1,128}$/u;

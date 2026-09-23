@@ -13,8 +13,8 @@ import {
   type ModelToolSideEffectScope,
   type RiskLevel,
   type ToolPermissionSpec,
-} from "@zcode/contracts";
-import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@zcode/shared";
+} from "@qcode/contracts";
+import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME } from "@qcode/shared";
 import { resolvePlanModeTransitionPermission } from "./plan-mode-policy.js";
 import { webFetchRuleSubjects, wildcardToRegExp } from "./rule-matching.js";
 import { isPreapprovedWorkflowDraftWrite } from "./workflow-draft-path.js";

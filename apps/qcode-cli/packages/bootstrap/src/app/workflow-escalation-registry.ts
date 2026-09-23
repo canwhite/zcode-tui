@@ -20,7 +20,7 @@
 import type {
   DynamicWorkflowResolveQuestionResult,
   DynamicWorkflowRunPendingQuestion,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 /**
  * 已退场 qid 的记忆条数。**有界**：一个长跑的会话可以问答任意多次，无界的历史表就是一处

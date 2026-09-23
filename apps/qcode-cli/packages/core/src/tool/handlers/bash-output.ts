@@ -4,7 +4,7 @@ import {
   type ToolCommandStatus,
   type ExecutionResult,
   type ToolExecutionTelemetry,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 import { appendBashCwdStderrSuffix } from "./bash-cwd-policy.js";
 import { getGhRateLimitHint } from "./bash-gh-rate-limit.js";

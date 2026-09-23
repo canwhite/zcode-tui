@@ -2,30 +2,30 @@ import { isAbsolute, join, resolve } from "node:path";
 import {
   createInMemorySessionEventStore,
   createNodeToolArtifactStore,
-} from "@zcode/adapters/storage";
-import { ensureUserConfigHome } from "@zcode/adapters/config-home";
-import { createNodeLoggerFactory } from "@zcode/adapters/logging";
-import { createConfig, resolvePath } from "@zcode/adapters/config";
+} from "@qcode/adapters/storage";
+import { ensureUserConfigHome } from "@qcode/adapters/config-home";
+import { createNodeLoggerFactory } from "@qcode/adapters/logging";
+import { createConfig, resolvePath } from "@qcode/adapters/config";
 import {
   createNodeExecutionAdapter,
   resolveEffectiveBashShellSelection,
-} from "@zcode/adapters/exec";
-import { createNodeFileSystemAdapter } from "@zcode/adapters/fs";
-import { createNodeWebFetchHttpClientAdapter } from "@zcode/adapters/http";
-import { createJimpImageProcessorAdapter } from "@zcode/adapters/image";
-import { createPopplerPdfDocumentAdapter } from "@zcode/adapters/pdf";
-import { createNodeSessionMailboxAdapter } from "@zcode/adapters/mailbox";
-import { createNodeContextSourceAdapter } from "@zcode/adapters/context";
-import { createNodeSkillAdapter } from "@zcode/adapters/skills";
-import { createMcpAdapter } from "@zcode/adapters/mcp";
+} from "@qcode/adapters/exec";
+import { createNodeFileSystemAdapter } from "@qcode/adapters/fs";
+import { createNodeWebFetchHttpClientAdapter } from "@qcode/adapters/http";
+import { createJimpImageProcessorAdapter } from "@qcode/adapters/image";
+import { createPopplerPdfDocumentAdapter } from "@qcode/adapters/pdf";
+import { createNodeSessionMailboxAdapter } from "@qcode/adapters/mailbox";
+import { createNodeContextSourceAdapter } from "@qcode/adapters/context";
+import { createNodeSkillAdapter } from "@qcode/adapters/skills";
+import { createMcpAdapter } from "@qcode/adapters/mcp";
 import {
   AgentRuntime,
   PermissionService,
   buildPluginReferenceCatalog,
   type AmendWorkflowRunSettingsInput,
   type ResumeSessionResult,
-} from "@zcode/core";
-import { createModelTelemetry } from "@zcode/telemetry";
+} from "@qcode/core";
+import { createModelTelemetry } from "@qcode/telemetry";
 import {
   createRootTraceContext,
   traceContextToLogContext,
@@ -34,12 +34,12 @@ import {
   createSessionEvent,
   type ExecutionShellSelection,
   type MessageId,
-} from "@zcode/contracts";
-import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@zcode/shared";
+} from "@qcode/contracts";
+import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@qcode/shared";
 import {
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  QCODE_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 import { createModelAdapter } from "../model-factory.js";
 import { StartupTimer, startupNow } from "../startup-logging.js";
@@ -375,7 +375,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       (messageEnabled
         ? createNodeSessionMailboxAdapter({
             rootDir: resolvePath(
-              (options.env ?? process.env).ZCODE_MAILBOX_ROOT ?? "~/.zcode/mailbox",
+              (options.env ?? process.env).QCODE_MAILBOX_ROOT ?? "~/.zcode/mailbox",
             ),
           })
         : undefined);
@@ -1066,7 +1066,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         const { ref, mediaType, artifactUri } = await resolvePromptAttachment(input);
         if (artifactUri) {
           if (!artifactStore.statToolResultArtifact) {
-            throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
+            throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
           }
           const result = await artifactStore.statToolResultArtifact({
             uri: artifactUri,
@@ -1082,7 +1082,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         if (result.kind !== "file") {
           // 目录/符号链接/已消失都意味着「这个附件不再是可分享的文件」，用稳定码上抛，
           // 让 share 预检按确定分类处理，而不是靠错误文本猜。
-          throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.statNotFile);
+          throw new ZCodeAttachmentFaultError(QCODE_ATTACHMENT_FAULT_CODES.statNotFile);
         }
         return {
           totalBytes: result.sizeBytes,

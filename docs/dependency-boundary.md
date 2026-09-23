@@ -9,7 +9,7 @@
 **保留边界无法用依赖图算出来。** 保留集有**两个独立来源**，必须取并集：
 
 1. **依赖图** —— `package.json` 的 `dependencies` / `peerDependencies` 递归闭包
-2. **源码注册表** —— `apps/qcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`，插件通过 `rootCandidates` **在文件系统上探测目录**加载，**不出现在任何依赖图中**
+2. **源码注册表** —— `apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`，插件通过 `rootCandidates` **在文件系统上探测目录**加载，**不出现在任何依赖图中**
 
 只按依赖图算，必然误删插件包（安装成功、类型检查全绿、CLI 正常启动，但插件静默缺失）。
 
@@ -17,7 +17,7 @@
 
 | 范围                                                                 | 动作                                                                                        |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `apps/qcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`） | **全部保留**，不删任何内容                                                                  |
+| `apps/zcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`） | **全部保留**，不删任何内容                                                                  |
 | 根 `packages/` 保留 5 个                                             | `shared`、`provider-node`、`provider`、`model-option-map`、`zcode-cua`                      |
 | 根 `packages/` 删除 9 个                                             | `client`、`desktop`、`formal-proof`、`rpc`、`server`、`services`、`ui`、`web`、`server-cli` |
 
@@ -29,10 +29,10 @@
 
 | 所在位置                   | 包                                                                                                                                              |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/qcode-cli/packages/` | `cli`、`adapters`、`bootstrap`、`contracts`、`core`、`dynamic-workflow`、`dynamic-workflow-runtime`、`i18n`、`shared-types`、`telemetry`、`tui` |
+| `apps/zcode-cli/packages/` | `cli`、`adapters`、`bootstrap`、`contracts`、`core`、`dynamic-workflow`、`dynamic-workflow-runtime`、`i18n`、`shared-types`、`telemetry`、`tui` |
 | 根 `packages/`             | `shared`、`provider-node`、`provider`、`model-option-map`、`zcode-cua`                                                                          |
 
-**`apps/qcode-cli/` 下另有若干不在此闭包内、但必须保留的包**（同属插件/工具盲区，见 §5）：
+**`apps/zcode-cli/` 下另有若干不在此闭包内、但必须保留的包**（同属插件/工具盲区，见 §5）：
 `browser-use-plugin`、`node-repl-host`、`superpowers-plugin`、`swift-bridge`、`debug`、`tools/prompt-trajectory`、`tools/typescript`、`dependencies/native-search`。
 
 > **`@zcode/zcode-cua` 的重要说明**：它是**明示的占位包**（`README.md`：_"API-compatible placeholder package for Computer Use. This build ships without Computer Use"_；`index.js` 恒返回 `isError: true`）。保留它保留的是**接口兼容性**，**不是 Computer Use 能力** —— 源码版本来就不提供该能力，与删除动作无关。这也解释了它为何 `dependencies` 为空、目录内全是纯 JS。
@@ -62,10 +62,10 @@
 - **1 处位于保留侧 —— 必须处理**：
 
 ```
-❌ @zcode/bootstrap [apps/qcode-cli/packages/bootstrap] devDependencies -> @zcode/formal-proof
+❌ @zcode/bootstrap [apps/zcode-cli/packages/bootstrap] devDependencies -> @zcode/formal-proof
 ```
 
-**处理判定**：删除 `packages/formal-proof`，并**同步移除 `apps/qcode-cli/packages/bootstrap/package.json:42` 的这条 devDependency**。依据：
+**处理判定**：删除 `packages/formal-proof`，并**同步移除 `apps/zcode-cli/packages/bootstrap/package.json:42` 的这条 devDependency**。依据：
 
 1. `@zcode/bootstrap` **没有 test 脚本、没有测试目录**（`package.json` 仅有 `build` / `clean` / `typecheck` / `lint` / `lint:fix`；目录仅 `src`、`package.json`、`tsconfig.json`）
 2. `@zcode/bootstrap` 源码实际 import 的来源包为：`adapters`、`contracts`、`core`、`dynamic-workflow`、`dynamic-workflow-runtime`、`provider`、`provider-node`、`shared`、`telemetry` —— **不含 `formal-proof`**
@@ -78,12 +78,12 @@
 
 ## 5. 官方插件核对清单（第二个保留集来源）
 
-来源：`apps/qcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`，每个插件通过 `rootCandidates` 探测目录。删除后必须逐项核对仍可解析。
+来源：`apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`，每个插件通过 `rootCandidates` 探测目录。删除后必须逐项核对仍可解析。
 
 | 插件                             | 仓库内是否存在                                  | 说明                                                          |
 | -------------------------------- | ----------------------------------------------- | ------------------------------------------------------------- |
-| `browser-use-plugin`             | ✅ `apps/qcode-cli/packages/browser-use-plugin` | 在本次保留范围内                                              |
-| `node-repl-host`                 | ✅ `apps/qcode-cli/packages/node-repl-host`     | 在本次保留范围内，Browser Use 与 Computer Use 共用的 MCP 宿主 |
+| `browser-use-plugin`             | ✅ `apps/zcode-cli/packages/browser-use-plugin` | 在本次保留范围内                                              |
+| `node-repl-host`                 | ✅ `apps/zcode-cli/packages/node-repl-host`     | 在本次保留范围内，Browser Use 与 Computer Use 共用的 MCP 宿主 |
 | `android-emulator-plugin`        | ❌ 仓库内不存在                                 | 由远程资产提供                                                |
 | `image-search-plugin`            | ❌ 仓库内不存在                                 | 由远程资产提供                                                |
 | `ios-simulator-plugin`           | ❌ 仓库内不存在                                 | 由远程资产提供                                                |
@@ -107,14 +107,14 @@
 | 2   | 根 `package.json` scripts                                                                       | `dev:web`、`dev:server`、`prepare:desktop-runtime`、`build:bootstrap`、`bundle:desktop`、`prepare:remote-assets`                                                                                                                                                                                            |
 | 3   | 根 `package.json` `typecheck`                                                                   | **硬编码枚举**：`packages/rpc`、`packages/provider`、`packages/provider-node`、`packages/shared`、`packages/services`、`packages/client`、`packages/server`、`packages/zcode-server-cli`、`packages/ui`、`packages/web`、`packages/desktop/tsconfig.host.json`                                              |
 | 4   | `knip.json`                                                                                     | `workspaces` 中的 `packages/desktop`、`packages/server`、`packages/services`                                                                                                                                                                                                                                |
-| 5   | `apps/qcode-cli/packages/bootstrap/package.json:42`                                             | `"@zcode/formal-proof": "workspace:*"`（§4）                                                                                                                                                                                                                                                                |
+| 5   | `apps/zcode-cli/packages/bootstrap/package.json:42`                                             | `"@zcode/formal-proof": "workspace:*"`（§4）                                                                                                                                                                                                                                                                |
 | 6   | `scripts/bootstrap.mjs:152`                                                                     | `["@zcode/rpc", "@zcode/web", "@zcode/formal-proof"]`                                                                                                                                                                                                                                                       |
 | 7   | `scripts/build-zcode.mjs`、`scripts/dev-desktop-env.mjs`、`scripts/dev-desktop-remote-prod.mjs` | 引用桌面端/服务端的路径与包名                                                                                                                                                                                                                                                                               |
 | 8   | `.oxlintrc.json:62`                                                                             | `ignorePatterns` 中的 `packages/formal-proof`                                                                                                                                                                                                                                                               |
 | 9   | `architecture-policy.yaml:52-53`                                                                | `id: formal-proof` 条目                                                                                                                                                                                                                                                                                     |
 | 10  | `third-party/inventory.json`                                                                    | **4862 / 18182 条**（27%）指向已删包。**本阶段不处理** —— 该文件为生成物（`.gitattributes` 标 `linguist-generated`），由 `scripts/generate-third-party-notices.mjs` / `third-party-notices.mjs` / `licenses.mjs` 消费，收敛属于 **Phase 3 的 F-008**。此处保留原样并在 Phase 3 重新生成，避免手改生成文件。 |
 | 11  | `.gitignore`                                                                                    | `packages/desktop/**` 系列条目                                                                                                                                                                                                                                                                              |
-| 12  | 两份 lockfile                                                                                   | 根 `pnpm-lock.yaml` + `apps/qcode-cli/pnpm-lock.yaml`（后者含 `link:` 指向根包）                                                                                                                                                                                                                            |
+| 12  | 两份 lockfile                                                                                   | 根 `pnpm-lock.yaml` + `apps/zcode-cli/pnpm-lock.yaml`（后者含 `link:` 指向根包）                                                                                                                                                                                                                            |
 | 13  | 文档                                                                                            | `README.md`、`README.en.md`、`AGENTS.md`、`CONTEXT.md` 的命令表                                                                                                                                                                                                                                             |
 
 ## 7. 删除前的校验方法（可重复执行）
@@ -137,11 +137,11 @@ grep -rnE "@zcode/(desktop|web|server|ui|client|services|rpc|server-cli|formal-p
 
 - `pnpm install`（含从零重建）通过，lockfile 中 electron 与已删包 **0 命中**，`node_modules/electron` 不存在；
 - `pnpm typecheck` exit=0、`pnpm lint` exit=0（6 条既有 warning，位于未改动的 `packages/shared/src/validation.ts`）；
-- 从零链路：`git clean -xfd` → `pnpm bootstrap`（exit 0，构建全量保留集）→ `node apps/qcode-cli/packages/cli/dist/zcode.cjs --version` → **`0.16.9`**。
+- 从零链路：`git clean -xfd` → `pnpm bootstrap`（exit 0，构建全量保留集）→ `node apps/zcode-cli/packages/cli/dist/zcode.cjs --version` → **`0.16.9`**。
 
-**`pnpm knip` 仍为 exit 1（既有失败，非本次引入）**：它报告 `packages/shared`、`apps/qcode-cli/packages/contracts` 中的若干未使用导出。判定依据 —— `zcodeTaskGoalStatusSchema`、`taskStreamMirrorTargetSchema`、`WorkflowStrategySchema` 等**在基线提交中就没有任何消费者**，说明 knip 在精简前即为失败状态。本次删包额外产生了少量孤儿导出（例如 `credentialKeySchema` 的唯一消费者 `packages/services/src/credential/credentialService.ts` 已随之删除）。清理这些导出属于**修改保留侧业务代码**，不在本计划范围内。knip 不参与 `bootstrap` / `build` / `typecheck` / `lint` / `verify:pre-push` 任一环节，不阻塞 CLI 可用性。
+**`pnpm knip` 仍为 exit 1（既有失败，非本次引入）**：它报告 `packages/shared`、`apps/zcode-cli/packages/contracts` 中的若干未使用导出。判定依据 —— `zcodeTaskGoalStatusSchema`、`taskStreamMirrorTargetSchema`、`WorkflowStrategySchema` 等**在基线提交中就没有任何消费者**，说明 knip 在精简前即为失败状态。本次删包额外产生了少量孤儿导出（例如 `credentialKeySchema` 的唯一消费者 `packages/services/src/credential/credentialService.ts` 已随之删除）。清理这些导出属于**修改保留侧业务代码**，不在本计划范围内。knip 不参与 `bootstrap` / `build` / `typecheck` / `lint` / `verify:pre-push` 任一环节，不阻塞 CLI 可用性。
 
-**执行中发现并修复的既有缺口**：`build:bootstrap` 原为 `pnpm -r --filter "./packages/*" build`，**只覆盖根包**，不构建 `apps/qcode-cli` 子树 —— 而 `@zcode/contracts` 等的 `main` 指向 `dist/`，且 apps/qcode-cli 下**没有任何包带 `prepare` 脚本**，因此 `pnpm bootstrap` 之后 CLI 启动会 `ERR_MODULE_NOT_FOUND`。已改为 `pnpm --filter "@zcode/cli..." build`（`@zcode/cli...` 恰好覆盖全部 16 个保留包）。
+**执行中发现并修复的既有缺口**：`build:bootstrap` 原为 `pnpm -r --filter "./packages/*" build`，**只覆盖根包**，不构建 `apps/zcode-cli` 子树 —— 而 `@zcode/contracts` 等的 `main` 指向 `dist/`，且 apps/zcode-cli 下**没有任何包带 `prepare` 脚本**，因此 `pnpm bootstrap` 之后 CLI 启动会 `ERR_MODULE_NOT_FOUND`。已改为 `pnpm --filter "@zcode/cli..." build`（`@zcode/cli...` 恰好覆盖全部 16 个保留包）。
 
 **仍存在的残留引用（已评估，未处理）**：
 
@@ -175,7 +175,7 @@ grep -rnE "@zcode/(desktop|web|server|ui|client|services|rpc|server-cli|formal-p
 
 | 位置                                | 初看像问题                                                      | 实际                                                                                                                                                             |
 | ----------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/qcode-cli/skills-lock.json:7` | `skillPath: "packages/web/src/content/SKILL.md"` 像指向已删路径 | 该字段是 **`anomalyco/opentui` 这个远端 GitHub 仓库内的路径**（同条目 `source`/`sourceType` 已声明），**不是本仓库路径**。按 grep 结果去改会把正确的锁文件改坏。 |
+| `apps/zcode-cli/skills-lock.json:7` | `skillPath: "packages/web/src/content/SKILL.md"` 像指向已删路径 | 该字段是 **`anomalyco/opentui` 这个远端 GitHub 仓库内的路径**（同条目 `source`/`sourceType` 已声明），**不是本仓库路径**。按 grep 结果去改会把正确的锁文件改坏。 |
 | `.architecture-baseline.json`       | 疑为以被删模块为基线                                            | 内容为 `{"version":1,"violations":[]}` 空基线，无引用                                                                                                            |
 | `scripts/bootstrap.mjs` 的 3 处命中 | 像残留引用                                                      | 均为本次新增的**说明性注释**（记录移除了什么），属有意保留                                                                                                       |
 
@@ -186,7 +186,7 @@ grep -rnE "@zcode/(desktop|web|server|ui|client|services|rpc|server-cli|formal-p
 | 位置                                                                            | 说明                                                                                                                                              |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `package.json` 的 `build:desktop-agent:bytecode`、`doctor:macos-release`        | 服务桌面端/发布流程的入口，未引用已删路径故不报错，但已无实际用途                                                                                 |
-| `apps/qcode-cli/packages/cli` 的 `build:desktop-agent` + `turbo.json` 同名 task | 位于保留边界内（`apps/qcode-cli` 整棵子树不动），其消费方 `packages/desktop` 已删                                                                 |
+| `apps/zcode-cli/packages/cli` 的 `build:desktop-agent` + `turbo.json` 同名 task | 位于保留边界内（`apps/zcode-cli` 整棵子树不动），其消费方 `packages/desktop` 已删                                                                 |
 | `scripts/native-search-tools-config.mjs` 默认 `outputDir`                       | 默认值指向 `packages/desktop/bundled-tools`，仅在调用方不传 `outputDir` 时生效                                                                    |
 | `scripts/package-native-search-tools.mjs`                                       | `createRequire(repoRoot/packages/desktop/package.json)` 作为 `yazl` 解析基准；`createRequire` 不校验路径存在，故仅在走到 Windows zip 分支时才暴露 |
 | `painpoints/*.md`                                                               | 4 个文件格式不合规，导致 `pnpm fmt:check` 仍为 exit 1。**属用户个人笔记，未改动**                                                                 |
@@ -195,7 +195,7 @@ grep -rnE "@zcode/(desktop|web|server|ui|client|services|rpc|server-cli|formal-p
 
 | 命令                                                        | 结果                                                                                                                      |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `node apps/qcode-cli/packages/cli/dist/zcode.cjs --version` | `0.16.9`，exit 0（管道 / 重定向到文件 / 直接输出三种 stdout 形态结果一致）                                                |
+| `node apps/zcode-cli/packages/cli/dist/zcode.cjs --version` | `0.16.9`，exit 0（管道 / 重定向到文件 / 直接输出三种 stdout 形态结果一致）                                                |
 | `pnpm --filter @zcode/cli dev --help`                       | 输出 `zcode 0.0.0` 与完整 Usage，exit 0                                                                                   |
 | `pnpm --filter @zcode/cli dev`（无 TTY）                    | 输出 **`TUI requires an interactive terminal.`** 后退出 1 —— 说明 CLI 已启动、已走到 TUI 启动路径、并正确拒绝了非交互环境 |
 
@@ -203,7 +203,7 @@ grep -rnE "@zcode/(desktop|web|server|ui|client|services|rpc|server-cli|formal-p
 
 ## 8. 已知盲区（依赖图看不到、但已纳入保留范围）
 
-以下包不出现在任何依赖图中，且**不在** `OFFICIAL_PLUGIN_DEFINITIONS` 里，但属于 `apps/qcode-cli/` 子树，按 §1 规则整体保留：
+以下包不出现在任何依赖图中，且**不在** `OFFICIAL_PLUGIN_DEFINITIONS` 里，但属于 `apps/zcode-cli/` 子树，按 §1 规则整体保留：
 
 `superpowers-plugin`、`swift-bridge`、`debug`、`tools/prompt-trajectory`、`tools/typescript`、`dependencies/native-search`（18 个原生搜索归档 + SHA256SUMS）。
 

@@ -1,4 +1,4 @@
-import { getZCodeCopy, type SupportedLocale, type UiLocale } from "@zcode/i18n";
+import { getZCodeCopy, type SupportedLocale, type UiLocale } from "@qcode/i18n";
 
 export function formatCliHelp(
   version: string,

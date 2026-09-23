@@ -1,4 +1,4 @@
-import type { TuiSubmitPromptResult } from "@zcode/tui";
+import type { TuiSubmitPromptResult } from "@qcode/tui";
 import type { CommandCenterDeps, CommandCenterMcpStatus } from "../types.js";
 import { splitArgs } from "../utils.js";
 

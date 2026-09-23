@@ -19,7 +19,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { McpServerConfig } from "@zcode/contracts";
+import type { McpServerConfig } from "@qcode/contracts";
 import { mcpServerSchema } from "../config/schema.js";
 import { resolveUserHomeDir } from "./index.js";
 

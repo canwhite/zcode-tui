@@ -1,4 +1,4 @@
-import { ReadOutputSchema } from "@zcode/contracts";
+import { ReadOutputSchema } from "@qcode/contracts";
 import { createReadFileStateKey } from "./read-file-state.js";
 import type { ReadFileStateEntry, ReadFileStateMap } from "./types.js";
 

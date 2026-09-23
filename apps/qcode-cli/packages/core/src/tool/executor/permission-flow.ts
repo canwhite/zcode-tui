@@ -9,7 +9,7 @@ import {
   type PermissionRuleset,
   type TraceContext,
   type ToolExecutionSpanWriter,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { HookRunResult } from "../../hooks/index.js";
 import type { PermissionContext } from "../../permission/service.js";
 import type { ExecutableToolCall, ToolEntry, ToolExecutionResult } from "../types.js";

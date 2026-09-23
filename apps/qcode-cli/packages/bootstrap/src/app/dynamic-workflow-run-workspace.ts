@@ -20,15 +20,15 @@
 // 命令行——两者对「不是你的 run」都不该放行。三种拒绝归一成 undefined（网关归一成空清单 /
 // not found），不告诉一个越权的调用方它猜对了哪一半。
 
-import type { DwfRunIntrospectionQueries, DwfWorldNodeRow } from "@zcode/adapters/storage";
+import type { DwfRunIntrospectionQueries, DwfWorldNodeRow } from "@qcode/adapters/storage";
 import type {
   DynamicWorkflowRunError,
   DynamicWorkflowRunWorkspaceNode,
   DynamicWorkflowRunWorkspaceNodeResult,
   DynamicWorkflowRunWorkspaceNodeResultQuery,
   DynamicWorkflowRunWorkspaceNodeSummary,
-} from "@zcode/contracts";
-import type { JournalStorePort, NodeRecord } from "@zcode/dynamic-workflow";
+} from "@qcode/contracts";
+import type { JournalStorePort, NodeRecord } from "@qcode/dynamic-workflow";
 
 /** 失败信息的展示长度（= 协议侧 `WORKFLOW_WORKSPACE_LIMITS.maxErrorMessageLength`）。 */
 const ERROR_MESSAGE_MAX_CHARS = 2000;

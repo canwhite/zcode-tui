@@ -11,7 +11,7 @@ import {
   type ConfigPort,
   ConfigScope,
   DefaultRuntimeConfig as DefaultConfig,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 type Handler<K extends ConfigKey> = (value: ConfigValue<K>, prev: ConfigValue<K>) => void;
 type AllHandler = (key: ConfigKey, value: unknown, prev: unknown) => void;

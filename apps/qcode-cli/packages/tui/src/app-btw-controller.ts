@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import { useCallback, useRef, useState } from "react";
 import {
   applyBtwResult,

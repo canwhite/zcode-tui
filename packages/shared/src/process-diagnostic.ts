@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 // 启动早期或协议故障时 stdout 尚不可用，进程诊断使用独立的 stderr 单行契约。
-export const QCODE_PROCESS_DIAGNOSTIC_PREFIX = "[zcode-process-exception] ";
+export const QCODE_PROCESS_DIAGNOSTIC_PREFIX = "[qcode-process-exception] ";
 export const QCODE_PROCESS_DIAGNOSTIC_NAME_MAX_CHARS = 128;
 export const QCODE_PROCESS_DIAGNOSTIC_MESSAGE_MAX_CHARS = 4_000;
 export const QCODE_PROCESS_DIAGNOSTIC_STACK_MAX_CHARS = 16_000;
 export const QCODE_PROCESS_DIAGNOSTIC_MAX_LINE_CHARS = 128 * 1024;
-export const QCODE_AGENT_LIFECYCLE_LOG_MARKER = "[zcode-agent-lifecycle-reported]";
+export const QCODE_AGENT_LIFECYCLE_LOG_MARKER = "[qcode-agent-lifecycle-reported]";
 
 const processErrorKindSchema = z.enum(["uncaughtException", "unhandledRejection"]);
 export const zcodeProcessDiagnosticSchema = z

@@ -1,4 +1,4 @@
-const QCODE_PROCESS_PREFIX = "qcode";
+const QCODE_PROCESS_PREFIX = "zcode";
 const MAX_PROCESS_NAME_SEGMENT_LENGTH = 24;
 
 function sanitizeProcessNameSegment(value: string | null | undefined): string | null {
@@ -49,7 +49,7 @@ export function formatZCodeHostProcessName(label?: string): string {
 
 export function formatZCodeRendererProcessName(windowTitle?: string): string {
   const normalizedTitle = windowTitle?.trim();
-  if (!normalizedTitle || normalizedTitle === "qcode") {
+  if (!normalizedTitle || normalizedTitle === "ZCode") {
     return joinZCodeProcessName("renderer", "main");
   }
 

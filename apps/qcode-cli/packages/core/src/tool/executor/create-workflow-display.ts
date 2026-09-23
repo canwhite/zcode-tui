@@ -11,7 +11,7 @@ import {
   CREATE_WORKFLOW_TOOL_NAME,
   CreateWorkflowOutputSchema,
   type ToolResultDisplayPayload,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 /**
  * ⚠ 这个投影的字段集合是**冻结**的（contracts 的 schema 注释说明了为什么）。gate 专属的

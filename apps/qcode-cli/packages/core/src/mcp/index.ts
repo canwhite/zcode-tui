@@ -2,8 +2,8 @@
 
 import {
   modelMessageContentToText,
-  ZCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
-  ZCODE_MCP_ERROR_PRESENTATION_META_KEY,
+  QCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
+  QCODE_MCP_ERROR_PRESENTATION_META_KEY,
   type JsonSchema,
   type McpPort,
   type McpToolCallResult,
@@ -13,9 +13,9 @@ import {
   type ModelToolSideEffectScope,
   type PermissionCapabilityGroup,
   type RiskLevel,
-} from "@zcode/contracts";
-import { ZCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME as ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME } from "@zcode/shared";
-import { OFFICIAL_CUA_FRAME_MODEL_CONTENT_PROTECTION } from "@zcode/zcode-cua/frame-contract";
+} from "@qcode/contracts";
+import { QCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME as QCODE_CUA_OFFICIAL_MCP_SERVER_NAME } from "@qcode/shared";
+import { OFFICIAL_CUA_FRAME_MODEL_CONTENT_PROTECTION } from "@qcode/zcode-cua/frame-contract";
 import type { ToolRegistry } from "../tool/registry.js";
 import type { ToolEntry } from "../tool/types.js";
 import { createToolRuleNameSet } from "../tool/tool-visibility.js";
@@ -43,8 +43,8 @@ const CUA_USER_TITLE_SCHEMA = {
   description:
     "Required short user-facing title in the user's language that describes why the app interface is being read without implementation terms such as CUA, MCP, or get_app_state",
 } satisfies JsonSchema;
-const ZCODE_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
-const ZCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
+const QCODE_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
+const QCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
 
 export interface RegisterMcpToolsOptions {
   allowedTools?: readonly string[];
@@ -89,12 +89,12 @@ function toRegisteredMcpToolName(
 ): string {
   if (
     officialCuaAuthorityVerified &&
-    descriptor.serverName === ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME
+    descriptor.serverName === QCODE_CUA_OFFICIAL_MCP_SERVER_NAME
   ) {
     // adapter 会把官方插件 serverName 命名空间化，descriptor.name 因而是
     // mcp__plugin_zcode-cua_computer-use__*；直接沿用它会让 provider 约定的 computer-use
     // 工具永远不存在。可信门成立后仅投影模型可见名称，handler 仍用 descriptor 的原路由。
-    return `${ZCODE_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
+    return `${QCODE_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
   }
   return toMcpToolName(descriptor);
 }
@@ -264,14 +264,14 @@ function officialCuaProviderSpellingAliases(
 ): readonly string[] | undefined {
   if (
     !officialCuaAuthorityVerified ||
-    descriptor.serverName !== ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
-    !name.startsWith(ZCODE_CUA_CANONICAL_MODEL_PREFIX)
+    descriptor.serverName !== QCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    !name.startsWith(QCODE_CUA_CANONICAL_MODEL_PREFIX)
   ) {
     return undefined;
   }
-  const toolName = name.slice(ZCODE_CUA_CANONICAL_MODEL_PREFIX.length);
+  const toolName = name.slice(QCODE_CUA_CANONICAL_MODEL_PREFIX.length);
   return toolName.length > 0
-    ? [`${ZCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
+    ? [`${QCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
     : undefined;
 }
 
@@ -352,7 +352,7 @@ function isZCodeCuaGetAppState(
 
   const serverName = descriptor.serverName.trim().toLowerCase().replace(/_/g, "-");
   return (
-    descriptor.serverName === ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    descriptor.serverName === QCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
     serverName === "qcode-cua" ||
     serverName === "computer-use" ||
     (serverName.includes("qcode-cua") && serverName.includes("computer-use"))
@@ -386,9 +386,9 @@ function formatMcpToolResult(output: unknown): ModelMessageContent {
   if (!output.isError) return content;
   // 展示策略由 MCP result 显式声明；通用 bridge 不应识别具体 server，
   // 也不应通过解析错误字符串来猜测哪些内容属于堆栈。
-  const errorPresentation = output._meta?.[ZCODE_MCP_ERROR_PRESENTATION_META_KEY];
+  const errorPresentation = output._meta?.[QCODE_MCP_ERROR_PRESENTATION_META_KEY];
   return typeof errorPresentation === "string" &&
-    errorPresentation === ZCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
+    errorPresentation === QCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
     ? content
     : `MCP tool returned an error:\n${modelMessageContentToText(content)}`;
 }

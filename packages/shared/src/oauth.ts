@@ -150,7 +150,7 @@ export type OAuthCachedSessionRestoreResult =
   | { status: "reauthentication-required"; reason: "jwt-expired" };
 
 /** Host 在检测到 ZCode JWT 失效后通知 Renderer 展示确认并重启。 */
-export const QCODE_JWT_INVALID_BROADCAST_CHANNEL = "auth:zcode-jwt-invalid";
+export const QCODE_JWT_INVALID_BROADCAST_CHANNEL = "auth:qcode-jwt-invalid";
 
 export type JwtExpirationResult =
   | { kind: "valid"; expiresAt: number }

@@ -1,5 +1,5 @@
-import type { TuiSelection, TuiSubmitPromptResult } from "@zcode/tui";
-import { resolvePluginDisplayName } from "@zcode/shared";
+import type { TuiSelection, TuiSubmitPromptResult } from "@qcode/tui";
+import { resolvePluginDisplayName } from "@qcode/shared";
 import type {
   CommandCenterDeps,
   CommandCenterPluginListOutcome,

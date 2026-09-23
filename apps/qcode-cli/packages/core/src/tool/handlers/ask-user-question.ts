@@ -12,7 +12,7 @@ import {
   CoreErrorType,
   createCoreError,
   type AskUserQuestionOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 
 const MAX_ASK_USER_QUESTION_MODEL_BYTES = 100_000;

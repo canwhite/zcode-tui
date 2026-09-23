@@ -9,11 +9,11 @@
 为什么是现在：该文档实测出四类远程获取点（`nodejs.org` 的 SEA 基座、`codeload.github.com` / `sourceware.org` 的上游源码包、`cdn-zcode.z.ai` 的插件资产、`api.github.com` 的插件安装），并确认**下载落点与被清理/被忽略的目录重叠**。其中最有说服力的一条证据来自代码本身：
 
 ```
-apps/qcode-cli/packages/cli/scripts/build-sea.mjs:63
+apps/zcode-cli/packages/cli/scripts/build-sea.mjs:63
 const nodeCache = resolve(dist, "sea-node-cache");
 ```
 
-Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已实测修正过这里的初判**——`apps/qcode-cli/packages/cli/dist` 是被 `apps/qcode-cli/.gitignore:1` 的 `dist/` 忽略的（不是根 `.gitignore`），而 `scripts/clean.mjs` 只遍历仓库根与根 `packages/*`，**并不会删到 `apps/` 下的 `dist`**。所以真实现状是 **"被忽略、但不被清理"**，比"会被清理"更糟：它既进不了仓库，又会残留在磁盘上冒充一份可用的缓存——而缓存键不含版本，一旦构建所用的 Node 版本变化，残留的旧版本归档就会被安静地当成新鲜资源。这正是"随仓库上传、清理时不清理、不在 git ignore 里"三条诉求要解决的问题。
+Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已实测修正过这里的初判**——`apps/zcode-cli/packages/cli/dist` 是被 `apps/zcode-cli/.gitignore:1` 的 `dist/` 忽略的（不是根 `.gitignore`），而 `scripts/clean.mjs` 只遍历仓库根与根 `packages/*`，**并不会删到 `apps/` 下的 `dist`**。所以真实现状是 **"被忽略、但不被清理"**，比"会被清理"更糟：它既进不了仓库，又会残留在磁盘上冒充一份可用的缓存——而缓存键不含版本，一旦构建所用的 Node 版本变化，残留的旧版本归档就会被安静地当成新鲜资源。这正是"随仓库上传、清理时不清理、不在 git ignore 里"三条诉求要解决的问题。
 
 已确认的决策前提（本轮已与你对齐）：
 
@@ -32,7 +32,7 @@ Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已
 
 约束：
 
-- 仓库已有一处完成的正确形态可对齐——`apps/qcode-cli/dependencies/native-search/`（19 个预编译包入库 + `SHA256SUMS` + 全离线）。本计划**不另起一套**，落点与校验方式向它看齐。
+- 仓库已有一处完成的正确形态可对齐——`apps/zcode-cli/dependencies/native-search/`（19 个预编译包入库 + `SHA256SUMS` + 全离线）。本计划**不另起一套**，落点与校验方式向它看齐。
 - `scripts/clean.mjs` 目前按**目录名**匹配 `node_modules` / `dist`，不具备"显式保留"的表达能力。
 - 本仓库是精简分支，`AGENTS.md` 要求改动后跑 `pnpm typecheck` 与 `pnpm lint` 并报告真实结果。
 
@@ -84,9 +84,9 @@ Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已
 ### Step 2 — F-002 本地化与受保护目录
 
 1. **定受保护根**：建议 `third-party/vendored/`。**落点以断言为准，不以美观或先例为准**（见 Pre-Mortem R4）：把候选路径逐个跑 `git check-ignore`，命中即淘汰。
-   > **已知陷阱**：`apps/qcode-cli/.gitignore` 最后一行是一条**裸 `vendor`** 规则。若落点选在 `apps/qcode-cli/**/vendor*` 形态（例如为了对齐 `dependencies/native-search/` 先例而建 `dependencies/vendor/`），资源会**静默不入库**——`git status` 不显示，本地一切正常，克隆到断网机器才全线失败。
+   > **已知陷阱**：`apps/zcode-cli/.gitignore` 最后一行是一条**裸 `vendor`** 规则。若落点选在 `apps/zcode-cli/**/vendor*` 形态（例如为了对齐 `dependencies/native-search/` 先例而建 `dependencies/vendor/`），资源会**静默不入库**——`git status` 不显示，本地一切正常，克隆到断网机器才全线失败。
 2. **实现下载器**：输入台账条目，输出落盘文件。必须做到——sha256 校验后才落盘、写临时文件再原子 rename（避免半成品冒充完整文件）、**幂等**（已存在且 sha256 匹配即跳过，不发网络请求）。
-3. **落盘断言（脚本化，非一次性人工核对）**：入库前对每个 `vendored_path` 跑 `git check-ignore`，命中即失败。**必须覆盖全部 6 个 `.gitignore`**（根、`.husky/_`、`apps/qcode-cli`、`browser-use-plugin`、`dynamic-workflow`、`debug`），而不是只查根目录那个——这正是 R4 能成立的直接原因。最终判据用 **`git ls-files` 是否包含该文件**（"是否被跟踪"），而不是"是否被忽略"：`git add` 之后再跑一次，确认条目数与台账一致。
+3. **落盘断言（脚本化，非一次性人工核对）**：入库前对每个 `vendored_path` 跑 `git check-ignore`，命中即失败。**必须覆盖全部 6 个 `.gitignore`**（根、`.husky/_`、`apps/zcode-cli`、`browser-use-plugin`、`dynamic-workflow`、`debug`），而不是只查根目录那个——这正是 R4 能成立的直接原因。最终判据用 **`git ls-files` 是否包含该文件**（"是否被跟踪"），而不是"是否被忽略"：`git add` 之后再跑一次，确认条目数与台账一致。
 4. **清理边界**：让 `scripts/clean.mjs` 具备"显式保留"的表达能力。当前它按名字匹配 `node_modules` / `dist`，建议引入一份 keep 白名单并断言 `assertSafeTarget` 不落在受保护根之下；同时补一条清理后自检（台账逐条断言存在）。
 5. **落地智谱自家资源**：官方插件市场清单 + 26 个插件包 + 26 个图标。
    - **校验来源分两种，须在台账中标注**：26 个插件包的 sha256 直接取自官方 `marketplace.json` 的 `source.sha256`（**官方发布值**，可信锚点）；清单自身与 26 个图标 CDN 未发布校验值，采用 **TOFU**（首次获取时本机计算并固化），台账中以 `sha256Provenance` 字段标明来源，不与官方值混为一谈。
@@ -104,7 +104,7 @@ Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已
 2. **插件安装：`type: "zip"` 这条路要能命中本地副本**。清单里 26 个插件包的 `source` 都是 `{source:"url", type:"zip", url, sha256}`，`zip-source.ts` 已按 64 位 sha256 校验后才解包——**校验链路是现成的，不要新增一套**。要做的是在 URL 指向智谱 CDN 时优先解析到 `third-party/vendored/zhipu-official-plugin/plugins/<name>/<version>/plugin.zip`。
    > **只改寻址，不改校验**：本地副本同样要过那道 sha256。改成读本地就跳过校验，等于把这次本地化变成一次安全性倒退。
 3. ~~**图标：CDN URL 改为本地 URL**~~ **本条作废（实测证伪）。**
-   > 原文断言"图标是直接渲染的 CDN URL，断网下市场可见但全是碎图"——**经全仓 grep 证伪**：`apps/qcode-cli/packages/tui/src` 中 `icon` 的命中数为 **0**，`apps/` 与 `packages/` 下也没有任何 `.tsx` 渲染 `listing.icon`；适配器只在解析清单时读取、归档、再删掉它（`marketplace.ts:1494` 的 `delete raw.icon`）。**当前没有任何消费方**，因此断网不会产生碎图，也就无需为此改代码。
+   > 原文断言"图标是直接渲染的 CDN URL，断网下市场可见但全是碎图"——**经全仓 grep 证伪**：`apps/zcode-cli/packages/tui/src` 中 `icon` 的命中数为 **0**，`apps/` 与 `packages/` 下也没有任何 `.tsx` 渲染 `listing.icon`；适配器只在解析清单时读取、归档、再删掉它（`marketplace.ts:1494` 的 `delete raw.icon`）。**当前没有任何消费方**，因此断网不会产生碎图，也就无需为此改代码。
    >
    > 图标仍**保留在本地化范围内**（753 KiB，且确属智谱自家资源，符合判据），但理由改为"清单引用了它、且属智谱资产，留存成本可忽略"，而**不是**"否则界面会坏"。这条不作数等于砍掉一处臆想的改动。
 4. **扫其余直连**：逐个确认构建/安装链路里没有残留的、未被台账解释的直连获取（登记在台账里的 `consumers` 即为此用）。
@@ -388,7 +388,7 @@ _清理_：① 目标在 keep 白名单内 → 跳过删除并记录；② 目�
 | R1  | Node 版本不确定：SEA 构建用 `process.versions.node` 决定下载哪一版               | 21.25 | **HIGH**         |
 | R2  | 基线不干净：本计划要改的文件正被并发修改且未提交                                 | 16    | **HIGH**         |
 | R3  | 台账的差集校验口径写错，导致"所有"变成静默的假保证                               | 17    | **HIGH**         |
-| R4  | 受保护根命名撞上 `apps/qcode-cli/.gitignore` 的 `vendor` 规则，资源被静默忽略    | 13.6  | **HIGH**         |
+| R4  | 受保护根命名撞上 `apps/zcode-cli/.gitignore` 的 `vendor` 规则，资源被静默忽略    | 13.6  | **HIGH**         |
 | R5  | 仓库无任何自动化门禁，数百 MB 的提交没有任何东西会拦                             | 12.8  | **HIGH**         |
 | R6  | `licenses.mjs notices` 已损坏，"重新生成 notices"这条缓解路径不可用              | 19    | 极易发现，须记录 |
 | R7  | ~~Node 归档未连同 SHASUMS256.txt 落盘~~                                          | —     | **已不适用**     |
@@ -436,7 +436,7 @@ _清理_：① 目标在 keep 白名单内 → 跳过删除并记录；② 目�
 **Severity**: 4 | **Likelihood**: 5 | **Detectability**: 0.2
 **Risk Score**: 4 × 5 × (1 - 0.2) = 16 — **HIGH**
 
-**Failure Scenario**：`git status` 显示 `scripts/install/toolchain.mjs`、`apps/qcode-cli/packages/cli/src/doctor.ts`、`package.json`、`apps/qcode-cli/package.json`、`packages/provider/src/model-selection-config.ts`、`README.md`、`README.en.md` 均**已修改未提交**，且 `main` 领先 `origin/main` 两个提交。这些正是本计划的核心改动区域（`toolchain.mjs` 属安装链路、`doctor.ts` 属 F-004 的可观测输出、`package.json` 的 `engines` 就是 R1 里的版本歧义来源之一）。照计划执行会在别人的未完成工作上继续叠加，产生冲突、覆盖或被覆盖，且 Step 0 用 `git bundle` 打的"基线"里混入了他人 WIP——回滚点不可信。
+**Failure Scenario**：`git status` 显示 `scripts/install/toolchain.mjs`、`apps/zcode-cli/packages/cli/src/doctor.ts`、`package.json`、`apps/zcode-cli/package.json`、`packages/provider/src/model-selection-config.ts`、`README.md`、`README.en.md` 均**已修改未提交**，且 `main` 领先 `origin/main` 两个提交。这些正是本计划的核心改动区域（`toolchain.mjs` 属安装链路、`doctor.ts` 属 F-004 的可观测输出、`package.json` 的 `engines` 就是 R1 里的版本歧义来源之一）。照计划执行会在别人的未完成工作上继续叠加，产生冲突、覆盖或被覆盖，且 Step 0 用 `git bundle` 打的"基线"里混入了他人 WIP——回滚点不可信。
 
 **Mitigation**：
 
@@ -459,17 +459,17 @@ _清理_：① 目标在 keep 白名单内 → 跳过删除并记录；② 目�
 - 明确记录**豁免边界**（npm registry、用户配置的 LLM 端点）作为白名单，并对白名单本身做人工复核——白名单是差集校验最常见的漏网口。
 - 台账中"只有 sha256 没有 url"的条目（预编译产物）单独归类并标注 `source: prebuilt`，不参与"需要下载"的差集，但**参与"需要入库"的差集**。
 
-### [Risk] R4 — 受保护根命名撞上 `apps/qcode-cli/.gitignore` 的 `vendor` 规则，资源被静默忽略
+### [Risk] R4 — 受保护根命名撞上 `apps/zcode-cli/.gitignore` 的 `vendor` 规则，资源被静默忽略
 
 **Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.15
 **Risk Score**: 4 × 4 × (1 - 0.15) = 13.6 — **HIGH**
 
-**Failure Scenario**：`apps/qcode-cli/.gitignore` 最后一行是一条**裸 `vendor`** 规则（匹配 `apps/qcode-cli/` 下任意名为 `vendor` 的路径）。计划正文同时给了两个落点倾向——"建议 `third-party/vendored/`"与"对齐既有先例 `apps/qcode-cli/dependencies/native-search/`"。若实施者选了后者并在其下建 `vendor/`，或者选了任何 `apps/qcode-cli/**/vendor*` 形态，**资源会静默不入库**：`git status` 不显示被忽略的文件，本地一切正常（文件就在磁盘上、构建也能读到），只有克隆到断网机器时才全线失败。这是本计划里**最典型的"本地全绿、交付全崩"**形态。
+**Failure Scenario**：`apps/zcode-cli/.gitignore` 最后一行是一条**裸 `vendor`** 规则（匹配 `apps/zcode-cli/` 下任意名为 `vendor` 的路径）。计划正文同时给了两个落点倾向——"建议 `third-party/vendored/`"与"对齐既有先例 `apps/zcode-cli/dependencies/native-search/`"。若实施者选了后者并在其下建 `vendor/`，或者选了任何 `apps/zcode-cli/**/vendor*` 形态，**资源会静默不入库**：`git status` 不显示被忽略的文件，本地一切正常（文件就在磁盘上、构建也能读到），只有克隆到断网机器时才全线失败。这是本计划里**最典型的"本地全绿、交付全崩"**形态。
 
 **Mitigation**：
 
 - Step 2.1 的落点决策**以 Step 2.3 的断言为准**，而不是以美观或先例为准：先把候选路径逐个跑 `git check-ignore`，命中即淘汰，再谈其他。
-- 断言必须覆盖**全部** `.gitignore`（本仓库有 6 个：根、`.husky/_`、`apps/qcode-cli`、`browser-use-plugin`、`dynamic-workflow`、`debug`），而不是只查根目录那一个——这正是本风险能成立的直接原因。
+- 断言必须覆盖**全部** `.gitignore`（本仓库有 6 个：根、`.husky/_`、`apps/zcode-cli`、`browser-use-plugin`、`dynamic-workflow`、`debug`），而不是只查根目录那一个——这正是本风险能成立的直接原因。
 - 断言做成**入库前自动执行**的脚本，而不是一次性人工核对；`git add` **之后**再跑一次 `git ls-files` 确认文件确实进了索引，用"是否被跟踪"而非"是否被忽略"作为最终判据。
 - 在 Step 2 的验收集里增加一条：新资源路径出现在 `git ls-files` 输出中，条目数与台账一致。
 
@@ -612,7 +612,7 @@ _清理_：① 目标在 keep 白名单内 → 跳过删除并记录；② 目�
 
 #### [BUG-1] `doctor` 把第三方来源插件算作"本地副本缺失"，且修复建议无效
 
-**位置**：`apps/qcode-cli/packages/cli/src/doctor.ts` · **级别**：High
+**位置**：`apps/zcode-cli/packages/cli/src/doctor.ts` · **级别**：High
 **复现**：向官方清单注入一个 GitHub 来源插件 →
 `FAIL 官方插件本地化: 覆盖率 96%（26/27）；缺失：community-thing`，`doctor` 退出 1。
 **为什么是错的**：官方市场 schema 允许条目指向第三方来源，而按本仓库判据第三方包**本就不本地化**。更严重的是 `install.mjs` 把 doctor 的退出码作为 `make install` 的结果透传——于是**安装会坏在一个永远修不好的报错上**，而提示的修复命令（`vendor-resources fetch`）对这个插件根本不适用。

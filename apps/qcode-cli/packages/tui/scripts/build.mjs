@@ -13,7 +13,7 @@ export async function buildTui() {
     bundle: true,
     // Workspace exports can point at TypeScript sources. Compile that closure here;
     // OpenTUI and its native/worker assets must retain their package-relative paths.
-    external: Object.keys(manifest.dependencies).filter((name) => !name.startsWith("@zcode/")),
+    external: Object.keys(manifest.dependencies).filter((name) => !name.startsWith("@qcode/")),
     format: "esm",
     platform: "node",
     target: "node22",

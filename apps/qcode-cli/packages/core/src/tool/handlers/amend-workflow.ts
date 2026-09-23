@@ -20,7 +20,7 @@ import {
   type ModelMessageContent,
   createWorkflowPhaseAlongside,
   createWorkflowPhaseNames,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolApprovalGate, ToolEntry, ToolHandler, ToolHandlerFailure } from "../types.js";
 import { AMEND_WORKFLOW_TOOL_DESCRIPTION } from "./amend-workflow-description.js";
 import {

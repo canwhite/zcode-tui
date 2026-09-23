@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import type React from "react";
 import type { NetworkRequest } from "./app-model.js";
 import { modelNetworkRequestTargetFromPayload } from "./app-event-data.js";

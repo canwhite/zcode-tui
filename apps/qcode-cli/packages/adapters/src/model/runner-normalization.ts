@@ -7,7 +7,7 @@ import type {
   ModelTextResult,
   ModelToolResult,
   ModelUsage,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { normalizeModelToolInput } from "./tool-input-normalization.js";
 import type { AiSdkGenerateTextResult } from "./runner-runtime.js";
 import { asRecord, isRecord, numberProperty, stringProperty } from "./runner-record.js";

@@ -3,7 +3,7 @@ import {
   type SessionId,
   type SessionMailboxPort,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { HookRegistration } from "./types.js";
 
 const MAILBOX_DRAIN_LIMIT = 20;

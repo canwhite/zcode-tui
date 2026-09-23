@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import React from "react";
 import type { ContextUsage } from "./app-model.js";
 import { DEFAULT_TUI_COPY } from "./app-locale.js";

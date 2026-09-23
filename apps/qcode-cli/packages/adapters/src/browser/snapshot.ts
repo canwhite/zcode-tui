@@ -1,4 +1,4 @@
-import type { BrowserSnapshot } from "@zcode/contracts";
+import type { BrowserSnapshot } from "@qcode/contracts";
 import type { ElementHandle, Page } from "playwright-core";
 
 const DEFAULT_MAX_ELEMENTS = 200;

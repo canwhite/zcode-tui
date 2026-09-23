@@ -2,7 +2,7 @@
 // Token Estimation
 // ============================================================
 
-import { ESTIMATED_TOKEN_CHAR_DIVISOR } from "@zcode/shared";
+import { ESTIMATED_TOKEN_CHAR_DIVISOR } from "@qcode/shared";
 
 /**
  * 估算文本的 token 数量

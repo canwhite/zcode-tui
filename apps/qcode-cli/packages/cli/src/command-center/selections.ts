@@ -1,4 +1,4 @@
-import type { TuiSelection, TuiSelectionItem } from "@zcode/tui";
+import type { TuiSelection, TuiSelectionItem } from "@qcode/tui";
 import type {
   CommandCenterCheckpoint,
   CommandCenterSession,

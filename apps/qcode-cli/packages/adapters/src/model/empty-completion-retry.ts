@@ -1,5 +1,5 @@
-import { ModelErrorCode, ModelFailureReason, ModelRetryReason } from "@zcode/contracts";
-import type { Logger, ModelStatusSink } from "@zcode/contracts";
+import { ModelErrorCode, ModelFailureReason, ModelRetryReason } from "@qcode/contracts";
+import type { Logger, ModelStatusSink } from "@qcode/contracts";
 import type { ClassifiedModelFailure } from "./failure-classifier.js";
 import { calculateRetryDelay, logRetryDelayDecision, sleep } from "./runner-retry.js";
 import { publishModelStatus, type ModelStatusContext } from "./runner-status.js";

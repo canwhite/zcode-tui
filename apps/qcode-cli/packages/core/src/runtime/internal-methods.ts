@@ -34,7 +34,7 @@ import type {
   ContextBuilder,
   ExecutionShellSelection,
 } from "./deps.js";
-import type { BackgroundResultOriginMeta, ContextUsageBreakdownItem } from "@zcode/contracts";
+import type { BackgroundResultOriginMeta, ContextUsageBreakdownItem } from "@qcode/contracts";
 import type { RuntimeCommand, RuntimeCommandId } from "./command-queue.js";
 import type { BtwModelRequestInput, BtwModelResult } from "./methods/btw-model-request.js";
 import type { RuntimeMessageEntry } from "../agent/message-history.js";

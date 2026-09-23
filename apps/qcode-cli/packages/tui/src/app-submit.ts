@@ -1,5 +1,5 @@
-import type { SessionEvent, TurnId } from "@zcode/contracts";
-import type { ModelSelection } from "@zcode/shared";
+import type { SessionEvent, TurnId } from "@qcode/contracts";
+import type { ModelSelection } from "@qcode/shared";
 import type React from "react";
 import type {
   DraftAttachment,

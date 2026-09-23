@@ -1,4 +1,4 @@
-import type { ModelStreamEvent } from "@zcode/contracts";
+import type { ModelStreamEvent } from "@qcode/contracts";
 
 // Note: these events are buffered, not yielded, until a committed stream boundary appears.
 // If a network reset happens first, the partial tool-input attempt can be discarded.

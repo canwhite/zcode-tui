@@ -8,7 +8,7 @@ import {
   type WorkflowGraphNode,
   type WorkflowNodeStatus,
   type WorkflowRunSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { SchedulerCollection, WorkflowGraphRecordEdge } from "./types.js";
 
 const COMPLETED_NODE_STATUSES = new Set<WorkflowNodeStatus>(["cancelled", "completed", "skipped"]);

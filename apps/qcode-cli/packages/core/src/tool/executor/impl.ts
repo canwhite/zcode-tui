@@ -1,4 +1,4 @@
-import type { TraceContext, TurnId } from "@zcode/contracts";
+import type { TraceContext, TurnId } from "@qcode/contracts";
 import { createDenyPermissionBroker } from "../../permission/broker.js";
 import type { ToolSchedule } from "../scheduler.js";
 import type { ExecutableToolCall, ToolBatchEvent, ToolExecutionResult } from "../types.js";

@@ -12,7 +12,7 @@ import {
   type SessionRevert,
   type UpdateSessionInput,
   type SessionTaskType,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { decodeSessionRow } from "../codecs.js";
 import { encodeJson } from "../json.js";
 import type { SessionRow } from "../rows.js";

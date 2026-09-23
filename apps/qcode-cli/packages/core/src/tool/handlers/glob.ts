@@ -13,7 +13,7 @@ import {
   type GlobInput,
   type GlobOutput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { resolveToolWorkingDirectory, resolveWorkspacePath } from "../path-policy.js";
 import type { ToolEntry, ToolHandler } from "../types.js";
 

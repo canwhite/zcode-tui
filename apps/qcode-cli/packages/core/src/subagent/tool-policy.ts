@@ -1,4 +1,4 @@
-import { ENTER_PLAN_MODE_TOOL_NAME, EXIT_PLAN_MODE_TOOL_NAME } from "@zcode/contracts";
+import { ENTER_PLAN_MODE_TOOL_NAME, EXIT_PLAN_MODE_TOOL_NAME } from "@qcode/contracts";
 import { filterDisallowedToolNames } from "../tool/tool-visibility.js";
 
 const SUBAGENT_CHILD_FORCED_DISALLOWED_TOOLS = [

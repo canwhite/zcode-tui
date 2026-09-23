@@ -11,7 +11,7 @@
 // 引擎侧校验器仍强制），折不了的形状返回 undefined（调用方原样发送、不带 strict）。
 // 首个使用者是 dwf mono 子代理的 typed `submit_result`。
 
-import type { JsonSchema } from "@zcode/contracts";
+import type { JsonSchema } from "@qcode/contracts";
 
 /** strict 模式认识的 string format；其余 format 折进 description。 */
 const STRICT_STRING_FORMATS = new Set([

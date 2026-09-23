@@ -2,7 +2,7 @@ import type {
   BrowserCommandResult,
   BrowserPlaywrightAction,
   BrowserPlaywrightModifier,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { Locator, Page } from "playwright-core";
 
 const DEFAULT_TIMEOUT_MS = 3_000;

@@ -17,7 +17,7 @@ import type {
   ExecutionRunOptions,
   ExecutionStatus,
   ExecutionStreamResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export class NodeExecutionAdapterResults extends NodeExecutionAdapterBase {
   protected emitResult(options: ExecutionRunOptions, result: ExecutionResult): void {

@@ -4,7 +4,7 @@ import {
   isAutomationCreateLimitError,
   type AutomationPort,
   type CronAutomation,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   parseModelPickerValue,
   zcodeAutomationCheckTaskBindingResultSchema,
@@ -12,9 +12,9 @@ import {
   zcodeAutomationDeleteResultSchema,
   zcodeAutomationListResultSchema,
   zcodeAutomationUpdateResultSchema,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   type ZCodeAutomationProtocol,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import {
   ProtocolRequestError,
   type ZCodeProtocolAgentServerContext,
@@ -61,7 +61,7 @@ export function createProtocolAutomationPort(
         try {
           try {
             const result = await context.requestClient(
-              zcodeProtocolMethods.automationCheckTaskBinding,
+              qcodeProtocolMethods.automationCheckTaskBinding,
               { targetTaskId: ownSessionId },
               zcodeAutomationCheckTaskBindingResultSchema,
             );
@@ -74,7 +74,7 @@ export function createProtocolAutomationPort(
             // 方法会返回 -32601。只有“方法不存在”能证明是能力差异，此时回退旧版列表筛选；
             // 数据库、传输和协议错误仍交给外层 fail-closed，不能误判为未绑定。
             const legacyResult = await context.requestClient(
-              zcodeProtocolMethods.automationList,
+              qcodeProtocolMethods.automationList,
               {},
               zcodeAutomationListResultSchema,
             );
@@ -112,7 +112,7 @@ export function createProtocolAutomationPort(
       let result;
       try {
         result = await context.requestClient(
-          zcodeProtocolMethods.automationCreate,
+          qcodeProtocolMethods.automationCreate,
           {
             // 相对时间不由模型换算绝对时刻；兼容协议仍要求 cronExpr，服务层会用真实时钟覆盖占位值。
             // `!== null` 判定会把省略 delayMinutes 的普通 cron 调用误走相对分支，
@@ -176,7 +176,7 @@ export function createProtocolAutomationPort(
     async update(input) {
       const hasIntervalCarrier = input.intervalUnit !== undefined && input.interval !== undefined;
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationUpdate,
+        qcodeProtocolMethods.automationUpdate,
         {
           automationId: input.id,
           ...(input.title !== undefined ? { title: input.title } : {}),
@@ -202,7 +202,7 @@ export function createProtocolAutomationPort(
     },
     async list() {
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationList,
+        qcodeProtocolMethods.automationList,
         {},
         zcodeAutomationListResultSchema,
       );
@@ -210,7 +210,7 @@ export function createProtocolAutomationPort(
     },
     async delete(input) {
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationDelete,
+        qcodeProtocolMethods.automationDelete,
         { automationId: input.id },
         zcodeAutomationDeleteResultSchema,
       );

@@ -82,7 +82,7 @@ ZCODE_VENDOR_MODEL=GLM-5.3
 
 | 项 | 状态 | 验证方式 |
 |---|---|---|
-| 厂商索引 / 解析 / 校验（`apps/qcode-cli/packages/cli/src/vendor.ts`） | ✅ | 28 厂商（8 套餐 + 20 普通）、14 短名；端点一致性、模型越界、自定义厂商放行逐条实测 |
+| 厂商索引 / 解析 / 校验（`apps/zcode-cli/packages/cli/src/vendor.ts`） | ✅ | 28 厂商（8 套餐 + 20 普通）、14 短名；端点一致性、模型越界、自定义厂商放行逐条实测 |
 | `zcode configure` 四字段（`run.ts`） | ✅ | 套餐链路 `zcode -p` 真实返回 |
 | 个人厂商写入（`personal-vendor.ts`） | ✅ | 写入结构正确（`personalModelIds` / `group: standard-personal`）；**幂等**：连续两次写入条目数仍为 1；权限 `-rw-------` |
 | `.env` / `.env.example` 迁移 | ✅ | 删除 8 个键；`BIGMODEL_API_KEY` → `ZCODE_VENDOR_API_KEY`；备份 `.env.bak-before-vendor-migration` |
@@ -126,7 +126,7 @@ ZCODE_VENDOR_MODEL=GLM-5.3
 
 | 项 | 当时状态 |
 |----|------|
-| 厂商索引 / 解析 / 校验（`apps/qcode-cli/packages/cli/src/vendor.ts`） | ✅ 已实现并验证：28 个厂商（8 套餐 + 20 普通）、14 个短名、端点一致性校验、模型越界报错、自定义厂商放行 |
+| 厂商索引 / 解析 / 校验（`apps/zcode-cli/packages/cli/src/vendor.ts`） | ✅ 已实现并验证：28 个厂商（8 套餐 + 20 普通）、14 个短名、端点一致性校验、模型越界报错、自定义厂商放行 |
 | `.env` / `.env.example` 迁移 | ✅ 已完成（备份 `.env.bak-before-vendor-migration`；删除 8 个键 + `BIGMODEL_API_KEY`→`ZCODE_VENDOR_API_KEY`） |
 | `zcode configure` 读取四字段 | ✅ 已实现，套餐链路端到端跑通（`zcode -p` 真实返回） |
 | `make install` 接入 | ✅ 已改为调用 `zcode configure`，不再读死 `BIGMODEL_API_KEY` |

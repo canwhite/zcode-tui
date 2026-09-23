@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { createHmac, randomUUID } from "node:crypto";
-import type { ZCodeMcpTelemetryEvent } from "@zcode/shared";
+import type { ZCodeMcpTelemetryEvent } from "@qcode/shared";
 import {
   createMcpResourceTelemetry,
   type McpResourceTelemetryOptions,

@@ -13,7 +13,7 @@ import type {
   SkillOperationOptions,
   SkillPort,
   SkillRoot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { resolveDefaultSkillRoots, type SkillRootResolutionOptions } from "./roots.js";
 import { scanSkillFilesUnderRoot } from "./scan.js";
 

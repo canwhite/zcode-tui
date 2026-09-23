@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
-import type { TurnAttachment } from "@zcode/core";
+import type { TurnAttachment } from "@qcode/core";
 import type {
   InputHistoryAttachment,
   InputHistoryEntry,
   SessionId,
   ToolArtifactStorePort,
   TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { PromptInput } from "./types.js";
 
 export function normalizePromptInput(input: PromptInput): {

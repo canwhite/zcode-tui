@@ -2,7 +2,7 @@
 // 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@zcode/contracts";
+import { QCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@qcode/contracts";
 import {
   readVendoredOfficialAsset,
   ZHIPU_OFFICIAL_ASSET_BASE_URL,
@@ -53,17 +53,17 @@ export function writeCdnOfficialMarketplacePartitionSync(input: {
  * @returns 是否真的播种了
  */
 export function seedCdnPartitionFromVendoredSync(storageRoot: string): boolean {
-  if (process.env.ZCODE_DEBUG_VENDOR) {
+  if (process.env.QCODE_DEBUG_VENDOR) {
     console.error(`[DEBUG-vendor] seed 被调用，storageRoot=${storageRoot}`);
   }
   if (readJsonRecord(partitionPath(storageRoot, CDN_PARTITION_FILE)) !== undefined) {
-    if (process.env.ZCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] cdn 分片已存在，跳过`);
+    if (process.env.QCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] cdn 分片已存在，跳过`);
     return false;
   }
 
   const bytes = readVendoredOfficialAsset(`${ZHIPU_OFFICIAL_ASSET_BASE_URL}marketplace.json`);
   if (!bytes) {
-    if (process.env.ZCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] 读不到本地清单`);
+    if (process.env.QCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] 读不到本地清单`);
     return false;
   }
 
@@ -75,7 +75,7 @@ export function seedCdnPartitionFromVendoredSync(storageRoot: string): boolean {
     // 损坏本身由 `node scripts/vendor-resources.mjs verify` 负责报出。
     return false;
   }
-  if (!isRecord(manifest) || manifest.name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE) return false;
+  if (!isRecord(manifest) || manifest.name !== QCODE_OFFICIAL_PLUGIN_MARKETPLACE) return false;
 
   writeCdnOfficialMarketplacePartitionSync({ manifest, storageRoot });
   return true;
@@ -85,7 +85,7 @@ export function loadBundledOfficialPluginRootsSync(storageRoot: string): string[
   const bundledPartition = readBundledPartition(storageRoot);
   if (!bundledPartition) return undefined;
 
-  const officialCacheRoot = resolve(storageRoot, "cache", ZCODE_OFFICIAL_PLUGIN_MARKETPLACE);
+  const officialCacheRoot = resolve(storageRoot, "cache", QCODE_OFFICIAL_PLUGIN_MARKETPLACE);
   return readPluginEntries(bundledPartition.manifest).flatMap((plugin) => {
     const name = readPluginName(plugin);
     const cachePath = typeof plugin.cachePath === "string" ? plugin.cachePath : undefined;
@@ -121,7 +121,7 @@ function rebuildOfficialMarketplaceSync(storageRoot: string): Record<string, unk
   const merged = {
     ...(bundledManifest ?? {}),
     ...(cdnManifest ?? {}),
-    name: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+    name: QCODE_OFFICIAL_PLUGIN_MARKETPLACE,
     plugins: [...cdnPlugins, ...bundledPlugins],
   };
   writeJsonFileSync(partitionPath(storageRoot, MERGED_MARKETPLACE_FILE), merged);
@@ -162,15 +162,15 @@ function isStrictDescendant(parentPath: string, childPath: string): boolean {
 }
 
 function assertOfficialManifest(manifest: Record<string, unknown>): void {
-  if (manifest.name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
+  if (manifest.name !== QCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
     throw new Error(
-      `Official marketplace manifest must be named ${ZCODE_OFFICIAL_PLUGIN_MARKETPLACE}`,
+      `Official marketplace manifest must be named ${QCODE_OFFICIAL_PLUGIN_MARKETPLACE}`,
     );
   }
 }
 
 function partitionPath(storageRoot: string, fileName: string): string {
-  return join(storageRoot, "marketplaces", ZCODE_OFFICIAL_PLUGIN_MARKETPLACE, fileName);
+  return join(storageRoot, "marketplaces", QCODE_OFFICIAL_PLUGIN_MARKETPLACE, fileName);
 }
 
 function readJsonRecord(path: string): Record<string, unknown> | undefined {

@@ -15,10 +15,10 @@ import type { CliEnv } from "./env.js";
  */
 
 export const VENDOR_ENV_KEYS = {
-  vendor: "ZCODE_VENDOR",
-  baseUrl: "ZCODE_VENDOR_BASE_URL",
-  apiKey: "ZCODE_VENDOR_API_KEY",
-  model: "ZCODE_VENDOR_MODEL",
+  vendor: "QCODE_VENDOR",
+  baseUrl: "QCODE_VENDOR_BASE_URL",
+  apiKey: "QCODE_VENDOR_API_KEY",
+  model: "QCODE_VENDOR_MODEL",
 } as const;
 
 export type VendorKind = "coding-plan" | "api-key";

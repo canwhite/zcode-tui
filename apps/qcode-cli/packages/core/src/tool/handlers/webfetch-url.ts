@@ -2,7 +2,7 @@ import {
   getIpAddressVersion,
   getPublicEgressIpBlockReason,
   normalizeIpAddressLiteral,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { MAX_WEBFETCH_URL_CHARS } from "./webfetch-constants.js";
 import { isWebFetchIpLiteral } from "./webfetch-egress-guard.js";
 import { webFetchError } from "./webfetch-errors.js";

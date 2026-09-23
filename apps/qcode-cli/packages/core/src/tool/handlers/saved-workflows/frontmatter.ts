@@ -19,7 +19,7 @@
 // 一段 YAML 比手改一段带引号和逗号的 JSON 容错得多——这个文件的读者是人。
 
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
-import { SavedWorkflowMetaSchema, type SavedWorkflowMeta } from "@zcode/contracts";
+import { SavedWorkflowMetaSchema, type SavedWorkflowMeta } from "@qcode/contracts";
 
 /** frontmatter 的开启标记。必须是文件的第一段非空白内容。 */
 export const SAVED_WORKFLOW_SENTINEL = "/* zcode-workflow";

@@ -1,4 +1,4 @@
-import type { TopicFrameDeliveryKind } from "@zcode/shared/zcode-protocol-v4";
+import type { TopicFrameDeliveryKind } from "@qcode/shared/zcode-protocol-v4";
 
 /** publisher 水位的两阶段提交句柄。 */
 export interface TopicFrameReservation<F> {

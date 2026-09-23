@@ -1,5 +1,5 @@
-import type { McpServerStatus, McpServerStatusKind } from "@zcode/contracts";
-import type { TuiCopy } from "@zcode/i18n";
+import type { McpServerStatus, McpServerStatusKind } from "@qcode/contracts";
+import type { TuiCopy } from "@qcode/i18n";
 import React from "react";
 import type { McpSidebarState } from "./app-model.js";
 import { palette } from "./app-model.js";

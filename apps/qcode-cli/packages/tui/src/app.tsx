@@ -1,5 +1,5 @@
-import type { ModelUsageSummary, TodoItem, TurnId } from "@zcode/contracts";
-import { getZCodeCopy } from "@zcode/i18n";
+import type { ModelUsageSummary, TodoItem, TurnId } from "@qcode/contracts";
+import { getZCodeCopy } from "@qcode/i18n";
 import { useTerminalDimensions } from "@mbears/opentui-react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { resolveBtwBodyRows } from "./app-btw.js";

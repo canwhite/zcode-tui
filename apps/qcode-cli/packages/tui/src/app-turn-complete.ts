@@ -2,7 +2,7 @@
 //
 // 两件事放一起是因为它们同源于一条事件；顺带让 app-events.ts 的 switch 留在 max-lines 之内。
 import type React from "react";
-import type { ModelUsageSummary } from "@zcode/contracts";
+import type { ModelUsageSummary } from "@qcode/contracts";
 import type { CacheStats, Message } from "./app-model.js";
 import { cacheStatsFromPayload, usageFromPayload } from "./app-event-data.js";
 import { projectedTranscriptHasResponse } from "./app-transcript-stream.js";

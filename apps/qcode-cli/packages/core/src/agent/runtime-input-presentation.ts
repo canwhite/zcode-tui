@@ -1,4 +1,4 @@
-import { parseRuntimeInputPresentation } from "@zcode/contracts";
+import { parseRuntimeInputPresentation } from "@qcode/contracts";
 import type { RuntimeMessageMetadata } from "./message-history.js";
 
 /** 新标记决定真实输入身份，不能让 coordinator 继承 guide 的 real_user。 */

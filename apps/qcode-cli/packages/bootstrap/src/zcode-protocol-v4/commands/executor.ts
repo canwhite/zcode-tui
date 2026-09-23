@@ -3,7 +3,7 @@
 // 逐命令原生化的推进方式：handlers/ 注册表列出已原生的命令；binder 只在 supports
 // 命中时走本执行器，未命中回落旧桥（binder 侧回落，随每条命令原生化逐条消失）。
 // 完成定义：原生 handler + L2 闭环 + L3 e2e，且写路径不经旧协议代码。
-import type { CommandEnvelope, CommandResult } from "@zcode/shared/zcode-protocol-v4";
+import type { CommandEnvelope, CommandResult } from "@qcode/shared/zcode-protocol-v4";
 import { NATIVE_HANDLERS } from "./handlers/index.js";
 import type { V4CommandCoreHost } from "./types.js";
 

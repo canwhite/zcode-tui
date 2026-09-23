@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { atomicWritePrivateTextFile, withFileLock } from "@zcode/shared/node";
+import { atomicWritePrivateTextFile, withFileLock } from "@qcode/shared/node";
 import type { NodeZCodeBuiltinProviderConfigSource } from "./qcode-builtin-provider-config-source.js";
 import type { ZCodeBuiltinRelease } from "./qcode-builtin-release.js";
 

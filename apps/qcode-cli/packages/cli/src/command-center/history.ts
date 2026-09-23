@@ -1,4 +1,4 @@
-import type { TuiPromptInput } from "@zcode/tui";
+import type { TuiPromptInput } from "@qcode/tui";
 import type { CommandCenterDeps } from "./types.js";
 
 export async function recordSlashCommandInHistory(

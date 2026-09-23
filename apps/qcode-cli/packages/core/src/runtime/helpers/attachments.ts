@@ -1,5 +1,5 @@
 import { basename, resolvePath } from "../deps.js";
-import { READ_DEFAULT_MAX_LINES, READ_MAX_FILE_SIZE_BYTES } from "@zcode/contracts";
+import { READ_DEFAULT_MAX_LINES, READ_MAX_FILE_SIZE_BYTES } from "@qcode/contracts";
 import type {
   FilePartSource,
   FileSystemPort,

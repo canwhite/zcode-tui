@@ -8,7 +8,7 @@
 // `project`）。`global` 时改按本机全局根（`~/.zcode/workflows/`）操作，`workspace` 只是**载体**——
 // 处理器对全局档不读它的路径。`workflows/move` 把全局档搬回 `workspace` 项目（只此一向）。
 import { unlink, writeFile } from "node:fs/promises";
-import { SavedWorkflowMetaSchema, isValidSavedWorkflowName } from "@zcode/contracts";
+import { SavedWorkflowMetaSchema, isValidSavedWorkflowName } from "@qcode/contracts";
 import {
   listSavedWorkflows,
   moveSavedWorkflow,
@@ -17,9 +17,9 @@ import {
   savedWorkflowRoot,
   serializeSavedWorkflow,
   type SavedWorkflowResolveFailure,
-} from "@zcode/core";
+} from "@qcode/core";
 import {
-  ZCODE_WORKFLOWS_RUNS_MAX_LIMIT,
+  QCODE_WORKFLOWS_RUNS_MAX_LIMIT,
   zcodeWorkflowsDeleteParamsSchema,
   zcodeWorkflowsGetParamsSchema,
   zcodeWorkflowsListParamsSchema,
@@ -34,8 +34,8 @@ import {
   type ZCodeWorkflowsMoveResult,
   type ZCodeWorkflowsRunsResult,
   type ZCodeWorkflowsUpdateMetaResult,
-} from "@zcode/shared";
-import type { JournalStorePort } from "@zcode/dynamic-workflow";
+} from "@qcode/shared";
+import type { JournalStorePort } from "@qcode/dynamic-workflow";
 import { artifactsOf } from "../app/dynamic-workflow-run-observation.js";
 import {
   resolveDynamicWorkflowJournalStore,
@@ -150,7 +150,7 @@ export async function listSavedWorkflowRunsOp(
   const params = parseParams(zcodeWorkflowsRunsParamsSchema, rawParams);
   const journal = resolveDynamicWorkflowJournalStore(context.deps.sessionStore);
   if (journal === undefined || !supportsRunIntrospection(journal)) return { runs: [] };
-  const limit = Math.min(ZCODE_WORKFLOWS_RUNS_MAX_LIMIT, params.limit);
+  const limit = Math.min(QCODE_WORKFLOWS_RUNS_MAX_LIMIT, params.limit);
   const global = scopeOf(params) === "global";
   // 多取一条**只为判定 truncated**（run service 与 v4 事件分页的同一惯例）。
   // 全局变体省掉 cwd 谓词（journal 的 cwd 可选 = 跨所有项目）；项目变体传 cwd，逐字不变。

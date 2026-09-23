@@ -1,14 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { createConnection } from "node:net";
-import type { BrowserClientTransport } from "@zcode/core/browser-client";
-import type { NodeReplRequestMeta, NodeReplSession } from "@zcode/core/repl";
-import type { BrowserCommand, BrowserCommandResult } from "@zcode/shared";
+import type { BrowserClientTransport } from "@qcode/core/browser-client";
+import type { NodeReplRequestMeta, NodeReplSession } from "@qcode/core/repl";
+import type { BrowserCommand, BrowserCommandResult } from "@qcode/shared";
 // 只加载 broker 协议；shared 总入口会在每个 Worker 中初始化无关领域的 schema。
 import {
   NODE_REPL_BROWSER_BROKER_SOCKET_ENV,
   NODE_REPL_BROWSER_BROKER_TOKEN_ENV,
   nodeReplBrowserBrokerResponseSchema,
-} from "@zcode/shared/node-repl-browser-broker";
+} from "@qcode/shared/node-repl-browser-broker";
 import {
   BROWSER_UNAVAILABLE_IN_SUBAGENT_MESSAGE,
   NODE_REPL_BROWSER_BRIDGE_SYMBOL,

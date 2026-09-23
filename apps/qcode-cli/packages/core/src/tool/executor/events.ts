@@ -11,7 +11,7 @@ import {
   type SkillTelemetryMetadata,
   type TraceContext,
   type TurnId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { PermissionContext } from "../../permission/service.js";
 import type { ExecutableToolCall, ToolExecutionResult, ToolResultSerialization } from "../types.js";
 import type { ToolExecutorDeps } from "./types.js";

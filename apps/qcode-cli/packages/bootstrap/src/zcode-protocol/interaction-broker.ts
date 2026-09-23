@@ -11,17 +11,17 @@ import {
   type PermissionBrokerRequest,
   type PermissionBrokerRequestOptions,
   type PermissionBrokerResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   WORKFLOW_REFINE_PERMISSION_OPTION_ID,
   zcodePermissionResponseSchema,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   zcodeUserInputResponseSchema,
   type ZCodePermissionOption,
   type ZCodePermissionResponse,
   type ZCodeUserInputQuestion,
   type ZCodeUserInputResponse,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type {
   V4InteractionAnswer,
   V4InteractionRegistrationOptions,
@@ -73,7 +73,7 @@ async function requestPermission(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestPermission,
+        qcodeProtocolMethods.interactionRequestPermission,
         {
           input: request.input,
           reason: request.reason,
@@ -216,7 +216,7 @@ async function requestUserInput(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestUserInput,
+        qcodeProtocolMethods.interactionRequestUserInput,
         {
           input: request.input,
           prompt: request.reason,
@@ -277,7 +277,7 @@ async function requestExitPlanModeApproval(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestUserInput,
+        qcodeProtocolMethods.interactionRequestUserInput,
         {
           input: request.input,
           prompt: request.reason,

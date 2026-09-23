@@ -86,7 +86,7 @@ function printHelp() {
 
 用法:
   pnpm dep:graph
-  pnpm dep:graph -- apps/zcode-cli/packages/core/src
+  pnpm dep:graph -- apps/qcode-cli/packages/core/src
   pnpm dep:graph -- --format json -o -
 
 选项:

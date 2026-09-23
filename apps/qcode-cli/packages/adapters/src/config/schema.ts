@@ -1,6 +1,6 @@
 /* eslint-disable max-lines -- qcode-cli 配置 schema 需要集中维护文件解析和 provider 继承，拆散会让配置语义更难对齐。 */
 import { z } from "zod";
-import type { RuntimeConfigPatch } from "@zcode/contracts";
+import type { RuntimeConfigPatch } from "@qcode/contracts";
 
 const stringRecordSchema = z.record(z.string(), z.string());
 const unknownRecordSchema = z.record(z.string(), z.unknown());
@@ -185,8 +185,8 @@ const pluginsSchema = z.object({
   suppressedBuiltins: z.array(z.string().min(1)).optional(),
 });
 
-export const LEGACY_CUA_PLUGIN_ID = "qcode-cua@zcode-plugins-official";
-export const CANONICAL_CUA_PLUGIN_ID = "computer-use@zcode-plugins-official";
+export const LEGACY_CUA_PLUGIN_ID = "qcode-cua@qcode-plugins-official";
+export const CANONICAL_CUA_PLUGIN_ID = "computer-use@qcode-plugins-official";
 
 export function canonicalizePluginId(pluginId: string): string {
   return pluginId === LEGACY_CUA_PLUGIN_ID ? CANONICAL_CUA_PLUGIN_ID : pluginId;

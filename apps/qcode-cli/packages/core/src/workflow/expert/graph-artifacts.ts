@@ -7,7 +7,7 @@ import { edgeId, phaseNodeId } from "./ids.js";
 import { gateRootSeedNodes, parseWorkflowGraphSeed } from "./parsers/graph-seed.js";
 import { parseWorkflowNodePromptUpdateSet } from "./parsers/node-prompts.js";
 import type { ExpertWorkflowRuntimeContext } from "./runtime-context.js";
-import type { ExpertWorkflowRunSnapshot, WorkflowPhaseDefinition } from "@zcode/contracts";
+import type { ExpertWorkflowRunSnapshot, WorkflowPhaseDefinition } from "@qcode/contracts";
 
 export async function seedGraphFromPhaseArtifact(
   ctx: ExpertWorkflowRuntimeContext,

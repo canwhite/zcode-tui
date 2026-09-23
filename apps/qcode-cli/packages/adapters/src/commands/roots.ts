@@ -1,6 +1,6 @@
 import { stat } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
-import type { CustomCommandRoot, CustomCommandSource } from "@zcode/contracts";
+import type { CustomCommandRoot, CustomCommandSource } from "@qcode/contracts";
 import {
   CONFIG_HOME_DIR,
   getUserConfigHome,
@@ -12,7 +12,7 @@ const CLAUDE_DIR = CONFIG_HOME_DIR;
 const GIT_MARKER = ".git";
 const HOME_PREFIX = "~/";
 const PRIORITY_STEP = 10;
-const ZCODE_DIR = ".zcode";
+const QCODE_DIR = ".zcode";
 const AGENTS_DIR = ".agents";
 
 export interface CustomCommandRootResolutionOptions {
@@ -106,7 +106,7 @@ async function pathExists(path: string): Promise<boolean> {
  * 用户级自定义命令根。
  *
  * 两个入参各有独立来源，**不要用一个推导另一个**：
- * - `configHome` 是配置家目录（`~/.claude`），可被 `ZCODE_CONFIG_HOME` 覆盖；
+ * - `configHome` 是配置家目录（`~/.claude`），可被 `QCODE_CONFIG_HOME` 覆盖；
  * - `userHome` 是**使用者家目录**，`.agents` 必须挂在它下面。
  *
  * 用 `dirname(configHome)` 推导 `.agents` 会在自定义落点下静默读错目录。
@@ -136,7 +136,7 @@ function userCommandRoots(
 function projectCommandRoots(baseDirectory: string, nextPriority: () => number): CustomCommandRoot[] {
   return [
     root(join(baseDirectory, CLAUDE_DIR, COMMANDS_DIR), "project", "claude", nextPriority()),
-    root(join(baseDirectory, ZCODE_DIR, COMMANDS_DIR), "project", "qcode", nextPriority()),
+    root(join(baseDirectory, QCODE_DIR, COMMANDS_DIR), "project", "qcode", nextPriority()),
     root(join(baseDirectory, AGENTS_DIR, COMMANDS_DIR), "project", "agents", nextPriority()),
   ];
 }

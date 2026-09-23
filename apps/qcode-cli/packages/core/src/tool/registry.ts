@@ -2,7 +2,7 @@
 // Tool Registry - Tool registration and lookup
 // ============================================================
 
-import { type ModelToolContract } from "@zcode/contracts";
+import { type ModelToolContract } from "@qcode/contracts";
 import type { ToolEntry, ToolMetadata } from "./types.js";
 
 // -----------------------------------------------

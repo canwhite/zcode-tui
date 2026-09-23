@@ -6,7 +6,7 @@ import type {
   PluginComponentKind,
   PluginDiagnostic,
   PluginManifest,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { directoryExists, isRecord, resolveInside } from "./helpers.js";
 import { listPluginHookEventNames } from "./hook-sources.js";
 import { readMarkdownFrontmatter } from "./markdown-frontmatter.js";

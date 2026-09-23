@@ -2,7 +2,7 @@ import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
 import { dirname } from "node:path";
 import { decodeExecutionOutputBuffer } from "./outputEncoding.js";
 import type { OutputPersistenceMode } from "./execution-adapter-types.js";
-import type { ExecutionStreamResult } from "@zcode/contracts";
+import type { ExecutionStreamResult } from "@qcode/contracts";
 
 export interface AggregatePersistedOutputBudget {
   bytes: number;

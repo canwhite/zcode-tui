@@ -10,7 +10,7 @@
 // 文件未知（草稿写不下去的项目）时这里一句都不出：调用方保留改动之前的老文案，模型读到的仍是
 // 「改好脚本再提交一次」。
 
-import type { CreateWorkflowDiagnostic } from "@zcode/contracts";
+import type { CreateWorkflowDiagnostic } from "@qcode/contracts";
 
 /**
  * 脚本文件在模型面的身份。`kind` 只影响一个动词：`draft` 是**工具刚写下**的拷贝（「saved at」），

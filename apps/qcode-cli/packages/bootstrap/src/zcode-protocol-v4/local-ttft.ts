@@ -10,7 +10,7 @@ import {
   type TurnSteerQueuedPayload,
   type TurnSteerDrainedPayload,
   type TurnSteerDiscardedPayload,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   ConversationTelemetryFactNormalizer,
   streamingParentToolCallId,
@@ -25,7 +25,7 @@ import {
   type ConversationTelemetryFact,
   type LocalTtftFacts,
   type LocalTtftOutputKind,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 /** 无业务裁决权：只跟随 inbox 和 live event，不建立第二份 accepted input queue。 */
 export class LocalTtftRecorder {

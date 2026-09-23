@@ -4,7 +4,7 @@ import {
   runWithModelInvocationContext,
   type ModelInputMessage,
   type WebFetchInput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 import { auxiliaryModelOptions } from "../../model/auxiliary-model-options.js";
 import { MAX_MODEL_INPUT_CHARS, WEBFETCH_TOOL_NAME } from "./webfetch-constants.js";

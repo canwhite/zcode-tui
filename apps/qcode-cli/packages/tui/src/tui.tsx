@@ -1,7 +1,7 @@
 import { CliRenderEvents, createCliRenderer, type CliRenderer } from "@mbears/opentui-core";
-import type { UiThemeMode } from "@zcode/contracts";
+import type { UiThemeMode } from "@qcode/contracts";
 import { createRoot } from "@mbears/opentui-react";
-import { getZCodeCopy } from "@zcode/i18n";
+import { getZCodeCopy } from "@qcode/i18n";
 import React from "react";
 import { TuiApp } from "./app.js";
 import { TuiStartupScreen } from "./app-startup.js";

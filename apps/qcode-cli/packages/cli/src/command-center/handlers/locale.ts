@@ -1,5 +1,5 @@
-import { isUiLocale, SUPPORTED_LOCALES, type UiLocale } from "@zcode/i18n";
-import type { TuiSubmitPromptResult } from "@zcode/tui";
+import { isUiLocale, SUPPORTED_LOCALES, type UiLocale } from "@qcode/i18n";
+import type { TuiSubmitPromptResult } from "@qcode/tui";
 import type { CommandCenterDeps } from "../types.js";
 
 const CONFIGURABLE_LOCALES = ["auto", ...SUPPORTED_LOCALES] as const satisfies readonly UiLocale[];

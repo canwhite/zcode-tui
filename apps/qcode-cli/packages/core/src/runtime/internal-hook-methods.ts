@@ -1,5 +1,5 @@
 import type { HookRunResult, Model, TraceContext, TurnState } from "./deps.js";
-import type { HookEventName } from "@zcode/contracts";
+import type { HookEventName } from "@qcode/contracts";
 import type { RuntimeMessageEntry } from "../agent/message-history.js";
 
 // 从 internal-methods.ts 拆出，避免该文件越过

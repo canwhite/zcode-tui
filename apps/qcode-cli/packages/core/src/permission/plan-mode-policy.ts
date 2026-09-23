@@ -2,7 +2,7 @@ import {
   ENTER_PLAN_MODE_TOOL_NAME,
   EXIT_PLAN_MODE_TOOL_NAME,
   type CollaborationMode,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 interface PlanModeTransitionContext {
   toolName: string;

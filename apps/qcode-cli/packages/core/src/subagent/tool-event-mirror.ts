@@ -7,7 +7,7 @@ import {
   createSessionEvent,
   type SessionEvent,
   type ToolCallId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   buildSubagentInteractionOrigin,
   type SubagentInteractionOriginContext,

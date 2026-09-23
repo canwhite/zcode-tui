@@ -1,4 +1,4 @@
-import { BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES, type ZCodeSlashCommand } from "@zcode/shared";
+import { BUILTIN_QCODE_SLASH_COMMAND_HELP_ENTRIES, type ZCodeSlashCommand } from "@qcode/shared";
 
 export const APP_PROTOCOL_VISIBLE_BUILTIN_SLASH_COMMAND_NAMES = [
   "goal",
@@ -19,7 +19,7 @@ export const APP_PROTOCOL_APP_ONLY_BUILTIN_SLASH_COMMANDS = [
 const EXTRA_RESERVED_SLASH_COMMAND_NAMES = ["compress", "plan"] as const;
 
 const RESERVED_SLASH_COMMAND_NAMES = new Set(
-  BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES.flatMap((entry) => [
+  BUILTIN_QCODE_SLASH_COMMAND_HELP_ENTRIES.flatMap((entry) => [
     entry.name,
     ...(entry.aliases ?? []),
   ]).concat([...EXTRA_RESERVED_SLASH_COMMAND_NAMES]),

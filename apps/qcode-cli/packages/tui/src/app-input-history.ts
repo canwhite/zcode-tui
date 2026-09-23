@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import { useCallback, type Dispatch, type MutableRefObject, type SetStateAction } from "react";
 import { toDraftAttachments } from "./app-input.js";
 import type { DraftAttachment, SlashSelectionState } from "./app-model.js";

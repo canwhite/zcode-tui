@@ -2,7 +2,7 @@
 // 工具链前置检查：安装链路的唯一判据来源。
 //
 // 设计要点：
-//   - 期望版本从仓库的既有声明读取（.nvmrc / apps/zcode-cli/.node-version /
+//   - 期望版本从仓库的既有声明读取（.nvmrc / apps/qcode-cli/.node-version /
 //     pnpm-workspace 的 packageManager），不在此处硬编码，避免第二份真相。
 //   - 缺失命令一次性收集后统一报告，而不是遇到第一个就中断（F-008）。
 
@@ -31,7 +31,7 @@ export const which = (command, env = process.env) => firstOnPath(command, env.PA
 /**
  * 解析 package.json 的 engines.node 约束，取出可见的版本下限 [major, minor, patch]。
  *
- * 契约（与 CLI 侧 `apps/zcode-cli/packages/cli/src/doctor.ts` 的 parseNodeFloor 必须一致）：
+ * 契约（与 CLI 侧 `apps/qcode-cli/packages/cli/src/doctor.ts` 的 parseNodeFloor 必须一致）：
  *   - 本仓库只声明 ">=X.Y.Z"，解析为三元组做逐段比较；
  *   - 出现其它形式时退化为「只取首个版本号，minor/patch 记 0」，不把用户挡在门外；
  *   - 完全没有版本号时返回 undefined，由调用方降级为「不校验」。
@@ -58,7 +58,7 @@ function nodeMeetsFloor(actualVersion, [floorMajor, floorMinor, floorPatch]) {
 
 export function readToolchainSpec() {
   const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
-  const nodeVersionFile = join(repoRoot, "apps", "zcode-cli", ".node-version");
+  const nodeVersionFile = join(repoRoot, "apps", "qcode-cli", ".node-version");
   let nodePin;
   if (existsSync(nodeVersionFile)) {
     nodePin = readFileSync(nodeVersionFile, "utf8").trim();

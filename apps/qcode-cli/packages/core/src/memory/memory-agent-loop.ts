@@ -8,7 +8,7 @@ import type {
   ModelRequest,
   ModelToolCall,
   ModelToolContract,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 import { modelContentForToolResult, isErrorForToolResult } from "../runtime/helpers/tool-result.js";
 import { projectMessagesForModelMediaPolicy } from "../runtime/helpers/media-budget.js";

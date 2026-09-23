@@ -42,7 +42,7 @@ import {
   type ValidateFn,
   type WorkflowDriver,
   type WorkflowReportSink,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { type ChildMessage, type ChildPayload, type ResponseMessage } from "./protocol.js";
 import { renderChildEntry } from "./child-source.js";
 import { writeChildEntryFile, type HarnessWarning } from "./child-entry-file.js";

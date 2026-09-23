@@ -5,7 +5,7 @@
 // `supersededBy` 指向把自己停掉的后继。快照、列表、详情三个截面都要带这两个键，规则只写一遍。
 // 从 dynamic-workflow-run-observation.ts 拆出是因为那份文件已顶到 oxlint 的 400 行上限。
 
-import type { RunStatus } from "@zcode/dynamic-workflow";
+import type { RunStatus } from "@qcode/dynamic-workflow";
 
 /** 只看得到 lineage 所需两键的终态视图：注册表条目的 `terminal` 与 journal 行都满足它。 */
 interface SupersedableSettlement {

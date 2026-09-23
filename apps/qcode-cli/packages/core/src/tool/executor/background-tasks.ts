@@ -12,7 +12,7 @@ import {
   type TurnId,
   type WorkflowNotificationMeta,
   type WorkflowTaskSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { isSubagentDispatchToolName } from "../compat.js";
 import type { ExecutableToolCall } from "../types.js";
 import type { ToolExecutorDeps } from "./types.js";

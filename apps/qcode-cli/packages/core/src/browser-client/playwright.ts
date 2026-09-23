@@ -5,7 +5,7 @@ import type {
   BrowserMouseButton,
   BrowserPlaywrightAction,
   BrowserPlaywrightModifier,
-} from "@zcode/contracts/browser-control";
+} from "@qcode/contracts/browser-control";
 import { isRegExp } from "node:util/types";
 import { base64ToBytes, expectOk } from "./result.js";
 

@@ -11,11 +11,11 @@ export {
   WORKSPACE_HOOK_TRUST_STORE_SCHEMA_VERSION,
   workspaceHookTrustRecordSchema,
   workspaceHookTrustStoreFileSchema,
-} from "@zcode/shared/workspace-hook-trust-store-file";
+} from "@qcode/shared/workspace-hook-trust-store-file";
 export type {
   WorkspaceHookTrustRecord,
   WorkspaceHookTrustStoreFile,
-} from "@zcode/shared/workspace-hook-trust-store-file";
+} from "@qcode/shared/workspace-hook-trust-store-file";
 
 import { z } from "zod";
 

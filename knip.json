@@ -10,7 +10,7 @@
         "scripts/mise-run.mjs"
       ]
     },
-    "apps/qcode-cli/packages/browser-use-plugin": {
+    "apps/zcode-cli/packages/browser-use-plugin": {
       "entry": ["src/browser-client.ts"]
     }
   },

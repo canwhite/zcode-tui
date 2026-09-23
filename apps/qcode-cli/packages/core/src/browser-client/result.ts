@@ -1,7 +1,7 @@
 import type {
   BrowserCommand,
   BrowserCommandResult,
-} from "@zcode/contracts/browser-control";
+} from "@qcode/contracts/browser-control";
 
 export class BrowserCommandError extends Error {
   readonly code: string;

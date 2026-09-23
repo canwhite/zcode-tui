@@ -23,7 +23,7 @@ import {
   type OffPeakCreateOutput,
   type OffPeakListOutput,
   type ToolPermissionSpec,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolExecutionContext, ToolHandler } from "../types.js";
 
 const OFF_PEAK_TOOL_TIMEOUT_MS = 30_000;

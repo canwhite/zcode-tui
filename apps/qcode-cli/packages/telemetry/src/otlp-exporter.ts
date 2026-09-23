@@ -23,7 +23,7 @@ import {
   type AgentTelemetryRuntimeOwner,
   type TelemetryIdentitySnapshot,
   type TelemetryResourceContext,
-} from "@zcode/contracts/telemetry";
+} from "@qcode/contracts/telemetry";
 import { AgentExecutionTelemetryRuntime } from "./agent-trace-runtime.js";
 import { OtelAgentTelemetryMetrics } from "./agent-metrics.js";
 import { ModelApiTelemetryStatusSink } from "./model-api-recorder.js";
@@ -101,9 +101,9 @@ export function createOwnedAgentTelemetryRuntime(
     contextManager.disable();
   }
 
-  const tracer = provider.getTracer("@zcode/cli-agent-telemetry", String(TELEMETRY_SCHEMA_VERSION));
+  const tracer = provider.getTracer("@qcode/cli-agent-telemetry", String(TELEMETRY_SCHEMA_VERSION));
   const meter = meterProvider.getMeter(
-    "@zcode/cli-agent-telemetry",
+    "@qcode/cli-agent-telemetry",
     String(TELEMETRY_SCHEMA_VERSION),
   );
   const metrics = new OtelAgentTelemetryMetrics(meter);

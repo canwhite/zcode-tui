@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import type { SkillRoot } from "@zcode/contracts";
+import type { SkillRoot } from "@qcode/contracts";
 
 /**
  * 动态工作流灰度门在 App 装配层的两处减法。

@@ -4,7 +4,7 @@ import type {
   BrowserKeyModifier,
   BrowserPageState,
   BrowserPoint,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ElementHandle, Page } from "playwright-core";
 import { executeManagedPlaywrightAction, evaluatePage } from "./playwright-command.js";
 import {

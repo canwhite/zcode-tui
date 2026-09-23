@@ -4,7 +4,7 @@
  * 单独成文件而不是留在 mcp.ts：官方鉴权的解析规则覆盖 http 与 stdio 两种传输方式，
  * 且与模板变量解析、传输层字段解析没有耦合——放一起只会让 mcp.ts 继续膨胀（它已到 max-lines 上限）。
  */
-import type { McpOfficialProvenance, ZCodeOfficialMcpAuthConfig } from "@zcode/contracts";
+import type { McpOfficialProvenance, ZCodeOfficialMcpAuthConfig } from "@qcode/contracts";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

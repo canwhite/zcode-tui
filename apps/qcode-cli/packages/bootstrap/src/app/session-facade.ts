@@ -1,7 +1,7 @@
-import { updateUiLocaleInFileConfig, type ConfigResult } from "@zcode/adapters/config";
-import type { AgentRuntime } from "@zcode/core";
-import { resolveLocale } from "@zcode/i18n";
-import { normalizeModelSelection, type ModelSelection } from "@zcode/provider";
+import { updateUiLocaleInFileConfig, type ConfigResult } from "@qcode/adapters/config";
+import type { AgentRuntime } from "@qcode/core";
+import { resolveLocale } from "@qcode/i18n";
+import { normalizeModelSelection, type ModelSelection } from "@qcode/provider";
 import {
   SESSION_ENTRY_MODEL_SELECTION,
   traceContextToLogContext,
@@ -22,7 +22,7 @@ import {
   type TurnInputIntentMetadata,
   type UiLocale,
   type UiThemePreference,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { listMcpServerStatuses } from "../mcp-config.js";
 import { loadSessionTranscriptFromStore } from "../session-transcript.js";
 import { createSubagentObservation } from "./subagent-observation.js";

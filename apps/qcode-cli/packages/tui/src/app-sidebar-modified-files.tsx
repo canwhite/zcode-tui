@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import React from "react";
 import type { ModifiedFileStat } from "./app-modified-files.js";
 import { palette } from "./app-model.js";

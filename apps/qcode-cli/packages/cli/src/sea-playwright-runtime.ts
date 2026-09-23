@@ -4,7 +4,7 @@ import { chmod, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises"
 import { createRequire } from "node:module";
 import { homedir, platform, tmpdir } from "node:os";
 import { dirname, join, normalize, sep } from "node:path";
-import type { PlaywrightChromiumModule } from "@zcode/adapters/browser";
+import type { PlaywrightChromiumModule } from "@qcode/adapters/browser";
 
 declare const __CLI_VERSION__: string;
 

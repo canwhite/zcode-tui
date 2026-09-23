@@ -9,17 +9,17 @@ import type {
   RuntimeConfig,
   RuntimeConfigPatch,
   WorkspaceHookBundleSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   ConfigScope,
   DefaultRuntimeConfig,
   createWorkspaceHookBundleSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   buildWorkspaceHookBundleSnapshot,
   resolveWorkspaceHookRuntimeRoot,
   type WorkspaceHookRuntimeRoot,
-} from "@zcode/shared/workspace-hook-discovery";
+} from "@qcode/shared/workspace-hook-discovery";
 import { createConfigPort } from "./index.js";
 import { loadFileConfig, getDefaultConfigPath, type LoadedConfig } from "./file-config.adapter.js";
 import { parseEnvConfig } from "./env-config.adapter.js";
@@ -130,7 +130,7 @@ export interface PluginConfigSources {
  * 1. System defaults
  * 2. User config file (~/.zcode/cli/config.json)
  * 3. Project config files (root to cwd, then explicit projectConfigPath)
- * 4. Environment variables (ZCODE_*)
+ * 4. Environment variables (QCODE_*)
  * 5. CLI overrides
  */
 export function createConfig(options: ConfigFactoryOptions = {}): ConfigResult {

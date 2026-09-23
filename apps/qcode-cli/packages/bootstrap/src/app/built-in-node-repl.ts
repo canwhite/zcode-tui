@@ -1,4 +1,4 @@
-import type { McpServerConfig, PluginLoadOutcome } from "@zcode/contracts";
+import type { McpServerConfig, PluginLoadOutcome } from "@qcode/contracts";
 import { createBundledMcpRuntimeConfig } from "./official-plugin-runtime.js";
 import {
   OFFICIAL_BROWSER_USE_PLUGIN_ID,
@@ -35,8 +35,8 @@ export function resolveBuiltInNodeReplMcpServers(input: {
     cwd: input.workingDirectory,
     env: {
       // 领域 root 各自注入，且只在对应能力启用时注入：宿主据此决定哪一半文档可用。
-      ...(browserUsePackage ? { ZCODE_PLUGIN_ROOT: browserUsePackage.rootPath } : {}),
-      ...(cuaPackage ? { ZCODE_CUA_PLUGIN_ROOT: cuaPackage.rootPath } : {}),
+      ...(browserUsePackage ? { QCODE_PLUGIN_ROOT: browserUsePackage.rootPath } : {}),
+      ...(cuaPackage ? { QCODE_CUA_PLUGIN_ROOT: cuaPackage.rootPath } : {}),
     },
     rootPath: hostPackage.rootPath,
     timeoutMs: 600_000,

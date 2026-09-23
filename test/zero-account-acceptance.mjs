@@ -25,7 +25,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
 const builtinConfigPath = join(repoRoot, "config", "provider", "zcode-builtin.json");
 
 /** 网关改写独有、直连不可能产生的路径串。删掉改写后产物里不应再出现。 */

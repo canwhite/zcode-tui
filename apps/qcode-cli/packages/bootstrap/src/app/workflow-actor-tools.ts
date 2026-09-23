@@ -18,7 +18,7 @@ import {
   EXIT_PLAN_MODE_TOOL_NAME,
   READ_SESSION_CONTEXT_TOOL_NAME,
   RESOLVE_WORKFLOW_QUESTION_TOOL_NAME,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 /** AgentRuntimeConfig 的工具面切片。 */
 interface WorkflowActorToolPolicy {

@@ -3,8 +3,8 @@
 // Core admission 只负责接受输入并建立 session-scoped reservation；本文件不再拥有
 // activeAbortController，也不等待 projection commit。这样 TurnStarted 之后的任意 Core
 // starting/active 状态都会继续挡住同一 session 的第二次 start。
-import { type TurnBackgroundAttribution, type TurnInputIntentMetadata } from "@zcode/contracts";
-import type { TurnAttachment } from "@zcode/core";
+import { type TurnBackgroundAttribution, type TurnInputIntentMetadata } from "@qcode/contracts";
+import type { TurnAttachment } from "@qcode/core";
 import type { SendInputOptions, SendInputResult } from "../../app/types.js";
 import { runWithSessionResidencyFinalization } from "../../zcode-protocol/session-residency.js";
 import type { V4CommandCoreHost, V4SessionRecordView } from "./types.js";

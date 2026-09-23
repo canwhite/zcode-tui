@@ -1,28 +1,28 @@
 import { querySessionDebug } from "./session-debug.js";
 import {
   zcodePluginsCancelOperationParamsSchema,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   zcodeWorkspaceCancelGenerateTextParamsSchema,
   zcodeWorkspaceHookTrustGrantParamsSchema,
-} from "@zcode/shared";
-import type { BrowserControlPort } from "@zcode/contracts";
-import { InMemoryWorkspaceHookPolicyProvider } from "@zcode/core";
+} from "@qcode/shared";
+import type { BrowserControlPort } from "@qcode/contracts";
+import { InMemoryWorkspaceHookPolicyProvider } from "@qcode/core";
 import {
   V4_METHODS,
   V4_NOTIFICATIONS,
   parseConversationTopic,
   parseSessionsIndexTopic,
   parseWorkspaceConfigTopic,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import type {
   ZCodeProtocolError,
   ZCodeProtocolMessage,
-  ZCodeProtocolMethod,
+  QCodeProtocolMethod,
   ZCodeProtocolNotification,
   ZCodeProtocolRequest,
   ZCodeProtocolRequestId,
   ZCodeProtocolResponse,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import {
   cancelBackgroundTask,
   closeSession,
@@ -114,7 +114,7 @@ import {
   type ZCodeProtocolAgentServerContext,
   type ZCodeProtocolSessionRecord,
 } from "./server-types.js";
-import { createInMemorySessionEventStore } from "@zcode/contracts";
+import { createInMemorySessionEventStore } from "@qcode/contracts";
 
 export type { ZCodeProtocolAgentDependencies, ZCodeProtocolSessionRecord };
 
@@ -566,45 +566,45 @@ export class ZCodeProtocolAgentServer {
         return this.requireV4Gateway().handleCommand(request.params);
       case V4_METHODS.commandsQuery:
         return this.requireV4Gateway().queryCommands(request.params);
-      case zcodeProtocolMethods.sessionCreate:
+      case qcodeProtocolMethods.sessionCreate:
         return await createSession(this.context, request.params, request.trace);
-      case zcodeProtocolMethods.sessionResume:
+      case qcodeProtocolMethods.sessionResume:
         return await resumeSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionList:
+      case qcodeProtocolMethods.sessionList:
         return await listSessions(this.context, request.params);
-      case zcodeProtocolMethods.sessionSubagents:
+      case qcodeProtocolMethods.sessionSubagents:
         return await listSessionSubagents(this.context, request.params);
-      case zcodeProtocolMethods.sessionRead:
+      case qcodeProtocolMethods.sessionRead:
         return await readSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionMessages:
+      case qcodeProtocolMethods.sessionMessages:
         return await readMessages(this.context, request.params);
-      case zcodeProtocolMethods.sessionEvents:
+      case qcodeProtocolMethods.sessionEvents:
         return await readEvents(this.context, request.params);
-      case zcodeProtocolMethods.sessionSubscribe:
+      case qcodeProtocolMethods.sessionSubscribe:
         return await subscribeSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionSend:
+      case qcodeProtocolMethods.sessionSend:
         return await sendPrompt(this.context, request.params);
-      case zcodeProtocolMethods.sessionStop:
+      case qcodeProtocolMethods.sessionStop:
         return await stopSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionCancelBackgroundTask:
+      case qcodeProtocolMethods.sessionCancelBackgroundTask:
         return await cancelBackgroundTask(this.context, request.params);
-      case zcodeProtocolMethods.sessionFork:
+      case qcodeProtocolMethods.sessionFork:
         return await forkSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionCompact:
+      case qcodeProtocolMethods.sessionCompact:
         return await compactSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionGoal:
+      case qcodeProtocolMethods.sessionGoal:
         return await goalSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetModel:
+      case qcodeProtocolMethods.sessionSetModel:
         return await setModel(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetThoughtLevel:
+      case qcodeProtocolMethods.sessionSetThoughtLevel:
         return await setThoughtLevel(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetMode:
+      case qcodeProtocolMethods.sessionSetMode:
         return await setMode(this.context, request.params);
-      case zcodeProtocolMethods.sessionClose:
+      case qcodeProtocolMethods.sessionClose:
         return await closeSession(this.context, request.params);
-      case zcodeProtocolMethods.workspaceReadPresentation:
+      case qcodeProtocolMethods.workspaceReadPresentation:
         return await readWorkspacePresentation(this.context, request.params);
-      case zcodeProtocolMethods.workspaceHookTrustGrant: {
+      case qcodeProtocolMethods.workspaceHookTrustGrant: {
         const grantResult = await grantWorkspaceHookTrustForProtocol(request.params, {
           appVersion: this.context.deps.version,
           policyProvider: this.context.deps.workspaceHookPolicyProvider,
@@ -623,95 +623,95 @@ export class ZCodeProtocolAgentServer {
         }
         return grantResult;
       }
-      case zcodeProtocolMethods.providerUpdateAccountConfig:
+      case qcodeProtocolMethods.providerUpdateAccountConfig:
         return await updateAccountProviderConfig(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateInteractionPreferences:
+      case qcodeProtocolMethods.workspaceUpdateInteractionPreferences:
         return await updateInteractionPreferences(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateModelIoPreferences:
+      case qcodeProtocolMethods.workspaceUpdateModelIoPreferences:
         return await updateModelIoPreferences(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateOffPeakToolPolicy:
+      case qcodeProtocolMethods.workspaceUpdateOffPeakToolPolicy:
         return await updateOffPeakToolPolicy(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateDynamicWorkflowPolicy:
+      case qcodeProtocolMethods.workspaceUpdateDynamicWorkflowPolicy:
         return await updateDynamicWorkflowPolicy(this.context, request.params);
-      case zcodeProtocolMethods.workspaceGenerateText:
+      case qcodeProtocolMethods.workspaceGenerateText:
         return await this.withWorkspaceGenerateTextSignal(request, (signal) =>
           generateWorkspaceText(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.workspaceCancelGenerateText:
+      case qcodeProtocolMethods.workspaceCancelGenerateText:
         return this.cancelWorkspaceGenerateText(request.params);
-      case zcodeProtocolMethods.providerTestModelConnectivity:
+      case qcodeProtocolMethods.providerTestModelConnectivity:
         return await testProviderModelConnectivity(this.context, request.params);
-      case zcodeProtocolMethods.mcpList:
+      case qcodeProtocolMethods.mcpList:
         return await listMcpServers(this.context, request.params);
-      case zcodeProtocolMethods.pluginsList:
+      case qcodeProtocolMethods.pluginsList:
         return await listPlugins(this.context, request.params);
-      case zcodeProtocolMethods.pluginsReferenceCatalogWithCategory:
+      case qcodeProtocolMethods.pluginsReferenceCatalogWithCategory:
         return await getPluginReferenceCatalog(this.context, request.params, true);
-      case zcodeProtocolMethods.pluginsReferenceCatalog:
+      case qcodeProtocolMethods.pluginsReferenceCatalog:
         return await getPluginReferenceCatalog(this.context, request.params);
-      case zcodeProtocolMethods.skillsReferenceCatalog:
+      case qcodeProtocolMethods.skillsReferenceCatalog:
         return await getSkillReferenceCatalog(this.context, request.params);
-      case zcodeProtocolMethods.workflowsList:
+      case qcodeProtocolMethods.workflowsList:
         return await listSavedWorkflowsOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsGet:
+      case qcodeProtocolMethods.workflowsGet:
         return await getSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsUpdateMeta:
+      case qcodeProtocolMethods.workflowsUpdateMeta:
         return await updateSavedWorkflowMetaOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsDelete:
+      case qcodeProtocolMethods.workflowsDelete:
         return await deleteSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsRuns:
+      case qcodeProtocolMethods.workflowsRuns:
         return await listSavedWorkflowRunsOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsMove:
+      case qcodeProtocolMethods.workflowsMove:
         return await moveSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.pluginsResolveSuggestedReference:
+      case qcodeProtocolMethods.pluginsResolveSuggestedReference:
         return await this.withPluginOperationSignal(request, (signal) =>
           resolveSuggestedPluginReference(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsSetEnabled:
+      case qcodeProtocolMethods.pluginsSetEnabled:
         return await this.withPluginOperationSignal(request, (signal) =>
           setPluginEnabled(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsOverview:
+      case qcodeProtocolMethods.pluginsOverview:
         return await getPluginsOverview(this.context, request.params);
-      case zcodeProtocolMethods.processChildProcesses:
+      case qcodeProtocolMethods.processChildProcesses:
         return listChildProcesses(this.context.deps.mcpTelemetry?.listProcesses() ?? []);
-      case zcodeProtocolMethods.runtimeCapabilities:
+      case qcodeProtocolMethods.runtimeCapabilities:
         return { independentPlanState: true };
-      case zcodeProtocolMethods.pluginsMarketplaceAdd:
+      case qcodeProtocolMethods.pluginsMarketplaceAdd:
         return await this.withPluginOperationSignal(request, (signal) =>
           addPluginMarketplace(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsMarketplaceRemove:
+      case qcodeProtocolMethods.pluginsMarketplaceRemove:
         return await removePluginMarketplace(this.context, request.params);
-      case zcodeProtocolMethods.pluginsMarketplaceUpdate:
+      case qcodeProtocolMethods.pluginsMarketplaceUpdate:
         return await this.withPluginOperationSignal(request, (signal) =>
           updatePluginMarketplace(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsInstall:
+      case qcodeProtocolMethods.pluginsInstall:
         return await this.withPluginOperationSignal(request, (signal) =>
           installPlugin(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsCancelOperation:
+      case qcodeProtocolMethods.pluginsCancelOperation:
         return this.cancelPluginOperation(request.params);
-      case zcodeProtocolMethods.pluginsUninstall:
+      case qcodeProtocolMethods.pluginsUninstall:
         return await uninstallPlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsUpdate:
+      case qcodeProtocolMethods.pluginsUpdate:
         return await updatePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsRestoreBuiltin:
+      case qcodeProtocolMethods.pluginsRestoreBuiltin:
         return await restoreBuiltinPlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsConfigure:
+      case qcodeProtocolMethods.pluginsConfigure:
         return await configurePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsResetConfig:
+      case qcodeProtocolMethods.pluginsResetConfig:
         return await resetPluginConfig(this.context, request.params);
-      case zcodeProtocolMethods.pluginsValidate:
+      case qcodeProtocolMethods.pluginsValidate:
         return await validatePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsDescribe:
+      case qcodeProtocolMethods.pluginsDescribe:
         return await describePlugin(this.context, request.params);
-      case zcodeProtocolMethods.usageStats:
+      case qcodeProtocolMethods.usageStats:
         return await getUsageStats(this.context, request.params);
-      case zcodeProtocolMethods.sessionDebug:
+      case qcodeProtocolMethods.sessionDebug:
         return querySessionDebug(this.context, request.params);
-      case zcodeProtocolMethods.sessionUsage:
+      case qcodeProtocolMethods.sessionUsage:
         return await getTaskTokenUsage(this.context, request.params);
       default:
         throw new ProtocolRequestError(-32601, `Method not found: ${request.method}`);
@@ -803,7 +803,7 @@ export class ZCodeProtocolAgentServer {
   }
 
   private requestClient<T>(
-    method: ZCodeProtocolMethod,
+    method: QCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
     options?: ZCodeProtocolClientRequestOptions,

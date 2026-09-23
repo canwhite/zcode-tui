@@ -2,7 +2,7 @@
 
 import type { JsonSchema } from "../model/index.js";
 import type { TraceContext } from "../tracing/tracer.js";
-import type { McpServerFailureKind, OfficialMcpAuthPortFailureReason } from "@zcode/shared";
+import type { McpServerFailureKind, OfficialMcpAuthPortFailureReason } from "@qcode/shared";
 
 export type McpServerTransportType = "stdio" | "http" | "sse";
 export type McpProtocolVersion = "legacy" | "auto" | "2026-07-28";
@@ -132,10 +132,10 @@ export interface McpToolAnnotations {
   openWorldHint?: boolean;
 }
 
-export const ZCODE_MCP_ERROR_PRESENTATION_META_KEY = "qcode/errorPresentation";
-export const ZCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY = "message-only";
+export const QCODE_MCP_ERROR_PRESENTATION_META_KEY = "qcode/errorPresentation";
+export const QCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY = "message-only";
 /** MCP content 中来自模型显式 tab.screenshot() 的 image block 索引。 */
-export const ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY =
+export const QCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY =
   "qcode/browserScreenshotContentIndices";
 /**
  * 本次 node_repl cell 操作的目标应用身份，供工具卡显示 App 图标。
@@ -144,9 +144,9 @@ export const ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY =
  * `zcode.cua/app-associations-v1`，投影成这里的最小形态。producer 那个键本身经
  * `nodeRepl.setResponseMeta` / `nodeRepl.emitStructuredResult` 也能到达 `_meta`，而这两个
  * API 挂在模型可见的 sandbox globals 上，因此不可信、必须在宿主侧丢弃（同
- * `ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY` 的处置）。
+ * `QCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY` 的处置）。
  */
-export const ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY = "qcode/nodeReplCuaApp";
+export const QCODE_MCP_NODE_REPL_CUA_APP_META_KEY = "qcode/nodeReplCuaApp";
 /**
  * 官方 Server MCP 响应头里的 `x-request-id`，附在失败的 tool result 上（值为 string）。
  *
@@ -156,7 +156,7 @@ export const ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY = "qcode/nodeReplCuaApp";
  *
  * 只在 `isError` 时附加：这是给人看的排障线索（拿它去查服务端日志），成功路径上是纯噪声。
  */
-export const ZCODE_MCP_SERVER_REQUEST_ID_META_KEY = "qcode/officialMcpServerRequestId";
+export const QCODE_MCP_SERVER_REQUEST_ID_META_KEY = "qcode/officialMcpServerRequestId";
 
 export interface McpToolDescriptor {
   serverName: string;

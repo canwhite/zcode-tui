@@ -4,7 +4,7 @@ import { constants } from "node:fs";
 import { lstat, mkdir, open, rm, stat, statfs, type FileHandle } from "node:fs/promises";
 import { dirname } from "node:path";
 import { decodeExecutionOutputBuffer } from "./outputEncoding.js";
-import type { ExecutionStreamResult, ExecutionOutputPreview } from "@zcode/contracts";
+import type { ExecutionStreamResult, ExecutionOutputPreview } from "@qcode/contracts";
 
 const OUTPUT_WATCH_INTERVAL_MS = 5_000;
 const OUTPUT_FILE_MODE = 0o600;

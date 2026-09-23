@@ -1,20 +1,20 @@
 import { isAbsolute, resolve } from "node:path";
 import {
-  ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY,
+  QCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY,
   type McpContentBlock,
   type McpToolCallResult,
   type McpToolDescriptor,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   isOfficialCuaImageRefText,
   OFFICIAL_CUA_FRAME_INTEGRITY_META_KEY,
-} from "@zcode/zcode-cua/frame-contract";
+} from "@qcode/zcode-cua/frame-contract";
 import type { ToolExecutionContext } from "../tool/types.js";
 // 帧像素契约（integrity gate + inline 上限）的唯一定义在 producer；宿主经
 // plugin re-export 消费，不再镜像实现。core 对 CUA 的感知收敛为：authority
 // 分支调用 producer gate，非 authority 分支用 contracts scanner 剥伪造引用。
-import { preserveOfficialCuaFrameResult } from "@zcode/zcode-cua/frame-contract";
+import { preserveOfficialCuaFrameResult } from "@qcode/zcode-cua/frame-contract";
 
 // 通用 MCP 图片 inline 预算与官方帧 200 KiB 上限历史上同值，但语义独立：
 // 这里独立定义，避免"通用预算由 CUA 常量定义"的倒置耦合。
@@ -191,7 +191,7 @@ interface BrowserScreenshotArtifact {
 }
 
 function readBrowserScreenshotContentIndices(result: McpToolCallResult): Set<number> {
-  const value = result._meta?.[ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY];
+  const value = result._meta?.[QCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY];
   if (!Array.isArray(value)) return new Set<number>();
   return new Set(
     value.filter(

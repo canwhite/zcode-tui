@@ -90,13 +90,13 @@ export const ServiceChannels = {
   /** 跨窗口广播 */
   Broadcast: "broadcast",
   /** ZCode task wrapper 服务 */
-  ZCodeTask: "qcode-task",
+  ZCodeTask: "zcode-task",
   /** 窗口 Host 聚合 workspace/task 投影与列表写路由 */
   WindowController: "window-controller",
   /** ZCode Protocol agent 服务 */
-  ZCodeAgent: "qcode-agent",
+  ZCodeAgent: "zcode-agent",
   /** ZCode session 应用服务 */
-  ZCodeSession: "qcode-session",
+  ZCodeSession: "zcode-session",
   /** 会话分享发布、预览与 continuation API 编排 */
   ConversationShare: "conversation-share",
   /** 文件系统监视服务 */
@@ -157,270 +157,270 @@ export type ServiceChannelName = (typeof ServiceChannels)[keyof typeof ServiceCh
 /** Electron IPC 频道名。仅在 preload ↔ main 之间使用。 */
 export const PlatformChannels = {
   /** 打开系统目录选择框 */
-  SelectDirectory: "qcode:select-directory",
+  SelectDirectory: "zcode:select-directory",
   /** 打开系统文件选择框 */
-  SelectFile: "qcode:select-file",
+  SelectFile: "zcode:select-file",
   /** 打开系统多文件选择框 */
-  SelectFiles: "qcode:select-files",
+  SelectFiles: "zcode:select-files",
   /** Renderer → Main：写入宿主 ~/.zcode 临时文本附件 */
-  CreateTempTextAttachment: "qcode:create-temp-text-attachment",
+  CreateTempTextAttachment: "zcode:create-temp-text-attachment",
   /** Renderer → Main：通过原生另存为对话框保存文件 */
-  SaveFile: "qcode:save-file",
+  SaveFile: "zcode:save-file",
   /** Renderer → Main：用 Chromium 打印引擎把当前页面 print 媒体版面导出为 PDF */
-  PrintToPdf: "qcode:print-to-pdf",
+  PrintToPdf: "zcode:print-to-pdf",
   /** Main → Renderer：转发远程连接过程日志 */
-  RemoteConnectionLog: "qcode:remote-connection-log",
+  RemoteConnectionLog: "zcode:remote-connection-log",
   /** Main → Renderer：远程 workspace session 已关闭 */
-  RemoteSessionClosed: "qcode:remote-session-closed",
+  RemoteSessionClosed: "zcode:remote-session-closed",
   /** 检查目录是否已在其他窗口打开，如果是则激活该窗口 */
-  ActivateOrSetWorkspace: "qcode:activate-or-set-workspace",
+  ActivateOrSetWorkspace: "zcode:activate-or-set-workspace",
   /** 建立 SSH 远程连接 */
-  ConnectRemote: "qcode:connect-remote",
+  ConnectRemote: "zcode:connect-remote",
   /** 取消当前窗口正在进行中的远程连接 */
-  CancelPendingRemoteConnection: "qcode:cancel-pending-remote-connection",
+  CancelPendingRemoteConnection: "zcode:cancel-pending-remote-connection",
   /** Renderer → Main：绑定远程 logical session 的 canonical workspace context */
-  BindRemoteWorkspaceSessionContext: "qcode:bind-remote-workspace-session-context",
+  BindRemoteWorkspaceSessionContext: "zcode:bind-remote-workspace-session-context",
   /** 释放当前窗口里的远程 session */
-  DisposeRemoteSession: "qcode:dispose-remote-session",
+  DisposeRemoteSession: "zcode:dispose-remote-session",
   /** Renderer → Main：检查本机 Docker daemon 是否可用 */
-  IsDockerAvailable: "qcode:is-docker-available",
+  IsDockerAvailable: "zcode:is-docker-available",
   /** Renderer → Main：列出本机可用的 WSL 发行版 */
-  ListWSLDistros: "qcode:list-wsl-distros",
+  ListWSLDistros: "zcode:list-wsl-distros",
   /** Renderer → Main：列出当前可连接的 Docker 容器 */
-  ListDockerContainers: "qcode:list-docker-containers",
+  ListDockerContainers: "zcode:list-docker-containers",
   /** Renderer → Main：列出 SSH config 里可用于快速填表的 alias */
-  ListSSHConfigAliases: "qcode:list-ssh-config-aliases",
+  ListSSHConfigAliases: "zcode:list-ssh-config-aliases",
   /** Renderer → Main：从用户目录加载 CLI MCP 配置 */
-  LoadMcpFromUserDirectory: "qcode:load-mcp-from-user-directory",
+  LoadMcpFromUserDirectory: "zcode:load-mcp-from-user-directory",
   /** Renderer → Main：保存 CLI MCP 配置到用户目录 */
-  SaveMcpToUserDirectory: "qcode:save-mcp-to-user-directory",
+  SaveMcpToUserDirectory: "zcode:save-mcp-to-user-directory",
   /** Renderer 日志转发到 main 进程统一存储 */
-  Log: "qcode:log",
+  Log: "zcode:log",
   /** Renderer → Main：同步当前窗口所有 tab 的 workspace 路径 */
-  SyncWindowTabs: "qcode:sync-window-tabs",
+  SyncWindowTabs: "zcode:sync-window-tabs",
   /** Renderer → Main：同步当前窗口的未读 task 数 */
-  SyncWindowUnreadCount: "qcode:sync-window-unread-count",
+  SyncWindowUnreadCount: "zcode:sync-window-unread-count",
   /** Renderer → Main：当前窗口 active task，只更新 Main 的临时焦点映射。 */
-  SyncActiveTaskSession: "qcode:sync-active-task-session",
+  SyncActiveTaskSession: "zcode:sync-active-task-session",
   /** Renderer → Main：同步 main 进程需即时感知的应用设置 */
-  SyncAppSettings: "qcode:sync-app-settings",
+  SyncAppSettings: "zcode:sync-app-settings",
   /** Renderer → Main：快捷键设置页录制态开关；true = main 暂时摘除可配置菜单 accelerator */
-  SetShortcutRecordingActive: "qcode:set-shortcut-recording-active",
+  SetShortcutRecordingActive: "zcode:set-shortcut-recording-active",
   /** Main → Renderer：聚焦到指定 workspace 路径的 tab */
-  FocusTab: "qcode:focus-tab",
+  FocusTab: "zcode:focus-tab",
   /** Main → Renderer：菜单触发新建 tab */
-  NewTab: "qcode:new-tab",
+  NewTab: "zcode:new-tab",
   /** Main → Renderer：菜单或快捷键请求关闭当前上下文 */
-  CloseActiveContextRequest: "qcode:close-active-context-request",
+  CloseActiveContextRequest: "zcode:close-active-context-request",
   /** Main → Renderer：内置 webview 请求打开新的浏览器 tab */
-  OpenBrowserUrl: "qcode:open-browser-url",
+  OpenBrowserUrl: "zcode:open-browser-url",
   /** Main → Renderer：agent 首次 browser 命令建好受控 view，通知 renderer 自动开 browser-use tab */
-  BrowserViewReady: "qcode:browser-view-ready",
+  BrowserViewReady: "zcode:browser-view-ready",
   /** Main → Renderer：agent 正在操作某个 browser-use tab，renderer 临时显示状态图标 */
-  BrowserViewOperation: "qcode:browser-view-operation",
+  BrowserViewOperation: "zcode:browser-view-operation",
   /** Main → Renderer：browser visibility capability 显示/隐藏 IAB 右侧面板 */
-  BrowserViewVisibility: "qcode:browser-view-visibility",
+  BrowserViewVisibility: "zcode:browser-view-visibility",
   /** Main → Renderer：Agent 设置/重置目标 tab viewport */
-  BrowserViewViewportChanged: "qcode:browser-view-viewport-changed",
+  BrowserViewViewportChanged: "zcode:browser-view-viewport-changed",
   /** Main → Renderer：截图前请求 owner renderer 准备后台 guest 合成表面。 */
-  BrowserViewScreenshotSurfacePrepare: "qcode:browser-view-screenshot-surface-prepare",
+  BrowserViewScreenshotSurfacePrepare: "zcode:browser-view-screenshot-surface-prepare",
   /** Renderer → Main：目标 guest 连续两个 animation frame 的 viewport 已稳定。 */
-  BrowserViewScreenshotSurfaceReady: "qcode:browser-view-screenshot-surface-ready",
+  BrowserViewScreenshotSurfaceReady: "zcode:browser-view-screenshot-surface-ready",
   /** Main → Renderer：截图结束或准备失败，释放临时后台合成层。 */
-  BrowserViewScreenshotSurfaceRelease: "qcode:browser-view-screenshot-surface-release",
+  BrowserViewScreenshotSurfaceRelease: "zcode:browser-view-screenshot-surface-release",
   /** Main → Renderer：agent close 命令 detach 受控 guest 后，通知 renderer 卸载对应 tab */
-  BrowserViewCloseTab: "qcode:browser-view-close-tab",
+  BrowserViewCloseTab: "zcode:browser-view-close-tab",
   /** Main → Renderer：预算淘汰时卸载 guest，但保留 logical tab shell。 */
-  BrowserViewSuspend: "qcode:browser-view-suspend",
+  BrowserViewSuspend: "zcode:browser-view-suspend",
   /** Main → Renderer：为 suspended shell 重新挂载 guest。 */
-  BrowserViewRestore: "qcode:browser-view-restore",
+  BrowserViewRestore: "zcode:browser-view-restore",
   /** Main → Renderer：菜单触发新建任务 */
-  NewTask: "qcode:new-task",
+  NewTask: "zcode:new-task",
   /** Main → Renderer：菜单触发打开工作区 */
-  OpenWorkspace: "qcode:open-workspace",
+  OpenWorkspace: "zcode:open-workspace",
   /** Main → Renderer：deep link 直接打开指定本地工作区目录 */
-  OpenWorkspacePath: "qcode:open-workspace-path",
+  OpenWorkspacePath: "zcode:open-workspace-path",
   /** Main → Renderer：打开内置反馈对话框 */
-  OpenFeedbackDialog: "qcode:open-feedback-dialog",
+  OpenFeedbackDialog: "zcode:open-feedback-dialog",
   /** Main → Renderer：打开我的工单面板 */
-  OpenTicketsPanel: "qcode:open-tickets-panel",
+  OpenTicketsPanel: "zcode:open-tickets-panel",
   /** Main → Renderer：窗口全屏状态变化 */
-  WindowFullscreenChanged: "qcode:window-fullscreen-changed",
+  WindowFullscreenChanged: "zcode:window-fullscreen-changed",
   /** Renderer → Main：读取窗口最大化状态与系统原生圆角能力 */
-  GetDesktopWindowChromeState: "qcode:get-desktop-window-chrome-state",
+  GetDesktopWindowChromeState: "zcode:get-desktop-window-chrome-state",
   /** Main → Renderer：窗口最大化状态与系统原生圆角能力变化 */
-  DesktopWindowChromeStateChanged: "qcode:desktop-window-chrome-state-changed",
+  DesktopWindowChromeStateChanged: "zcode:desktop-window-chrome-state-changed",
   /** Main → Renderer：原生窗口控制区安全边距变化 */
-  WindowControlsOverlayChanged: "qcode:window-controls-overlay-changed",
+  WindowControlsOverlayChanged: "zcode:window-controls-overlay-changed",
   /** Preload → Main：preload 已同步读到当前窗口控制区安全边距 */
-  WindowControlsOverlayReady: "qcode:window-controls-overlay-ready",
+  WindowControlsOverlayReady: "zcode:window-controls-overlay-ready",
   /** 获取资源管理器快照（CPU / 内存，按基础服务、内置插件、社区插件归类） */
-  GetResourceUsageSnapshot: "qcode:get-resource-usage-snapshot",
-  SetResourceUsageSamplingActive: "qcode:set-resource-usage-sampling-active",
+  GetResourceUsageSnapshot: "zcode:get-resource-usage-snapshot",
+  SetResourceUsageSamplingActive: "zcode:set-resource-usage-sampling-active",
   /** 打开资源管理器窗口（其他窗口触发） */
-  OpenResourceManager: "qcode:open-resource-manager",
+  OpenResourceManager: "zcode:open-resource-manager",
   /** 资源管理器「存储」tab：开始扫描本机 .zcode 占用（main 持有 StorageService，Worker 线程遍历） */
-  StorageStartScan: "qcode:storage-start-scan",
+  StorageStartScan: "zcode:storage-start-scan",
   /** 资源管理器「存储」tab：取消扫描 */
-  StorageCancelScan: "qcode:storage-cancel-scan",
+  StorageCancelScan: "zcode:storage-cancel-scan",
   /** 资源管理器「存储」tab：读取最近一次快照 */
-  StorageGetSnapshot: "qcode:storage-get-snapshot",
+  StorageGetSnapshot: "zcode:storage-get-snapshot",
   /** 资源管理器「存储」tab：按类别清理 */
-  StorageClean: "qcode:storage-clean",
+  StorageClean: "zcode:storage-clean",
   /** 资源管理器「存储」tab：在系统文件管理器中定位数据根内的路径 */
-  StorageRevealPath: "qcode:storage-reveal-path",
+  StorageRevealPath: "zcode:storage-reveal-path",
   /** Main → 资源管理器 renderer：扫描进度快照推送 */
-  StorageScanProgress: "qcode:storage-scan-progress",
+  StorageScanProgress: "zcode:storage-scan-progress",
   /** Renderer → Main：打开外部 URL（用于 OAuth 跳转浏览器） */
-  OpenExternal: "qcode:open-external",
+  OpenExternal: "zcode:open-external",
   /** Renderer → Main：查询当前语言下是否存在可用的用户社群入口 */
-  CanOpenCommunity: "qcode:can-open-community",
+  CanOpenCommunity: "zcode:can-open-community",
   /** Renderer → Main：在系统文件管理器中打开路径 */
-  OpenInFileManager: "qcode:open-in-file-manager",
+  OpenInFileManager: "zcode:open-in-file-manager",
   /** Renderer → Main：使用系统默认应用打开本地文件 */
-  OpenExternalFile: "qcode:open-external-file",
+  OpenExternalFile: "zcode:open-external-file",
   /** Renderer → Main：打开 ZCode Computer Use 权限引导 */
-  OpenCuaPermissionOnboarding: "qcode:open-cua-permission-onboarding",
+  OpenCuaPermissionOnboarding: "zcode:open-cua-permission-onboarding",
   /** Renderer → Main：取消当前 renderer 发起的一次权限引导 participant */
-  CancelCuaPermissionOnboarding: "qcode:cancel-cua-permission-onboarding",
+  CancelCuaPermissionOnboarding: "zcode:cancel-cua-permission-onboarding",
   /**
    * Renderer → Main：预热并缓存已验证的 Helper 路径 + bundle 指纹。
    * 必须在拖拽浮窗挂载时调用 —— dragstart 链路里不允许任何异步 I/O。
    */
-  PrepareCuaHelperPermissionDrag: "qcode:prepare-cua-helper-permission-drag",
+  PrepareCuaHelperPermissionDrag: "zcode:prepare-cua-helper-permission-drag",
   /** Renderer → Main：把已验证的 Helper.app 同步拖出到 macOS 权限列表 */
-  StartCuaHelperPermissionDrag: "qcode:start-cua-helper-permission-drag",
+  StartCuaHelperPermissionDrag: "zcode:start-cua-helper-permission-drag",
   /**
    * Renderer → Main：拖拽手势结束。
    * 拖完授权即完成，浮窗该让位（用户此时要看设置页和系统的重启提示）。必须等 dragend 而不是
    * 在 dragstart 里就收窗：startDrag 只是把 drag session 交给 OS，非阻塞，drag source
    * 立刻消失可能打断正在进行的拖拽。
    */
-  NotifyCuaHelperPermissionDragEnded: "qcode:notify-cua-helper-permission-drag-ended",
+  NotifyCuaHelperPermissionDragEnded: "zcode:notify-cua-helper-permission-drag-ended",
   /** Renderer → Main：上报 OAuth state 用于 deep link 路由 */
-  OAuthRegisterState: "qcode:oauth-register-state",
+  OAuthRegisterState: "zcode:oauth-register-state",
   /** Main → Renderer：转发 deep link URL */
-  OAuthCallback: "qcode:oauth-callback",
+  OAuthCallback: "zcode:oauth-callback",
   /** Main → Renderer：转发支付 deep link URL */
-  PaymentCallback: "qcode:payment-callback",
+  PaymentCallback: "zcode:payment-callback",
   /** Main → Renderer：外部分享页请求导入 share code。 */
-  ShareImport: "qcode:share-import",
+  ShareImport: "zcode:share-import",
   /** Renderer → Main：OAuth 回调已处理完成，可继续后置启动流程 */
-  OAuthCallbackHandled: "qcode:oauth-callback-handled",
+  OAuthCallbackHandled: "zcode:oauth-callback-handled",
   /** Renderer → Main：renderer 已就绪，可接收缓存的 deep link */
-  RendererReady: "qcode:renderer-ready",
+  RendererReady: "zcode:renderer-ready",
   /** Renderer → Main：同步当前 renderer 的 telemetry 上下文 */
-  SyncTelemetryContext: "qcode:sync-telemetry-context",
+  SyncTelemetryContext: "zcode:sync-telemetry-context",
   /** Renderer → Main：通过统一 telemetry 层上报业务事件 */
-  ReportTelemetryEvent: "qcode:report-telemetry-event",
+  ReportTelemetryEvent: "zcode:report-telemetry-event",
   /** Renderer → Main：上报 ARMS 自定义事件 */
-  ReportArmsCustomEvent: "qcode:report-arms-custom-event",
+  ReportArmsCustomEvent: "zcode:report-arms-custom-event",
   /** Renderer → Main：读取 Renderer 用户操作 Trace 灰度配置。 */
-  GetRendererActionTraceConfig: "qcode:get-renderer-action-trace-config",
+  GetRendererActionTraceConfig: "zcode:get-renderer-action-trace-config",
   /** Main → Renderer：Renderer 用户操作 Trace 灰度配置变化。 */
-  RendererActionTraceConfigChanged: "qcode:renderer-action-trace-config-changed",
+  RendererActionTraceConfigChanged: "zcode:renderer-action-trace-config-changed",
   /** Renderer → Main：发送已结束的 ui_action batch。 */
-  ReportRendererActionTraceBatch: "qcode:report-renderer-action-trace-batch",
+  ReportRendererActionTraceBatch: "zcode:report-renderer-action-trace-batch",
   /** Renderer → Main：主窗口 renderer 每 60 秒的 heap 读数，单向 send，不需要回执。 */
-  ReportRendererHeapSample: "qcode:report-renderer-heap-sample",
-  ReportLocalTtftBatch: "qcode:report-local-ttft-batch",
+  ReportRendererHeapSample: "zcode:report-renderer-heap-sample",
+  ReportLocalTtftBatch: "zcode:report-local-ttft-batch",
   /** E2E preload → Main：读取 sendCustom 最终参数的内存 ring。 */
-  ReadFinalArmsCustomEventsE2E: "qcode:e2e:read-final-arms-custom-events",
+  ReadFinalArmsCustomEventsE2E: "zcode:e2e:read-final-arms-custom-events",
   /** E2E preload → Main：清空 sendCustom 最终参数的内存 ring。 */
-  ClearFinalArmsCustomEventsE2E: "qcode:e2e:clear-final-arms-custom-events",
+  ClearFinalArmsCustomEventsE2E: "zcode:e2e:clear-final-arms-custom-events",
   /** E2E preload → Main：配置只针对目标 event name 的真实网络抑制。 */
-  ConfigureFinalArmsCustomEventsE2E: "qcode:e2e:configure-final-arms-custom-events",
+  ConfigureFinalArmsCustomEventsE2E: "zcode:e2e:configure-final-arms-custom-events",
   /** Renderer → Main：触发任务完成/失败的系统通知 */
-  ShowTaskNotification: "qcode:show-task-notification",
+  ShowTaskNotification: "zcode:show-task-notification",
   /** Main → Preload：通知 renderer 播放任务通知提示音 */
-  TaskNotificationSound: "qcode:task-notification-sound",
+  TaskNotificationSound: "zcode:task-notification-sound",
   /** Main → Preload：用户点击了系统通知，携带 taskId 让 renderer 跳转到对应任务 */
-  TaskNotificationClick: "qcode:task-notification-click",
+  TaskNotificationClick: "zcode:task-notification-click",
   /** Renderer → Main：导出日志（打包 ~/.zcode/v2 及外部 agent 日志为 zip 并在 Finder 中显示） */
-  ExportLogs: "qcode:export-logs",
+  ExportLogs: "zcode:export-logs",
   /** Renderer → Main：截取当前窗口作为反馈附件 */
-  CaptureWindowScreenshot: "qcode:capture-window-screenshot",
+  CaptureWindowScreenshot: "zcode:capture-window-screenshot",
   /**
    * Renderer → Main：`<webview>` guest dom-ready 后上报 webContentsId，
    * main 用 BrowserGuestManager attach 该 guest（fire-and-forget）。CDP-on-guest pivot。
    */
-  BrowserViewAttachGuest: "qcode:browser-view-attach-guest",
+  BrowserViewAttachGuest: "zcode:browser-view-attach-guest",
   /** Renderer → Main：重建 `<webview>` 前主动断开旧 guest 的 CDP。 */
-  BrowserViewDetachGuest: "qcode:browser-view-detach-guest",
+  BrowserViewDetachGuest: "zcode:browser-view-detach-guest",
   /** Renderer → Main：用户显式关闭 Browser tab。 */
-  BrowserViewCloseTabFromRenderer: "qcode:browser-view-close-tab-from-renderer",
+  BrowserViewCloseTabFromRenderer: "zcode:browser-view-close-tab-from-renderer",
   /** Renderer → Main：上报 Browser tab residency/display facts。 */
-  BrowserViewReportResidency: "qcode:browser-view-report-residency",
+  BrowserViewReportResidency: "zcode:browser-view-report-residency",
   /** Renderer → Main：指定 generation 的 guest 已卸载。 */
-  BrowserViewSuspendReady: "qcode:browser-view-suspend-ready",
+  BrowserViewSuspendReady: "zcode:browser-view-suspend-ready",
   /** Renderer → Main：用户访问 suspended tab，请求恢复。 */
-  BrowserViewEnsureResident: "qcode:browser-view-ensure-resident",
+  BrowserViewEnsureResident: "zcode:browser-view-ensure-resident",
   /** Renderer → Main：读取 workspace/task 的持久化 logical shells。 */
-  BrowserViewRestoreTabs: "qcode:browser-view-restore-tabs",
+  BrowserViewRestoreTabs: "zcode:browser-view-restore-tabs",
   /** Renderer → Main：自由尺寸拖拽/开关回写目标 guest viewport */
-  BrowserViewUpdateViewport: "qcode:browser-view-update-viewport",
+  BrowserViewUpdateViewport: "zcode:browser-view-update-viewport",
   /** Embedded Browser preload → Main：在网页原生 Dialog 创建前同步请求可信系统框。 */
-  EmbeddedBrowserJavaScriptDialog: "qcode:embedded-browser-javascript-dialog",
+  EmbeddedBrowserJavaScriptDialog: "zcode:embedded-browser-javascript-dialog",
   /** Renderer → Main：把自动发现的本机 Chrome Profile 数据一次性导入内置浏览器分区。 */
-  ImportChromeBrowserData: "qcode:import-chrome-browser-data",
+  ImportChromeBrowserData: "zcode:import-chrome-browser-data",
   /** Renderer → Main：清理内置浏览器缓存或全部站点数据。 */
-  ClearEmbeddedBrowserData: "qcode:clear-embedded-browser-data",
+  ClearEmbeddedBrowserData: "zcode:clear-embedded-browser-data",
   /** Main → Renderer：通知有新版本已下载完毕，可以重启安装 */
-  UpdateReady: "qcode:update-ready",
+  UpdateReady: "zcode:update-ready",
   /** Main → Renderer：用户手动点击"检查更新"后的结果反馈（toast 用） */
-  UpdateCheckResult: "qcode:update-check-result",
+  UpdateCheckResult: "zcode:update-check-result",
   /** Main → Renderer：自动更新持续状态变化（菜单 UI 用） */
-  UpdateStateChanged: "qcode:update-state-changed",
+  UpdateStateChanged: "zcode:update-state-changed",
   /** Renderer → Main：主动获取当前自动更新状态（菜单打开时补偿事件丢失） */
-  GetUpdateState: "qcode:get-update-state",
+  GetUpdateState: "zcode:get-update-state",
   /** Renderer → Main：开始下载当前已发现的自动更新 */
-  DownloadUpdate: "qcode:download-update",
+  DownloadUpdate: "zcode:download-update",
   /** Renderer → Main：取消当前正在下载的自动更新 */
-  CancelUpdateDownload: "qcode:cancel-update-download",
+  CancelUpdateDownload: "zcode:cancel-update-download",
   /** Renderer → Main：打开独立自动更新窗口 */
-  OpenUpdateStatusWindow: "qcode:open-update-status-window",
+  OpenUpdateStatusWindow: "zcode:open-update-status-window",
   /** Renderer → Main：读取自动更新偏好 */
-  GetAutoUpdatePreferences: "qcode:get-auto-update-preferences",
+  GetAutoUpdatePreferences: "zcode:get-auto-update-preferences",
   /** Renderer → Main：写入“自动下载并安装更新”偏好 */
-  SetAutoDownloadAndInstallUpdates: "qcode:set-auto-download-and-install-updates",
+  SetAutoDownloadAndInstallUpdates: "zcode:set-auto-download-and-install-updates",
   /** Renderer → Main：查询桌面端正在运行的会话数量 */
-  GetDesktopSessionActivity: "qcode:get-desktop-session-activity",
+  GetDesktopSessionActivity: "zcode:get-desktop-session-activity",
   /** Renderer → Main：读取当前窗口页面缩放档位 */
-  GetDesktopZoomLevel: "qcode:get-desktop-zoom-level",
+  GetDesktopZoomLevel: "zcode:get-desktop-zoom-level",
   /** Main → Renderer：当前窗口页面缩放档位变化 */
-  DesktopZoomLevelChanged: "qcode:desktop-zoom-level-changed",
+  DesktopZoomLevelChanged: "zcode:desktop-zoom-level-changed",
   /** Renderer → Main：读取开发态 stdio tap proxy 开关状态 */
-  GetZCodeStdioTapDevState: "qcode:get-zcode-stdio-tap-dev-state",
+  GetZCodeStdioTapDevState: "zcode:get-zcode-stdio-tap-dev-state",
   /** Main → Renderer：本地 setting.json 已由 main 进程更新 */
-  SettingsChanged: "qcode:settings-changed",
+  SettingsChanged: "zcode:settings-changed",
   /** Main → Renderer：应用语言已切换 */
-  ApplicationLocaleChanged: "qcode:application-locale-changed",
+  ApplicationLocaleChanged: "zcode:application-locale-changed",
   /** Renderer → Main：读取宿主系统语言 */
-  GetSystemLocale: "qcode:get-system-locale",
+  GetSystemLocale: "zcode:get-system-locale",
   /** Main → Renderer：更新安装后的版本说明 */
-  PostUpdateReleaseNotes: "qcode:post-update-release-notes",
+  PostUpdateReleaseNotes: "zcode:post-update-release-notes",
   /** Renderer → Main：确认版本说明已读 */
-  AcknowledgePostUpdateReleaseNotes: "qcode:ack-post-update-release-notes",
+  AcknowledgePostUpdateReleaseNotes: "zcode:ack-post-update-release-notes",
   /** Renderer → Main：跳过当前已发现的自动更新版本 */
-  SkipUpdateVersion: "qcode:skip-update-version",
+  SkipUpdateVersion: "zcode:skip-update-version",
   /** Renderer → Main：用户确认重启安装更新 */
-  QuitAndInstallUpdate: "qcode:quit-and-install-update",
+  QuitAndInstallUpdate: "zcode:quit-and-install-update",
   /** Renderer → Main：获取系统中已安装的编辑器/终端列表（含图标） */
-  GetInstalledEditors: "qcode:get-installed-editors",
+  GetInstalledEditors: "zcode:get-installed-editors",
   /** Renderer → Main：按 bundle id 获取系统应用图标 */
-  GetApplicationIcon: "qcode:get-application-icon",
+  GetApplicationIcon: "zcode:get-application-icon",
   /** Renderer → Main：用指定编辑器打开路径 */
-  OpenInEditor: "qcode:open-in-editor",
+  OpenInEditor: "zcode:open-in-editor",
   /** Renderer → Main：执行桌面窗口级命令 */
-  ExecuteDesktopCommand: "qcode:execute-desktop-command",
+  ExecuteDesktopCommand: "zcode:execute-desktop-command",
   /** Renderer → Main：同步应用菜单语言，用于重建原生菜单 */
-  SetApplicationLocale: "qcode:set-application-locale",
+  SetApplicationLocale: "zcode:set-application-locale",
   /** Renderer → Main：同步标题栏亮暗色，用于原生窗口控制按钮配色 */
-  SetTitleBarTheme: "qcode:set-title-bar-theme",
+  SetTitleBarTheme: "zcode:set-title-bar-theme",
   /** Renderer → Main：迁移旧版 Common MCP 配置 */
-  MigrateLegacyCommonMcp: "qcode:migrate-legacy-common-mcp",
+  MigrateLegacyCommonMcp: "zcode:migrate-legacy-common-mcp",
   /** Renderer → Main：获取当前设备的稳定标识符（deviceMid） */
-  GetDeviceId: "qcode:get-device-id",
+  GetDeviceId: "zcode:get-device-id",
 } as const;
 
 export type PlatformChannelName = (typeof PlatformChannels)[keyof typeof PlatformChannels];
@@ -432,7 +432,7 @@ export type PlatformChannelName = (typeof PlatformChannels)[keyof typeof Platfor
 /** Electron `<webview>` 的 `sendToHost` / `ipc-message` 频道，不经过 main process。 */
 export const EmbeddedBrowserWebviewChannels = {
   /** Guest 无法继续消费某方向的滚动时，把二维 delta 转交自由尺寸画布。 */
-  WheelBoundary: "qcode:embedded-browser-wheel-boundary",
+  WheelBoundary: "zcode:embedded-browser-wheel-boundary",
 } as const;
 
 export interface EmbeddedBrowserWheelBoundaryPayload {
@@ -450,7 +450,7 @@ export interface EmbeddedBrowserWheelBoundaryPayload {
  */
 export const CodingPlanWebviewChannels = {
   /** 官网页购买成功后通知 App 刷新 entitlements 并关闭 webview。 */
-  PurchaseComplete: "qcode:coding-plan-purchase-complete",
+  PurchaseComplete: "zcode:coding-plan-purchase-complete",
 } as const;
 
 /** 购买完成回传 payload。provider 与官网 CodingPlanProvider / auth-ready 事件 detail.provider 同构。 */
@@ -480,22 +480,22 @@ export interface CodingPlanWebviewLangChangeDetail {
 // ============================================================================
 /** 内部传输频道。用于 MessagePort 转发等框架级通信。 */
 export const InternalChannels = {
-  DatabaseStartupState: "qcode:database-startup-state",
-  DatabaseStartupControl: "qcode:database-startup-control",
+  DatabaseStartupState: "zcode:database-startup-state",
+  DatabaseStartupControl: "zcode:database-startup-control",
   /** main → renderer 转发 MessagePort（通过 webContents.postMessage） */
-  ServicePort: "qcode:service-port",
+  ServicePort: "zcode:service-port",
   /** main → renderer 转发窗口 Host 的 scoped MessagePort */
-  ScopedServicePort: "qcode:scoped-service-port",
+  ScopedServicePort: "zcode:scoped-service-port",
   /** renderer → main：scoped MessagePort 已注册，可安全切换 attachment */
-  ScopedServicePortReady: "qcode:scoped-service-port-ready",
+  ScopedServicePortReady: "zcode:scoped-service-port-ready",
   /** preload → renderer：主进程已确认系统通知展示，renderer 可播放提示音 */
-  TaskNotificationSound: "qcode:task-notification-sound",
+  TaskNotificationSound: "zcode:task-notification-sound",
 } as const;
 
 /** @deprecated `/ws` 已忽略该头；保留常量仅供旧客户端兼容。 */
-export const QCODE_RPC_CLIENT_MODE_HEADER = "x-zcode-rpc-client-mode";
+export const QCODE_RPC_CLIENT_MODE_HEADER = "x-qcode-rpc-client-mode";
 /** desktop 先经受保护 HTTP endpoint 申请，再在 `/ws/host` 握手时一次性消费。 */
-export const QCODE_RPC_HOST_CAPABILITY_HEADER = "x-zcode-rpc-host-capability";
+export const QCODE_RPC_HOST_CAPABILITY_HEADER = "x-qcode-rpc-host-capability";
 
 // ============================================================================
 // 进程间消息类型 —— main ↔ host process 之间的 postMessage

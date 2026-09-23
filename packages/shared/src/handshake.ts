@@ -1,5 +1,5 @@
 export interface HelloMessage {
-  type: "qcode-hello";
+  type: "zcode-hello";
   version: string;
   platform: string;
   arch: string;
@@ -7,7 +7,7 @@ export interface HelloMessage {
 }
 
 export interface HelloAckMessage {
-  type: "qcode-hello-ack";
+  type: "zcode-hello-ack";
   version: string;
   clientId: string;
 }

@@ -1,4 +1,4 @@
-import type { UiLocale, SupportedLocale } from "@zcode/contracts";
+import type { UiLocale, SupportedLocale } from "@qcode/contracts";
 import { enUS } from "./locales/en-US.js";
 import { zhCN } from "./locales/zh-CN.js";
 import {

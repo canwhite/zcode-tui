@@ -6,8 +6,8 @@
  * 而 run 的真相在 journal——进度面只是观察面，绝不该有能力终止它。
  */
 
-import type { DynamicWorkflowRunProgressPayload, Logger, SessionId } from "@zcode/contracts";
-import type { AgentRuntime } from "@zcode/core";
+import type { DynamicWorkflowRunProgressPayload, Logger, SessionId } from "@qcode/contracts";
+import type { AgentRuntime } from "@qcode/core";
 
 interface DynamicWorkflowRunProgressSinkDeps {
   /** 惰性取 runtime：run service 在 runtime 构造**之前**就已建好（它是 runtime 的依赖之一）。 */

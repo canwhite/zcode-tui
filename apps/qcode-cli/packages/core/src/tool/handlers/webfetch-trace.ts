@@ -2,7 +2,7 @@ import {
   SessionEventType,
   type NetworkRequestStatusPayload,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 import { WEBFETCH_TOOL_NAME } from "./webfetch-constants.js";
 

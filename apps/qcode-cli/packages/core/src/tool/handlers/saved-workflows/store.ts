@@ -30,7 +30,7 @@ import {
   type SavedWorkflowMeta,
   type SavedWorkflowScope,
   type SavedWorkflowShadowing,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { parseSavedWorkflow, serializeSavedWorkflow } from "./frontmatter.js";
 
 /** 一个查找根：作用域标签 + 绝对目录。 */

@@ -1,4 +1,4 @@
-import type { TuiSessionMetadata } from "@zcode/tui";
+import type { TuiSessionMetadata } from "@qcode/tui";
 import { loadBootstrapModule } from "./bootstrap-loader.js";
 import type { RunDependencies } from "./cli-types.js";
 

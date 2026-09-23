@@ -21,9 +21,9 @@ export const officialSeaPlugins = [
   {
     // node_repl 宿主：Browser Use 与 Computer Use 共用的运行时产物，自己不是面向用户的插件
     // （无 skill、无市场 listing）。它必须始终随发布物嵌入，否则任一能力启用时都没有宿主可跑。
-    marketplace: "zcode-plugins-official",
+    marketplace: "qcode-plugins-official",
     name: "node-repl-host",
-    packageName: "@zcode/node-repl-host",
+    packageName: "@qcode/node-repl-host",
     requiresRuntime: true,
     requiredRuntimePaths: ["dist/mcp/server.js"],
     rootPath: join("packages", "node-repl-host"),
@@ -31,9 +31,9 @@ export const officialSeaPlugins = [
   },
   {
 
-    marketplace: "zcode-plugins-official",
+    marketplace: "qcode-plugins-official",
     name: "browser-use",
-    packageName: "@zcode/browser-use-plugin",
+    packageName: "@qcode/browser-use-plugin",
     requiresRuntime: true,
     // Browser Use 的 runtime、client、API 文档和 skills 是同一发布单元；
     // SEA 构建必须在嵌入前拒绝任一缺失项，不能把损坏产物留到用户启动时才发现。

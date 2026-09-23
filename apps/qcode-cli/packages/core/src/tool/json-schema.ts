@@ -2,7 +2,7 @@
 // Minimal JSON Schema validator for tool contract boundaries
 // ============================================================
 
-import type { JsonSchema } from "@zcode/contracts";
+import type { JsonSchema } from "@qcode/contracts";
 import {
   createInvalidTypeIssue,
   createInvalidUnionIssue,

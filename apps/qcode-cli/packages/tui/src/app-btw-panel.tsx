@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import { useTerminalDimensions } from "@mbears/opentui-react";
 import React, { useEffect, useState } from "react";
 import {

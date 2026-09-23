@@ -1,6 +1,6 @@
 import { traceContextToLogContext } from "../deps.js";
 import type { RuntimeCommand, TaskNotificationRuntimeCommand } from "../command-queue.js";
-import { uuidv7 } from "@zcode/shared";
+import { uuidv7 } from "@qcode/shared";
 import type { AgentRuntimeInternal } from "../internal.js";
 import {
   persistBackgroundTaskNotificationBatch,

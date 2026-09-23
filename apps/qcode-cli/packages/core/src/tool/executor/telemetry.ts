@@ -1,4 +1,4 @@
-import type { ToolExecutionSpanWriter } from "@zcode/contracts";
+import type { ToolExecutionSpanWriter } from "@qcode/contracts";
 import type { ExecutableToolCall, ToolExecutionResult } from "../types.js";
 import type { ToolExecuteOptions, ToolExecutorDeps } from "./types.js";
 

@@ -1,4 +1,4 @@
-import type { EnvInfo, Model } from "@zcode/contracts";
+import type { EnvInfo, Model } from "@qcode/contracts";
 import { isEnvInfoGitRepository } from "../context/sections/env-info.js";
 
 export interface SubagentEnvironmentContextOptions {

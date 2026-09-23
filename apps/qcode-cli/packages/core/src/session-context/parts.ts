@@ -1,4 +1,4 @@
-import { type MessagePart } from "@zcode/contracts";
+import { type MessagePart } from "@qcode/contracts";
 import { safeJson, truncateText } from "./utils.js";
 
 const SYSTEM_REMINDER_PATTERN = /<\/?system-reminder\b/i;

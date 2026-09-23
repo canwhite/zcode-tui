@@ -5,7 +5,7 @@
 // 阻塞等待外部点击的桥接程序）挂起期间，确认窗已对用户可见，但所有点击都被
 // resolveInteraction 按「未命中即幂等成功」丢弃——确认窗永久死亡，turn 永久挂起。
 // 修法：两个应答方并发启动、先到的决定生效、败者立即 abort 且不被等待。
-import type { PermissionBrokerResult } from "@zcode/contracts";
+import type { PermissionBrokerResult } from "@qcode/contracts";
 import { linkAbortSignal } from "./timeout.js";
 
 interface PermissionResponderRaceInput {

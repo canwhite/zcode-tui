@@ -1,2 +1,2 @@
 export { run } from "./run.js";
-export type { RunContext, GlobalOptions } from "@zcode/shared-types";
+export type { RunContext, GlobalOptions } from "@qcode/shared-types";

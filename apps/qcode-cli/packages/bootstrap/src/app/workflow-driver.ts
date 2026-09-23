@@ -48,8 +48,8 @@ import type {
   SubmitVerdict as ContractsSubmitVerdict,
   WorkflowEscalatePort,
   WorkflowSubmitPort,
-} from "@zcode/contracts";
-import type { TurnResult } from "@zcode/core";
+} from "@qcode/contracts";
+import type { TurnResult } from "@qcode/core";
 import {
   GENERIC_SUBMIT_PROFILE,
   refToString,
@@ -68,7 +68,7 @@ import {
   type WorkflowDriver,
   type WorkflowReportSink,
   type WorldReadOp,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { executeArtifactPublish } from "./workflow-artifact-publish.js";
 import { qualityEpilogue } from "./workflow-ask-epilogue.js";
 import { ensureSubmitProfileFits } from "./workflow-driver-submit-profile.js";

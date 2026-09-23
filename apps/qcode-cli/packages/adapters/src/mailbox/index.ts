@@ -4,7 +4,7 @@ import type {
   SessionId,
   SessionMailboxEnvelope,
   SessionMailboxPort,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export interface NodeSessionMailboxOptions {
   rootDir: string;

@@ -1,5 +1,5 @@
-import type { SessionId, SessionInfo } from "@zcode/contracts";
-import type { BackgroundBashOutputResult } from "@zcode/shared";
+import type { SessionId, SessionInfo } from "@qcode/contracts";
+import type { BackgroundBashOutputResult } from "@qcode/shared";
 import type { ZCodeProtocolAgentServerContext } from "./server-types.js";
 
 /** 只查询现存执行器，绝不为查看输出恢复 runtime。 */

@@ -1,4 +1,4 @@
-import type { Logger } from "@zcode/contracts";
+import type { Logger } from "@qcode/contracts";
 
 interface NormalizeModelToolInputOptions {
   logger?: Logger;

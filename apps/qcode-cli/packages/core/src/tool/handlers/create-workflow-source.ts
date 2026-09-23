@@ -14,7 +14,7 @@ import {
   type ModelCatalogPort,
   type SavedWorkflowArgsDeclaration,
   type SavedWorkflowScope,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolHandlerFailure, ToolInputResolutionResult } from "../types.js";
 import { resolveModelReference } from "./model-reference.js";
 import {

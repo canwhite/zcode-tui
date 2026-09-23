@@ -21,7 +21,7 @@ import type {
   ExecutionResult,
   ExecutionRunOptions,
   ExecutionShellDialect,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export class NodeExecutionAdapterRun extends NodeExecutionAdapterProcess {
   async run(

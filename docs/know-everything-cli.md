@@ -1,6 +1,6 @@
-# Know Everything: ZCode CLI (`apps/qcode-cli`)
+# Know Everything: ZCode CLI (`apps/zcode-cli`)
 
-> 分析时间：2026-09-22 ｜ 项目路径：`/Users/doing/Desktop/zcode-tui/apps/qcode-cli`
+> 分析时间：2026-09-22 ｜ 项目路径：`/Users/doing/Desktop/zcode-tui/apps/zcode-cli`
 > 基线：`feat/offline-vendoring` @ `32b3ee8`（工作区有未提交改动）
 > 范围说明：本报告只覆盖 Agent CLI / TUI 子树。整仓（含已移除的桌面/Web/后端）见 `docs/know-everything-zcode.md`。
 
@@ -8,7 +8,7 @@
 
 ## 1. 项目轮廓
 
-`apps/qcode-cli` 是这个精简仓库的**唯一交付物**，本身是一个嵌套 pnpm workspace（16 个包，约 **28.9 万行** TypeScript），最终产出一个名为 `zcode` 的可执行文件（esbuild 打成 CJS bundle，SEA 单文件打包为可选形态）。它同时提供**四种运行形态**：进程内 React TUI（OpenTUI 渲染器）、headless 单轮执行（`-p/--prompt`、`--target`）、stdout 独占的**协议服务进程**（`app-server` / `agent-server`，NDJSON 帧），以及若干子命令（`doctor`/`configure`/`login`/`plugins`/`skills`/`commands`/`hooks`）。核心是 `packages/core` 里的 `AgentRuntime`——接收提示 → 准入排队 → 组装 provider 请求 → 流式解析模型输出 → 调度并执行工具（带权限闸门）→ 事件持久化到 SQLite；它通过**注入端口**（`Model`、`SessionStorePort`、`PermissionBroker`）与外界解耦，因此 core 里没有一行 AI SDK 或 SQLite 代码。上下游分别是：`adapters`（AI SDK / MCP / 文件 / 执行 / 存储 / 插件 / 配置的**具体实现**）、`bootstrap`（组装根 + 协议服务 + 会话/技能/子代理/插件业务）、`tui`（纯 UI，通过回调被 CLI 反向驱动）、`cli`（进程入口、参数路由、退出/错误边界、SEA 打包）。仓库自带一套**架构治理机制**（`architecture-policy.yaml` + `scripts/architecture/`），但按当前配置它**一个文件都不检查**（见 5.5-A-gov）。
+`apps/zcode-cli` 是这个精简仓库的**唯一交付物**，本身是一个嵌套 pnpm workspace（16 个包，约 **28.9 万行** TypeScript），最终产出一个名为 `zcode` 的可执行文件（esbuild 打成 CJS bundle，SEA 单文件打包为可选形态）。它同时提供**四种运行形态**：进程内 React TUI（OpenTUI 渲染器）、headless 单轮执行（`-p/--prompt`、`--target`）、stdout 独占的**协议服务进程**（`app-server` / `agent-server`，NDJSON 帧），以及若干子命令（`doctor`/`configure`/`login`/`plugins`/`skills`/`commands`/`hooks`）。核心是 `packages/core` 里的 `AgentRuntime`——接收提示 → 准入排队 → 组装 provider 请求 → 流式解析模型输出 → 调度并执行工具（带权限闸门）→ 事件持久化到 SQLite；它通过**注入端口**（`Model`、`SessionStorePort`、`PermissionBroker`）与外界解耦，因此 core 里没有一行 AI SDK 或 SQLite 代码。上下游分别是：`adapters`（AI SDK / MCP / 文件 / 执行 / 存储 / 插件 / 配置的**具体实现**）、`bootstrap`（组装根 + 协议服务 + 会话/技能/子代理/插件业务）、`tui`（纯 UI，通过回调被 CLI 反向驱动）、`cli`（进程入口、参数路由、退出/错误边界、SEA 打包）。仓库自带一套**架构治理机制**（`architecture-policy.yaml` + `scripts/architecture/`），但按当前配置它**一个文件都不检查**（见 5.5-A-gov）。
 
 ---
 
@@ -27,7 +27,7 @@
 | 数据              | SQLite（`node:sqlite` 的 `DatabaseSync`）                     | `~/.zcode/cli/db/db.sqlite`；`migrations/` 仅存 `0020`–`0022`（历史被 squash）                     |
 | 凭据              | 自研加密凭据文件（**无 OS keychain**）                        | `~/.zcode/v2/credentials.json`，实测权限 `0600` ✓                                                   |
 | 浏览器自动化      | Playwright-core 1.59.1（SEA 下外置）                          | `playwright-core`、`koffi`、`@zcode/tui` 是 bundle 的 externals                                    |
-| Lint / 格式       | oxlint + oxfmt（Rust）                                        | 唯一 error 级规则 `max-lines: 400`；**但对 `apps/qcode-cli` 整体失效**（见 5.1-A-lint）                 |
+| Lint / 格式       | oxlint + oxfmt（Rust）                                        | 唯一 error 级规则 `max-lines: 400`；**但对 `apps/zcode-cli` 整体失效**（见 5.1-A-lint）                 |
 | 测试              | **无**                                                        | 全仓 **0 个测试文件**、无 vitest/jest/playwright 配置、无 `test` script，但 `c8` 与 `ZCODE_E2E_COVERAGE` 钩子仍在 |
 | 架构治理          | 自研 `scripts/architecture/`                                  | `forbidCycles: true` + `managedOnly: true`，但 4 个模块**全部** `managed: false` → 空转（见 5.5-A-gov） |
 | 发布 / 打包       | esbuild CJS bundle + 可选 SEA（`postject`）                   | SEA 下载 Node 基座；`third-party/vendored/` 是进行中的离线化落点                                    |
@@ -38,7 +38,7 @@
 ## 3. 项目结构
 
 ```
-apps/qcode-cli/                      # 嵌套 workspace（~28.9 万行 TS）
+apps/zcode-cli/                      # 嵌套 workspace（~28.9 万行 TS）
 ├── packages/
 │   ├── cli/         11.8k 行  进程入口、参数路由、退出/错误边界、TUI 接线、SEA 打包
 │   ├── core/        95.6k 行  Agent 引擎：runtime/ tool/ permission/ agent/ subagent/ mcp/ compact/
@@ -55,7 +55,7 @@ apps/qcode-cli/                      # 嵌套 workspace（~28.9 万行 TS）
 └── scripts/                         # build / build-sea / generate-bash-command-registry
 ```
 
-嵌套关系：`apps/qcode-cli/packages/*` 通过 `workspace:*` 依赖**外层**仓库的 `packages/shared`、`packages/provider`、`packages/provider-node`、`packages/model-option-map`。
+嵌套关系：`apps/zcode-cli/packages/*` 通过 `workspace:*` 依赖**外层**仓库的 `packages/shared`、`packages/provider`、`packages/provider-node`、`packages/model-option-map`。
 
 ---
 
@@ -183,7 +183,7 @@ flowchart TD
 
 | 位置                                                      | 问题                                                                                                                                                                                                 | 严重度 | 发现路径           | Next Skill             |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------ | ---------------------- |
-| `.oxlintrc.json:47` ←→ `apps/qcode-cli/**`                 | **A-lint｜Lint 对主要代码库整体失明。** 根配置 `ignorePatterns` 含 `"apps/qcode-cli"`，`pnpm lint` 只扫 **425 个文件**、报 **0 errors、exit 0**；而在各子包内跑 `oxlint src` 会报 **84 个 error**（core 29 / adapters 25 / bootstrap 20 / contracts 6 / cli 2 / telemetry 2，全部是 `max-lines`）。`AGENTS.md` 指定的 `pnpm lint` 与 `pnpm verify:pre-push` 因此**永远是绿的**。 | High   | 约定漂移 / 无测试表面 | `/planning`            |
+| `.oxlintrc.json:47` ←→ `apps/zcode-cli/**`                 | **A-lint｜Lint 对主要代码库整体失明。** 根配置 `ignorePatterns` 含 `"apps/zcode-cli"`，`pnpm lint` 只扫 **425 个文件**、报 **0 errors、exit 0**；而在各子包内跑 `oxlint src` 会报 **84 个 error**（core 29 / adapters 25 / bootstrap 20 / contracts 6 / cli 2 / telemetry 2，全部是 `max-lines`）。`AGENTS.md` 指定的 `pnpm lint` 与 `pnpm verify:pre-push` 因此**永远是绿的**。 | High   | 约定漂移 / 无测试表面 | `/planning`            |
 | `packages/adapters/src/plugins/marketplace.ts:1` (2724 行) | **M1｜插件市场逻辑三份。** `marketplace.ts`（source 解析 + 版本解析 + 安装 + listing 解析）、`adapters/src/plugins/index.ts`（991 行，重叠的 manifest/root 解析）、`bootstrap/src/plugins.ts`（1457 行，第三份 selector/诊断翻译 `toPluginDiagnostic:1359`）。同一子系统的三套选择器与三套诊断。                                               | Medium | 浅模块 / 双份维护     | `/improve-architecture` |
 | `adapters/src/plugins/index.ts` ←→ `marketplace.ts`        | **M2｜同一子系统两套错误模型。** `index.ts` 用 diagnostics 数组旁路 + 返回值；`marketplace.ts` 抛类型化错误（`MarketplaceSourceRepointError:1357`、`source-errors.ts`）。                                                                                                       | Medium | 错误处理不一致        | `/improve-architecture` |
 | `packages/bootstrap/src/mcp-config.ts:28`                  | **L1｜CUA broker token 恒为 `undefined`。** `resolveZCodeCuaBrokerToken()` 无条件 `return undefined`，但仍作为参数传入 `injectZCodeCuaBrokerMcpServers`；下游 `injectCuaCredentialsIntoNodeRepl` **声明了 `token` 参数却从未使用**。属存量脚手架：读起来像"broker 鉴权已生效"，实际该路径既无 token 也不消费 token。`AGENTS.md` 说明本构建不提供 CUA，所以不是安全漏洞，但是**误导性死代码**。                    | Low    | 死代码 / 隐性依赖     | `/improve-architecture` |
@@ -193,7 +193,7 @@ flowchart TD
 
 | 位置                                                                                                            | 问题                                                                                                                                                                                                                                       | 严重度 | 发现路径       | Next Skill |
 | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------- | ---------- |
-| `third-party/resources.json:4` ←→ `scripts/native-search-tools-config.mjs:47-89`、`apps/qcode-cli/packages/cli/scripts/sea-node-download.mjs:90,121`、`scripts/.../sea-targets.mjs:67` | **A-ledger｜台账自称"唯一真源"，但没有一个消费方读它。** 台账原文写着"这是唯一真源——消费方脚本不得再内联 URL 与 sha256"；实测 `resources.json` 的消费者只有 `scripts/clean.mjs`（只读 `protectedRoot`）与 `scripts/remote-resources.mjs`（扫描器自身）。8 个上游源码 URL 仍内联在 `native-search-tools-config.mjs`，`nodejs.org` 仍硬编码在两处 SEA 脚本里。**F-001 的"对账通过"只证明台账与源码一致，不证明链路已改读台账**；Step 3（本地优先解析）尚未落地。                                                                 | High   | 未验证假设 / 双份维护 | `/planning` |
+| `third-party/resources.json:4` ←→ `scripts/native-search-tools-config.mjs:47-89`、`apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs:90,121`、`scripts/.../sea-targets.mjs:67` | **A-ledger｜台账自称"唯一真源"，但没有一个消费方读它。** 台账原文写着"这是唯一真源——消费方脚本不得再内联 URL 与 sha256"；实测 `resources.json` 的消费者只有 `scripts/clean.mjs`（只读 `protectedRoot`）与 `scripts/remote-resources.mjs`（扫描器自身）。8 个上游源码 URL 仍内联在 `native-search-tools-config.mjs`，`nodejs.org` 仍硬编码在两处 SEA 脚本里。**F-001 的"对账通过"只证明台账与源码一致，不证明链路已改读台账**；Step 3（本地优先解析）尚未落地。                                                                 | High   | 未验证假设 / 双份维护 | `/planning` |
 | `packages/cli/src/run.ts:686` vs `:703`                                                                          | **M3｜两个 headless 入口默认权限姿态相反。** `-p/--prompt` 传 `mode ?? DEFAULT_HEADLESS_PROMPT_MODE`（`"yolo"`，绕过全部权限询问，`run.ts:60`）；`--target` 传**裸 `mode`**（可能 `undefined` → 下游回退 `"build"`），而 headless 只有 `createHeadlessPermissionBroker()`（deny broker，`prompt-command.ts:215-219`）。同一 `runPrompt` 函数、同一用户意图，两条路径的默认安全姿态不一致，且**没有任何文档说明**。 | Medium | 双份维护 / 隐式输入 | `/post-mortem` |
 | `packages/tui/src/app.tsx:91`、`app-model-streaming.ts:55-64`、`app-view.tsx:113-121`、`app-subagent-transcript.ts:75-112` | **M4｜流式文本三份并行状态。** assistant 作用域内的 `parts`、全局 `liveModelText`、子代理私有一份；渲染层再从 `liveModelText` **合成第二条** streaming 消息，于是同一像素有两个竞争来源，靠"有没有 `assistantMessageId`"决定谁赢。                                                                 | Medium | 隐藏状态       | `/improve-architecture` |
 | `scripts/vendor-resources.mjs:97`                                                                                | **M5｜校验工具的判定文案会误导。** `status` 硬编码 `withHash: true`，只要 `s.actual` 存在就无条件打印 `(本地 xxx… != 台账)` —— **在 `state === "ok"`（哈希确实匹配）的行上同样打印**。实测输出 9 行"已就绪"全部带 `!= 台账` 后缀，摘要却是"校验不过 0"。这正是为防"静默假通过"而建的工具，却制造了反向误判。                                                       | Medium | 输出误导       | `/diagnose` |
@@ -221,7 +221,7 @@ flowchart TD
 | 位置                                                        | 问题                                                                                                                                                                                                                                                                                                                   | 严重度 | 发现路径           | Next Skill             |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------ | ---------------------- |
 | `architecture-policy.yaml:8-19` ←→ `scripts/architecture/index.mjs:44` | **A-gov｜架构治理机制空转。** 4 个模块（shared / provider / provider-node / zcode-cli）**全部** `managed: false`，而 `global.managedOnly: true`；`index.mjs:44` 对非 managed 模块直接 `continue`。实测 `pnpm architecture:check` → **violations: 0 / baseline: 0 / new: 0**，且 `pnpm verify:pre-push` 因此恒过。**`forbidCycles: true`、`maxFileLines: 400`、`forbidDeepImports: true` 全部无人执行。** | High   | 无测试表面 / 架构僵局 | `/improve-architecture` |
-| `apps/qcode-cli/packages/core/src/runtime/{methods,runtime-task}`、`bootstrap/src/zcode-protocol-v4/commands/handlers`、`dynamic-workflow/src/analysis` | **A-cycles｜5 个真实（值级）循环依赖。** 用 Tarjan 对**非 type-only import** 建图实测：core 2 个（`methods/subagent.ts ↔ methods/index.ts ↔ agent-runtime.ts` 3 环；`runtime-task/notification.ts ↔ workflow-notification-copy.ts`）、bootstrap 1 个（**11 文件 SCC**）、dynamic-workflow 2 个（8 文件 + 2 文件）。adapters / tui / cli / contracts 为 0。注意：另有若干**仅类型**的 SCC（如 `tool/types.ts ↔ read-file-state.ts` 链、35 文件运行时 barrel 环），因 `import type` 被擦除，不构成运行时环。 | High   | 循环依赖           | `/improve-architecture` |
+| `apps/zcode-cli/packages/core/src/runtime/{methods,runtime-task}`、`bootstrap/src/zcode-protocol-v4/commands/handlers`、`dynamic-workflow/src/analysis` | **A-cycles｜5 个真实（值级）循环依赖。** 用 Tarjan 对**非 type-only import** 建图实测：core 2 个（`methods/subagent.ts ↔ methods/index.ts ↔ agent-runtime.ts` 3 环；`runtime-task/notification.ts ↔ workflow-notification-copy.ts`）、bootstrap 1 个（**11 文件 SCC**）、dynamic-workflow 2 个（8 文件 + 2 文件）。adapters / tui / cli / contracts 为 0。注意：另有若干**仅类型**的 SCC（如 `tool/types.ts ↔ read-file-state.ts` 链、35 文件运行时 barrel 环），因 `import type` 被擦除，不构成运行时环。 | High   | 循环依赖           | `/improve-architecture` |
 | 全仓（`find` 实测）                                          | **A-tests｜零测试。** 全仓 **0 个** `*.test.ts`/`*.spec.ts`、无 `test/`、无 vitest/jest 配置、无 `test` script；`AGENTS.md` 自认"不假定存在统一的单测或 E2E 命令"。与此同时 `c8` 仍是 devDep、`shutdown.ts:77-91` 的 `flushE2ECoverage()` 与 `ZCODE_E2E_COVERAGE`/`NODE_V8_COVERAGE` 钩子仍在生产代码里。**没有任何改动能在提交前被自动证伪。** | High   | 无测试表面         | `/planning`             |
 | 157 个文件 > 400 行（最大 `bootstrap/src/zcode-protocol-v4/product-projection.ts` **5459 行**） | **A-files｜行数策略在最大的代码库里失效。** 实测超出 400 行的文件：bootstrap/product-projection 5459、protocol/server-operations 4049、protocol-v4/v4-gateway 3436、adapters/plugins/marketplace 2724、core/subagent/runner 2142、bootstrap/protocol-v4/transcript-hydration 1953、adapters/mcp/index 1950…… 另有 **14 处** in-file `eslint-disable max-lines` 豁免，其中 `core/src/tool/handlers/generated/bash-command-registry.ts:1` 是**无理由的 `/* eslint-disable */` 全文件豁免**。         | Medium | 神文件             | `/improve-architecture` |
 | `.git/objects`                                              | **M10｜仓库被 347 MiB 松散对象撑大，其中大头已不可达。** 实测 `git count-objects -vH` → 2704 个松散对象 / **347.24 MiB** / **0 个 pack**；最大的三个 blob（49/48/32 MiB）与 `third-party/vendored/` 的 Node 归档体积吻合，且 `git rev-list --objects --all` 判定为 **unreachable**（当前 `third-party/vendored/` 整体 `??` 未跟踪）。来源是先 `git add` 又撤销的那次本地化尝试。`git gc --prune=now` 可回收绝大部分。注意：**这不是删代码就能解决的**，且大文件一旦真正入库将长期驻留历史。 | Medium | 数据流缺陷         | `/planning`             |
@@ -254,7 +254,7 @@ flowchart TD
 
 1. **5.5-A-gov｜架构治理机制完全空转**（`architecture-policy.yaml` + `scripts/architecture/index.mjs:44`）。`managedOnly: true` × 4 个模块全部 `managed: false` = 检查器一个文件都不看，输出恒为 `violations: 0`，`pnpm verify:pre-push` 恒过。**这是所有其他架构问题的放大器**——5 个值级循环依赖、157 个超限文件之所以能存在，正是因为守门人是空的。
 
-2. **5.5-A-tests + 5.1-A-lint｜零测试 + lint 失明 = 没有任何自动证伪手段**。全仓 0 个测试文件；`pnpm lint` 因 `ignorePatterns` 排除 `apps/qcode-cli` 而只扫 425 个文件、报 0 error；`pnpm typecheck` 只覆盖外层 3 个包（实测 `tsc -b packages/provider packages/provider-node packages/shared`），**CLI 子树不在其中**（我逐包实测 10 个包 `tsc --noEmit` 均 0 error，但那是手工跑的，不是 `AGENTS.md` 指定的命令）。当前"验证通过"的真实含义比字面小得多。
+2. **5.5-A-tests + 5.1-A-lint｜零测试 + lint 失明 = 没有任何自动证伪手段**。全仓 0 个测试文件；`pnpm lint` 因 `ignorePatterns` 排除 `apps/zcode-cli` 而只扫 425 个文件、报 0 error；`pnpm typecheck` 只覆盖外层 3 个包（实测 `tsc -b packages/provider packages/provider-node packages/shared`），**CLI 子树不在其中**（我逐包实测 10 个包 `tsc --noEmit` 均 0 error，但那是手工跑的，不是 `AGENTS.md` 指定的命令）。当前"验证通过"的真实含义比字面小得多。
 
 3. **5.2-A-ledger｜`third-party/resources.json` 自称唯一真源，但零消费方**。台账原文禁止"消费方脚本内联 URL 与 sha256"，实测 8 个上游 URL 仍内联在 `native-search-tools-config.mjs:47-89`、`nodejs.org` 仍硬编码在 `sea-node-download.mjs:90,121` 与 `sea-targets.mjs:67`；`resources.json` 的消费者只有 `clean.mjs`（只读 `protectedRoot`）与扫描器自身。`remote-resources.mjs check` 报"✓ 对账通过"是**真的**（台账与源码确实一致，self-test 也有牙齿，能对未登记获取点失败），但它证明的是"描述一致"，**不是"链路已改读台账"**——Step 3 尚未落地。叠加 5.2-M5 的误导文案与 5.5-M10 的 347 MiB 无主对象，这条离线化链路当前离"可交付"还有距离。
 

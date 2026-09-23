@@ -1,7 +1,7 @@
 // video 附件共用的 mime 推断与大小校验。
 // Read 工具（read-video.ts）与 prompt 附件解析（attachments.ts）都从这里取，
 // 保证扩展名→mime 的映射只有一份事实；mime 枚举的唯一事实源在 contracts（ReadVideoOutput）。
-import type { ReadVideoOutput } from "@zcode/contracts";
+import type { ReadVideoOutput } from "@qcode/contracts";
 import { base64PayloadByteLength, isStrictBase64Payload } from "./attachment-data-url.js";
 
 export type VideoInputMimeType = ReadVideoOutput["mimeType"];

@@ -1,4 +1,4 @@
-import type { UiThemeMode, UiThemePreference } from "@zcode/contracts";
+import type { UiThemeMode, UiThemePreference } from "@qcode/contracts";
 import { BUILTIN_TUI_THEMES, DEFAULT_TUI_THEME_MODE } from "./defaults.js";
 import type { TuiThemeTokens } from "./types.js";
 

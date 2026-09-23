@@ -4,8 +4,8 @@ import type {
   SubagentTaskSnapshot,
   TraceContext,
   TurnId,
-} from "@zcode/contracts";
-import type { AgentOutput } from "@zcode/contracts";
+} from "@qcode/contracts";
+import type { AgentOutput } from "@qcode/contracts";
 
 // local_dynamic_workflow 与 local_workflow 刻意分开：后者是 legacy `Workflow` 工具（不可取消），
 // 前者是 workflow run（经 DynamicWorkflowRunPort.cancel 可取消）。合成一个类型，取消分派就无法区分。

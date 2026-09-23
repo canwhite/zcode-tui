@@ -1,4 +1,4 @@
-import type { ModelSelection } from "@zcode/shared";
+import type { ModelSelection } from "@qcode/shared";
 import { parseProviderQualifiedModelSelection } from "../app/provider-registry-selection.js";
 
 export function formatProtocolModelSelection(ref: ModelSelection): string {

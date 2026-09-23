@@ -5,11 +5,11 @@ import type {
   WorkspaceHookPolicy,
   WorkspaceHookTrustRecord,
   WorkspaceHookTrustState,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   WORKSPACE_HOOK_STATE_ADMISSION_MAP,
   workspaceHookEffectiveStateSchema,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { WorkspaceHookTrustStoreStatus } from "./workspace-hook-trust-types.js";
 
 export function evaluateWorkspaceHookEntry(input: {

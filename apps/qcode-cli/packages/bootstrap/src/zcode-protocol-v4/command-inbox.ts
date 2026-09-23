@@ -5,13 +5,13 @@ import type {
   CommandEnvelope,
   CommandKey,
   ConversationInputIntent,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import {
   COMMANDS_REQUIRING_BASE_REVISION,
   PROTOCOL_V4_LIMITS,
   ROW_TARGETING_COMMANDS,
   parseCommandEnvelope,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 /** guard 裁决结果：拒绝（撤 optimistic）或 noop（晚到者静默收口）。 */
 type GuardDecision =

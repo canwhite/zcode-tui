@@ -1,5 +1,5 @@
-import { formatJson } from "@zcode/core";
-import type { GlobalOptions, RunContext } from "@zcode/shared-types";
+import { formatJson } from "@qcode/core";
+import type { GlobalOptions, RunContext } from "@qcode/shared-types";
 import {
   formatDiagnosticJson,
   formatDiagnosticLines,

@@ -10,14 +10,14 @@
 import {
   inspectWorkflowModelFailure,
   type WorkflowModelFailureInspection,
-} from "@zcode/adapters/model";
+} from "@qcode/adapters/model";
 import {
   refToString,
   WorkflowError,
   type InstanceRef,
   type ProviderStopDetails,
   type WorkflowReportSink,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import {
   PROVIDER_STOP_RAW_MESSAGE_MAX_CHARS,
   TRANSIENT_CONTINUE_PROMPT,

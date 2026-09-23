@@ -8,8 +8,8 @@ import type {
   SessionsIndexDelta,
   SessionsIndexTopicFrame,
   TopicFrameDeliveryKind,
-} from "@zcode/shared/zcode-protocol-v4";
-import { sessionsIndexTopic } from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
+import { sessionsIndexTopic } from "@qcode/shared/zcode-protocol-v4";
 import {
   SessionsIndexProjection,
   type SessionSummaryDeriveExtra,

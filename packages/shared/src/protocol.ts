@@ -204,7 +204,7 @@ export type ResourceUsageBaseGroupKey = "main" | "gpu" | "renderer" | "host" | "
 /** 资源管理器中的一个进程行（CPU 为整机归一化百分比，内存为字节） */
 export interface ResourceUsageProcess {
   pid: number;
-  /** 进程显示名，如 zcode-main / qcode-agent-zcode-demo / node_repl */
+  /** 进程显示名，如 zcode-main / zcode-agent-zcode-demo / node_repl */
   name: string;
   category: ResourceUsageCategory;
   groupKey: string;

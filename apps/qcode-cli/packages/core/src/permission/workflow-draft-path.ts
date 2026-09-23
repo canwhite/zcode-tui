@@ -9,7 +9,7 @@
 
 import nodePath from "node:path";
 
-import { WORKFLOW_DRAFTS_DIR } from "@zcode/contracts";
+import { WORKFLOW_DRAFTS_DIR } from "@qcode/contracts";
 
 /**
  * 判定所需的 `node:path` 子集。做成参数是为了在测试里注入 `path.win32` / `path.posix`：

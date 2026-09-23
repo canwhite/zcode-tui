@@ -9,8 +9,8 @@
 //   vs fault.subscribe.resumeFailed（恢复中途失败，保留原始 cause）。
 //   message 附带 reasonCode——renderer 订阅错误块直显 lastError，无需 UI 改动即透出。
 
-import type { MessageWithParts } from "@zcode/contracts";
-import type { ZCodeWorkspaceRef } from "@zcode/shared";
+import type { MessageWithParts } from "@qcode/contracts";
+import type { ZCodeWorkspaceRef } from "@qcode/shared";
 
 export type ColdSessionResumeOutcome =
   | { status: "resumed"; persistedMessages?: MessageWithParts[] }

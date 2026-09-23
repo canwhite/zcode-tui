@@ -9,7 +9,7 @@
 // 用法：
 //   node test/claude-config-home.mjs
 //
-// 前置：需要已构建的 CLI 产物（apps/qcode-cli/packages/cli/dist/zcode.cjs）。
+// 前置：需要已构建的 CLI 产物（apps/zcode-cli/packages/cli/dist/zcode.cjs）。
 //       未构建时本脚本直接失败并给出构建命令，不静默跳过。
 
 import { spawnSync } from "node:child_process";
@@ -19,7 +19,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
 
 /** fixture 里的 skill 名。刻意取一个真实环境中不可能存在的名字，避免与真家目录混淆。 */
 const PROBE_SKILL = "zz-probe-skill";
@@ -106,7 +106,7 @@ console.log(JSON.stringify(out));
     process.execPath,
     ["--import", "tsx", "--input-type=module", "-e", script],
     {
-      cwd: join(repoRoot, "apps/qcode-cli/packages/adapters"),
+      cwd: join(repoRoot, "apps/zcode-cli/packages/adapters"),
       encoding: "utf8",
       env: { ...process.env },
       timeout: 120_000,
@@ -189,7 +189,7 @@ console.log(JSON.stringify({
     process.execPath,
     ["--import", "tsx", "--input-type=module", "-e", script],
     {
-      cwd: join(repoRoot, "apps/qcode-cli/packages/adapters"),
+      cwd: join(repoRoot, "apps/zcode-cli/packages/adapters"),
       encoding: "utf8",
       env: { ...process.env },
       timeout: 120_000,

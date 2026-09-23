@@ -10,12 +10,12 @@
 // 调用点只有一个：`CreateWorkflow` / `AmendWorkflow` 的 `resolveInput`。解析必须发生在
 // 确认窗**之前**——窗上显示的是将要生效的那个模型，而解不出来的调用根本不该开窗。
 
-import type { ModelCatalogEntry, ModelSelection } from "@zcode/contracts";
+import type { ModelCatalogEntry, ModelSelection } from "@qcode/contracts";
 import {
-  ZCODE_MODEL_REASONING_SEPARATOR,
+  QCODE_MODEL_REASONING_SEPARATOR,
   formatModelPickerValue,
   parseModelPickerValue,
-} from "@zcode/shared/model-selection";
+} from "@qcode/shared/model-selection";
 
 /**
  * 解析结果。失败一律带 `candidates`：模型猜错一个名字之后最有用的下一步信息就是「那这里
@@ -127,7 +127,7 @@ export function formatModelCatalogId(entry: ModelCatalogEntry): string {
 function splitReasoningLevel(text: string): { reference: string; level?: string } {
   const providerSeparatorIndex = text.indexOf("/");
   const searchFrom = providerSeparatorIndex + 1;
-  const index = text.indexOf(ZCODE_MODEL_REASONING_SEPARATOR, searchFrom);
+  const index = text.indexOf(QCODE_MODEL_REASONING_SEPARATOR, searchFrom);
   // 空的一侧（`$high`、`glm$`）不算档位：那是拼错，让它落到 not_found 去列清单。
   if (index <= searchFrom || index >= text.length - 1) return { reference: text };
   return { reference: text.slice(0, index), level: text.slice(index + 1) };

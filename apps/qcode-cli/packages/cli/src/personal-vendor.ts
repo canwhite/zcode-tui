@@ -4,10 +4,10 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  QCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   decodeProviderConfigFile,
   encodeProviderConfigFile,
-} from "@zcode/provider-node";
+} from "@qcode/provider-node";
 import {
   ApiKeyAccessConfig,
   ModelConfigRules,
@@ -15,8 +15,8 @@ import {
   ProviderConfig,
   ProviderConfigMap,
   type ProviderApiType,
-} from "@zcode/provider";
-import { atomicWritePrivateTextFile } from "@zcode/shared/node";
+} from "@qcode/provider";
+import { atomicWritePrivateTextFile } from "@qcode/shared/node";
 import type { CliEnv } from "./env.js";
 
 /**
@@ -44,9 +44,9 @@ export interface WritePersonalVendorResult {
 }
 
 export function resolvePersonalConfigPath(env: CliEnv): string {
-  const explicit = env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const explicit = env[QCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (explicit) return explicit;
-  const dataBaseDir = env.ZCODE_DATA_BASE_DIR?.trim() || homedir();
+  const dataBaseDir = env.QCODE_DATA_BASE_DIR?.trim() || homedir();
   return join(dataBaseDir, ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
 }
 

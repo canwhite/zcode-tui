@@ -5,8 +5,8 @@
 // （interruptedRunFailure / reconcileOrphanRuns）拆到本文件；公开面仍从
 // dynamic-workflow-run-service.ts 导出。语义见那边文件头的不变式 4。
 
-import type { Logger } from "@zcode/contracts";
-import type { JournalStorePort, RunRecord, WorkflowErrorJson } from "@zcode/dynamic-workflow";
+import type { Logger } from "@qcode/contracts";
+import type { JournalStorePort, RunRecord, WorkflowErrorJson } from "@qcode/dynamic-workflow";
 import { supportsNonTerminalRunQuery } from "./dynamic-workflow-run-journal.js";
 import {
   INTERRUPTED_FAILURE_CODE,

@@ -1,4 +1,4 @@
-import type { Logger } from "@zcode/contracts";
+import type { Logger } from "@qcode/contracts";
 import type { ToolEntry } from "./types.js";
 
 interface NormalizeToolExecutionInputOptions {

@@ -91,7 +91,7 @@
 
 **Step 1 — F-101 断开网关端点改写**（阻断于 Step 0；与其余步骤零耦合）
 
-- `apps/qcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts`：移除对官方端点的改写。注意该文件同时导出 `resolveOfficialCodingPlanGatewayUrl` / `createOfficialCodingPlanGatewayFetch`，需连带处理其调用方（模型发送链上的 fetch 包装点）。
+- `apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts`：移除对官方端点的改写。注意该文件同时导出 `resolveOfficialCodingPlanGatewayUrl` / `createOfficialCodingPlanGatewayFetch`，需连带处理其调用方（模型发送链上的 fetch 包装点）。
 - 保留 `EndpointRouting` 语义但令 `viaGateway` 恒为 `false`，作为指标「请求经 zcode.z.ai 占比」的观测点。
 - **本步不触碰 `config/provider/zcode-builtin.json`**（那 4 处指向 `zcode.z.ai` 的端点属 Step 8）。由 pre-mortem 修正：原稿曾建议同批处理，但那会让 Step 1 的"单独 revert 即可恢复原转发路径"失效 —— 回滚会把清单也一并回退，产生难以归因的中间态。
 - **代理语义变更需显式记录**：该 fetch 包装的注释明确"应放在用户 HTTP 代理 fetch 之前，使 httpProxy / noProxy 规则按实际发送的网关地址判定"。移除改写后，代理规则将**按 provider 端点判定** —— 对企业网络用户是可感知的行为变化，需在提交信息与 README 中写明。
@@ -101,13 +101,13 @@
 命令面在**四处独立登记**，必须全部处理，否则出现"帮助里写着 `/login`、敲了没反应"：
 
 1. `packages/shared/src/zcode-slash-command-help.ts:26,33` — 摘除 `login`/`logout` 两条（其余 17 条保留）。
-2. `apps/qcode-cli/packages/cli/src/command-center/slash-commands.ts:96-112` — 摘除解析分支。
-3. `apps/qcode-cli/packages/cli/src/run.ts:735-744` — 摘除 `login`/`logout` 子命令分派；`arguments.ts:23-25` 的 `--no-browser` 随之失效。
-4. `apps/qcode-cli/packages/cli/src/prompt-command.ts:20,123-137` — 摘除 headless `/login`、`/logout`。
-5. `apps/qcode-cli/packages/bootstrap/src/slash-command-surface.ts:21-26,32-34` — 从保留名门禁移除（否则用户无法再自定义名为 `login` 的 skill）。
-6. `apps/qcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts:24-25,59-60` — 摘除子命令与斜杠命令帮助行；`loginSetup` 块（`en-US.ts:107-152`）随 F-002 处理。
-7. `apps/qcode-cli/packages/cli/src/command-center/create.ts:88-203` — 摘除 `/login`、`/logout` handler 与其 `CommandCenterLogin*` 类型（`types.ts:136-187,308-312,322`）。
-8. `apps/qcode-cli/packages/cli/src/command-center/login-flow.ts` — 整文件删除。
+2. `apps/zcode-cli/packages/cli/src/command-center/slash-commands.ts:96-112` — 摘除解析分支。
+3. `apps/zcode-cli/packages/cli/src/run.ts:735-744` — 摘除 `login`/`logout` 子命令分派；`arguments.ts:23-25` 的 `--no-browser` 随之失效。
+4. `apps/zcode-cli/packages/cli/src/prompt-command.ts:20,123-137` — 摘除 headless `/login`、`/logout`。
+5. `apps/zcode-cli/packages/bootstrap/src/slash-command-surface.ts:21-26,32-34` — 从保留名门禁移除（否则用户无法再自定义名为 `login` 的 skill）。
+6. `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts:24-25,59-60` — 摘除子命令与斜杠命令帮助行；`loginSetup` 块（`en-US.ts:107-152`）随 F-002 处理。
+7. `apps/zcode-cli/packages/cli/src/command-center/create.ts:88-203` — 摘除 `/login`、`/logout` handler 与其 `CommandCenterLogin*` 类型（`types.ts:136-187,308-312,322`）。
+8. `apps/zcode-cli/packages/cli/src/command-center/login-flow.ts` — 整文件删除。
 
 **Step 3 — F-002 重定位无模型门禁**（必须与 Step 2 同批）
 
@@ -120,9 +120,9 @@
 
 删除（OAuth 专属）：
 
-- `apps/qcode-cli/packages/bootstrap/src/auth-login.ts` 的 `loginZCodeCli`、`loginBigmodelCodingPlan`、`logoutZCodeCli`、`ZCodeCliLoginError`；`auth-login-polling.ts`、`auth-login-abort.ts`。
-- `apps/qcode-cli/packages/adapters/src/auth/cli-oauth.ts`（**内含独立硬编码副本** `zcode.z.ai/api/v1`，:4）、`coding-plan-api-key.ts`（OAuth token → key 兑换，:4 硬编码 `https://api.z.ai`）、`bigmodel-oauth.ts`（已零调用）、`browser.ts`（唯一消费者是登录）。
-- `apps/qcode-cli/packages/cli/src/{login-command.ts,tui-auth.ts}`；`cli-types.ts:21-22,32,77-80,105` 的登录 DI 钩子；`provider-runtime-env.ts:129-130` 中 `login`/`logout` 的条目。
+- `apps/zcode-cli/packages/bootstrap/src/auth-login.ts` 的 `loginZCodeCli`、`loginBigmodelCodingPlan`、`logoutZCodeCli`、`ZCodeCliLoginError`；`auth-login-polling.ts`、`auth-login-abort.ts`。
+- `apps/zcode-cli/packages/adapters/src/auth/cli-oauth.ts`（**内含独立硬编码副本** `zcode.z.ai/api/v1`，:4）、`coding-plan-api-key.ts`（OAuth token → key 兑换，:4 硬编码 `https://api.z.ai`）、`bigmodel-oauth.ts`（已零调用）、`browser.ts`（唯一消费者是登录）。
+- `apps/zcode-cli/packages/cli/src/{login-command.ts,tui-auth.ts}`；`cli-types.ts:21-22,32,77-80,105` 的登录 DI 钩子；`provider-runtime-env.ts:129-130` 中 `login`/`logout` 的条目。
 
 **必须保留**（非登录的 coding plan 链路）：
 
@@ -436,7 +436,7 @@ Step 5 声称保留 `deleteIfValues` / `saveReplacing` 是因为「MCP OAuth 依
    >
    > ⚠️ **原稿此处写错了**：曾断言「构建通过是 apps 侧类型的实际闸门」。**实测不成立** —— `packages/cli` 的构建脚本是 `node scripts/build.mjs`（**纯 esbuild，不做类型检查**）。Step 2 删掉 `CommandCenterLogin*` 类型后 `pnpm run build` 仍为绿，而 apps typecheck 报出 7 个类型错误（`tui-prompt-handler.ts` 的对象字面量传入已不存在的 `login` 属性等）。**只跑 build 会漏掉 apps 侧全部类型错误。**
    >
-   > 另注：`pnpm --dir apps/qcode-cli run typecheck` 与 `pnpm --dir ... exec turbo` 都会因 `turbo` 不在 PATH 而失败，**必须用 `pnpm --filter zcode-cli run typecheck`**（见 E2/E9）。
+   > 另注：`pnpm --dir apps/zcode-cli run typecheck` 与 `pnpm --dir ... exec turbo` 都会因 `turbo` 不在 PATH 而失败，**必须用 `pnpm --filter zcode-cli run typecheck`**（见 E2/E9）。
 3. **静态检查**：`pnpm run lint`（oxlint）。
    - **`pnpm run knip` 在基线上即为红**（既有大量未使用导出 + 配置提示，实测 `BASE_KNIP_EXIT=1`）→ **不能直接当闸门**，Step 9 需先修基线或用「只检查本次涉及的包」口径。见 E3。
    - **`pnpm run fmt:check` 在基线上即为红**（18 个既存文件）→ 改为**只检查本次改动的文件**：`pnpm exec oxfmt <改动文件...>`，不得全仓库重排。见 E4。
@@ -712,7 +712,7 @@ Step 5 声称保留 `deleteIfValues` / `saveReplacing` 是因为「MCP OAuth 依
 **Severity**: 3 | **Likelihood**: 4 | **Detectability**: 0.6
 **Risk Score**: 3 × 4 × (1 − 0.6) = **4.8 — MEDIUM-LOW**
 
-**Failure Scenario**：`pnpm run typecheck` 仅覆盖 `packages/provider`、`provider-node`、`shared` 三个包，**不含 `apps/qcode-cli`** —— 而本次 10 步几乎全部落在 apps。开发者按习惯只跑 typecheck 看到绿灯，认为静态闸门已过；实际错误要到 `pnpm run build` 甚至运行时才暴露。在删除约 1300 行的场景下，这会表现为**多轮"改一处、构建一次"的长反馈环**，而非一次性暴露全部悬空引用。
+**Failure Scenario**：`pnpm run typecheck` 仅覆盖 `packages/provider`、`provider-node`、`shared` 三个包，**不含 `apps/zcode-cli`** —— 而本次 10 步几乎全部落在 apps。开发者按习惯只跑 typecheck 看到绿灯，认为静态闸门已过；实际错误要到 `pnpm run build` 甚至运行时才暴露。在删除约 1300 行的场景下，这会表现为**多轮"改一处、构建一次"的长反馈环**，而非一次性暴露全部悬空引用。
 
 **Mitigation**:
 

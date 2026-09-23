@@ -587,7 +587,7 @@ function truncateSurrogateSafe(value: string, maxLength: number): string {
  * shared 后成了第四个消费者，而依赖方向是 contracts → shared，只能函数跟着搬。这里保留
  * re-export，既有的三个消费者（完成通知、TaskOutput 的 resultText、v4 投影）一行不改。
  */
-export { serializeWorkflowArtifact } from "@zcode/shared/zcode-protocol-v4";
+export { serializeWorkflowArtifact } from "@qcode/shared/zcode-protocol-v4";
 
 /**
  * workflow run 的窄端口。与 legacy {@link import("./workflow.port.js").WorkflowPort} 并列而非

@@ -7,14 +7,14 @@
 // workflow-actor-transcript.ts（复制与计数），这里只是 driver 对它的三次调用及其失败取舍，
 // 原方法体逐字保留，只把 `this.deps` / `this.journal` 换成显式递进来的 deps。
 
-import type { SessionId } from "@zcode/contracts";
-import type { AgentRuntime } from "@zcode/core";
+import type { SessionId } from "@qcode/contracts";
+import type { AgentRuntime } from "@qcode/core";
 import {
   refToString,
   WorkflowError,
   type ActorSessionSeed,
   type InstanceRef,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { countActorTranscript, seedActorTranscript } from "./workflow-actor-transcript.js";
 import type { AgentRuntimeWorkflowDriverDeps, SessionState } from "./workflow-driver-types.js";
 

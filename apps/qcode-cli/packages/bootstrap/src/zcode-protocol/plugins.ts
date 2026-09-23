@@ -29,8 +29,8 @@ import {
   type ZCodePluginsSetEnabledResult,
   type ZCodePluginsUninstallResult,
   type ZCodePluginsValidateResult,
-} from "@zcode/shared";
-import type { PluginDiagnostic, PluginMetadata } from "@zcode/contracts";
+} from "@qcode/shared";
+import type { PluginDiagnostic, PluginMetadata } from "@qcode/contracts";
 import {
   addZCodePluginMarketplace,
   configureZCodePlugin,
@@ -46,11 +46,11 @@ import {
   updateZCodePluginMarketplace,
   validateZCodePlugin,
 } from "../plugins.js";
-import { listInstalledPluginRecords } from "@zcode/adapters/plugins";
+import { listInstalledPluginRecords } from "@qcode/adapters/plugins";
 import { withPluginStorageLock } from "../lib/plugin-storage-lock.js";
 import { getCliStorageRoot, getPluginStorageRoot } from "../app/paths.js";
 import { resolveOfficialPluginHostMcpServerNames } from "../app/official-plugin-definitions.js";
-import { createConfig, resolvePath, type ConfigResult } from "@zcode/adapters/config";
+import { createConfig, resolvePath, type ConfigResult } from "@qcode/adapters/config";
 import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-types.js";
 
 // 把 CLI 的 PluginMetadata 投影成协议可序列化的 ZCodePluginInfo (只保留 UI 需要的字段)。

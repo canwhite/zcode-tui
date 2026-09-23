@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { CollaborationMode, PermissionRuleset, ProjectId } from "@zcode/contracts";
+import type { CollaborationMode, PermissionRuleset, ProjectId } from "@qcode/contracts";
 import { isCollaborationMode } from "../codecs.js";
 import { decodeJson } from "../json.js";
 import type { LocalSettingRow, PermissionRow } from "../rows.js";

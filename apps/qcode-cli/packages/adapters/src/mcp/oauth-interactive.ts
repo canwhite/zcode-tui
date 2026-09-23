@@ -8,7 +8,7 @@ import {
   type OAuthDiscoveryState,
   type OAuthTokens,
 } from "@modelcontextprotocol/client";
-import type { Logger, McpOAuthConfig } from "@zcode/contracts";
+import type { Logger, McpOAuthConfig } from "@qcode/contracts";
 import {
   createLocalhostOAuthCallbackServer,
   type LocalhostOAuthCallbackServer,

@@ -1,4 +1,4 @@
-import type { ZCodeAppOptions } from "@zcode/bootstrap";
+import type { ZCodeAppOptions } from "@qcode/bootstrap";
 import type { CliEnv } from "./env.js";
 import { loadBootstrapModule } from "./bootstrap-loader.js";
 import type { CliResumeRequest, RunDependencies } from "./cli-types.js";

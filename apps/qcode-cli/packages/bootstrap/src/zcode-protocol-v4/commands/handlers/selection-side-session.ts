@@ -2,7 +2,7 @@ import type {
   CommandEnvelope,
   CommandPayloadMap,
   CommandResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import { commandAdmissionOf } from "../executor.js";
 import { inputIntentMetadata } from "../input-intent.js";
 import { startPromptTurn } from "../prompt-turn.js";

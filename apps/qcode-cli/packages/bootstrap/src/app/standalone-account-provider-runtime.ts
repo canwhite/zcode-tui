@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import type { SharedZCodeCredentialStore } from "@zcode/adapters/auth";
-import type { ProviderRuntimeHeadersPort } from "@zcode/core";
+import type { SharedZCodeCredentialStore } from "@qcode/adapters/auth";
+import type { ProviderRuntimeHeadersPort } from "@qcode/core";
 import {
   createAccountProviderConfigSnapshot,
   ProviderConfig,
@@ -8,12 +8,12 @@ import {
   ZhipuAccountAccessConfig,
   type AccountProviderConfigSnapshot,
   type ProviderConfigLayerSnapshot,
-} from "@zcode/provider";
+} from "@qcode/provider";
 import {
   NodeZCodeBuiltinProviderConfigSource,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-} from "@zcode/provider-node";
-import type { ProviderFamilyDomain } from "@zcode/shared";
+  QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+} from "@qcode/provider-node";
+import type { ProviderFamilyDomain } from "@qcode/shared";
 
 interface StandaloneCodingPlanProvider {
   readonly family: ProviderFamilyDomain;
@@ -48,9 +48,9 @@ async function readStandaloneCodingPlanCatalog(
           : [];
       }),
     };
-  const filePath = env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const filePath = env[QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (!filePath) {
-    throw new Error(`${ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required to resolve the built-in provider config`);
+    throw new Error(`${QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required to resolve the built-in provider config`);
   }
   const source = new NodeZCodeBuiltinProviderConfigSource({
     bundledFilePath: filePath,
@@ -171,8 +171,8 @@ export function createStandaloneProviderRuntimeHeadersPort(
       if (!access || access.mode !== "individual-coding-plan") {
         throw new Error(
           `Provider ${providerId} 的套餐模式暂不支持（仅支持 individual-coding-plan）。` +
-            "请改用普通 API Key：在 .env 中设置 ZCODE_VENDOR / ZCODE_VENDOR_API_KEY / " +
-            "ZCODE_VENDOR_MODEL / ZCODE_VENDOR_BASE_URL，或运行 " +
+            "请改用普通 API Key：在 .env 中设置 QCODE_VENDOR / QCODE_VENDOR_API_KEY / " +
+            "QCODE_VENDOR_MODEL / QCODE_VENDOR_BASE_URL，或运行 " +
             "`zcode configure --provider <厂商> --api-key <key> --configure-model <模型>`。",
         );
       }
@@ -183,7 +183,7 @@ export function createStandaloneProviderRuntimeHeadersPort(
         throw new Error(
           `Provider ${providerId} 在凭据库中没有账号身份。` +
             "请运行 `zcode configure --provider <厂商> --api-key <套餐 key> --configure-model <模型>` 写入凭据；" +
-            "或在 .env 中设置 ZCODE_VENDOR_* 四字段，改用普通 API Key。",
+            "或在 .env 中设置 QCODE_VENDOR_* 四字段，改用普通 API Key。",
         );
       const apiKey = (
         await credentialStore.load(
@@ -197,7 +197,7 @@ export function createStandaloneProviderRuntimeHeadersPort(
         throw new Error(
           `Provider ${providerId} 缺少请求凭据。` +
             "请运行 `zcode configure --provider <厂商> --api-key <套餐 key> --configure-model <模型>` 写入 API Key；" +
-            "或在 .env 中设置 ZCODE_VENDOR_* 四字段。",
+            "或在 .env 中设置 QCODE_VENDOR_* 四字段。",
         );
       }
       return {

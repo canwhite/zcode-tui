@@ -8,7 +8,7 @@ import {
   type HookJSONOutput,
   type Logger,
   type SessionEvent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { mergeHookRunResult, processHookOutput } from "./output.js";
 import { sanitizeHookDisplayText } from "./display-metadata.js";
 import {

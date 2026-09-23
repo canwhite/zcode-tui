@@ -1,4 +1,4 @@
-import { createModelId, createModelProviderId } from "@zcode/contracts";
+import { createModelId, createModelProviderId } from "@qcode/contracts";
 import {
   CompactTrigger,
   CompactTimelineDisplay,

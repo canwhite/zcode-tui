@@ -9,7 +9,7 @@
  */
 
 import type { DatabaseSync } from "node:sqlite";
-import type { NodeRecord, NodeRecordStatus, RunStatus, StoredEvent } from "@zcode/dynamic-workflow";
+import type { NodeRecord, NodeRecordStatus, RunStatus, StoredEvent } from "@qcode/dynamic-workflow";
 import type { DwfArtifactItem, DwfArtifactItemsQuery } from "./dwf-journal-artifacts.js";
 import {
   decodeEvent,

@@ -30,14 +30,14 @@
 
 | 结论 | 证据 |
 |------|------|
-| TUI 主路径**不读 `.env`** | `apps/qcode-cli/packages/cli/src/tui-command.ts:33` 直接用 `deps.env ?? process.env`，未调用 `loadCliDotenv` |
+| TUI 主路径**不读 `.env`** | `apps/zcode-cli/packages/cli/src/tui-command.ts:33` 直接用 `deps.env ?? process.env`，未调用 `loadCliDotenv` |
 | 只有特定命令读 `.env` | `login-command.ts:21,94`、`prompt-command.ts:154`、`tui-auth.ts:16,41,77`、`run.ts:247`（仅 development 的 protocol server）、`run.ts:480`（注入 `loadDotenv` 回调） |
-| `.env` 查找方式 | `apps/qcode-cli/packages/cli/src/env.ts:50` `findDotenv` 从 cwd 逐级向上；`override:false`（shell 环境变量优先） |
-| `.env` **不是**构建期内联 | `apps/qcode-cli/packages/cli/scripts/build.mjs:232` 的 `define` 只注入 `__CLI_VERSION__`；`packages/shared/src/zcodeEndpoint.ts:10,27` 的 `__ZCODE_ENDPOINT_ENV__` 走运行时 |
+| `.env` 查找方式 | `apps/zcode-cli/packages/cli/src/env.ts:50` `findDotenv` 从 cwd 逐级向上；`override:false`（shell 环境变量优先） |
+| `.env` **不是**构建期内联 | `apps/zcode-cli/packages/cli/scripts/build.mjs:232` 的 `define` 只注入 `__CLI_VERSION__`；`packages/shared/src/zcodeEndpoint.ts:10,27` 的 `__ZCODE_ENDPOINT_ENV__` 走运行时 |
 | 端点缺失时**静默回落** | `packages/shared/src/zcodeEndpoint.ts:132` 回落到 `DEFAULT_ZCODE_ENDPOINT_ORIGIN`，用户无从察觉 |
-| `zcode doctor` 过于单薄 | `apps/qcode-cli/packages/cli/src/run.ts:188` 只打印 version/process/node/platform/sea/packaging，**不校验配置是否可达** |
+| `zcode doctor` 过于单薄 | `apps/zcode-cli/packages/cli/src/run.ts:188` 只打印 version/process/node/platform/sea/packaging，**不校验配置是否可达** |
 | `pnpm clean` 是"清空"不是"裁剪" | `scripts/clean.mjs` 删 `node_modules` 与 `dist` 全量 |
-| `@zcode/cli` 的 `bin` 指向仓库内 dist | `apps/qcode-cli/packages/cli/package.json` → `"zcode": "./dist/zcode.cjs"`，仓库外不可见 |
+| `@zcode/cli` 的 `bin` 指向仓库内 dist | `apps/zcode-cli/packages/cli/package.json` → `"zcode": "./dist/zcode.cjs"`，仓库外不可见 |
 
 本机实测环境（决定了计划里必须有降级路径）：
 
@@ -72,7 +72,7 @@ pnpm bin -g  /Users/doing/Library/pnpm/bin   ⚠️ 该目录不在 PATH（`zcod
 
 > 先做这一段的原因：它才是"改 env 就能用"的真正阻塞点，且与安装方式正交。如果不先修，后面 F-003 把 `zcode` 装到全局后，用户在任何目录启动 TUI 依旧读不到 `.env`——痛点原封不动。
 
-1. **确定唯一加载点与生效范围**。在 CLI 入口（`apps/qcode-cli/packages/cli/src/run.ts`）于解析出 `workingDirectory`（`run.ts:462` `resolveCliCwd`）之后、分发子命令之前，**统一加载一次** `.env`，使所有命令（含 `tui`）共享同一份已加载的 env。
+1. **确定唯一加载点与生效范围**。在 CLI 入口（`apps/zcode-cli/packages/cli/src/run.ts`）于解析出 `workingDirectory`（`run.ts:462` `resolveCliCwd`）之后、分发子命令之前，**统一加载一次** `.env`，使所有命令（含 `tui`）共享同一份已加载的 env。
 
 2. **保留现有例外**。`run.ts:246` 的 `shouldLoadCliDotenvForProtocolServer` 明确不读 workspace `.env`（注释说明打包态 app-server 读用户 `.env` 会导致协议建立前直接退出）。该例外必须保留并显式注释原因，不能在"统一"中顺手抹掉。
 
@@ -116,7 +116,7 @@ pnpm bin -g  /Users/doing/Library/pnpm/bin   ⚠️ 该目录不在 PATH（`zcod
 
 ### 阶段 D：构建与全局暴露（F-003）
 
-13. 调用既有构建入口完成 CLI 构建（`scripts/bootstrap.mjs` 已封装为 `pnpm install` + `pnpm run build:bootstrap`），产出 `apps/qcode-cli/packages/cli/dist/zcode.cjs`。
+13. 调用既有构建入口完成 CLI 构建（`scripts/bootstrap.mjs` 已封装为 `pnpm install` + `pnpm run build:bootstrap`），产出 `apps/zcode-cli/packages/cli/dist/zcode.cjs`。
 
 14. **全局暴露方式**：把构建产物安装到全局 bin 目录，**不要**对 `@zcode/cli` 用 `pnpm link --global`——`@zcode/cli` 是 workspace 成员（`private: true`），链接会把整棵 workspace 依赖带进全局，与"只暴露一个可执行"的目标相悖。推荐做法是生成一个指向 dist 产物的启动器并放进全局 bin 目录。
 
@@ -154,10 +154,10 @@ B（Makefile 骨架）→ C（环境前置）→ D（构建 + 全局暴露）→
 
 ## Think — Debug Methodology
 
-- **先读源码，不猜行为**。本计划已经推翻了两个"想当然"的假设（`.env` 会被 TUI 读取、`.env` 在构建期内联）。凡是涉及 CLI 启动链路的判断，一律回到 `apps/qcode-cli/packages/cli/src/` 读实现。
+- **先读源码，不猜行为**。本计划已经推翻了两个"想当然"的假设（`.env` 会被 TUI 读取、`.env` 在构建期内联）。凡是涉及 CLI 启动链路的判断，一律回到 `apps/zcode-cli/packages/cli/src/` 读实现。
 - **在框架边界立刻加日志**。CLI 的边界就是 `run.ts` 的入口分发处：`resolveCliCwd` 之后的 `workingDirectory`、`deps.env` 的实际内容（**只打键名与是否为空，绝不打值**）、`loadCliDotenv` 的返回（`loaded` / `path` / `keys` / `error`）——这正是 `env.ts:16` `DotenvLoadResult` 已有的字段，直接打即可。
 - **上游优先定位**：`.env` 没生效时，第一反应不是看 `.env` 文件，而是看 `findDotenv` 的起点（cwd）与返回值；第二才看键名是否拼错。
-- **用 `grep -r "\[DEBUG-INSTALL\]" scripts/ apps/qcode-cli/packages/cli/src/` 一把清掉所有临时日志**，统一使用 `[DEBUG-INSTALL]` 前缀。
+- **用 `grep -r "\[DEBUG-INSTALL\]" scripts/ apps/zcode-cli/packages/cli/src/` 一把清掉所有临时日志**，统一使用 `[DEBUG-INSTALL]` 前缀。
 - **绕过客户端直接验证服务端行为**：验证端点解析时，用 `zcode doctor --json` 读取解析结果，比在 TUI 里肉眼看设置页更可靠。
 - **不信任 PATH**：`command -v zcode` 的结果与 `doctor` 自报的解析路径可能不一致（多份安装并存），以 `doctor` 的实际解析结果为准。
 
@@ -199,7 +199,7 @@ B（Makefile 骨架）→ C（环境前置）→ D（构建 + 全局暴露）→
   - 全局副作用：全局 bin 目录中的 `zcode` 启动器——**这是唯一仓库外的影响**，回滚时必须一并删除，否则会留下指向已删除产物的悬空命令。回滚前先记录该路径。
   - 阶段 A 独立于 B~F，若安装链路出问题可单独回滚 B~F 而保留 A（A 本身就是痛点的真正修复）。
 - **全局扫描**（执行完成后必须回答"还有哪里存在同类问题"）：
-  - `apps/qcode-cli/packages/cli/src/` 下是否还有**其他**直接使用 `deps.env ?? process.env` 而绕过加载点的入口？（阶段 A 第 1 步应先把这类位置列全，避免只修 TUI 那一处——这正是本仓库 AGENTS.md 强调的"避免多条写入路径"。）
+  - `apps/zcode-cli/packages/cli/src/` 下是否还有**其他**直接使用 `deps.env ?? process.env` 而绕过加载点的入口？（阶段 A 第 1 步应先把这类位置列全，避免只修 TUI 那一处——这正是本仓库 AGENTS.md 强调的"避免多条写入路径"。）
   - 子包（`packages/bootstrap`、`packages/adapters`）中是否有各自的 `.env` 读取逻辑？若有，同样需要收敛到统一加载点。
   - `.env` 相关文档（README 第 61 行、`config/README.md`、`.env.example` 注释）是否需要同步更新，避免文档与实现再次分叉。
   - `scripts/check-workspace-freshness.mjs` 的"单一来源"写法可作为新脚本的风格基线，检查是否有同类基线检查应一并纳入 `make install`。
@@ -207,9 +207,9 @@ B（Makefile 骨架）→ C（环境前置）→ D（构建 + 全局暴露）→
 
 ## Out of Scope
 
-- **F-006 `make prune` 的实际裁剪口径**：按痛点拆解第 9 章，"多余的 npm 包"的判定标准（`devDependencies` 口径 vs 运行时 require 闭包口径）以及 `apps/qcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 跨平台可选依赖是否算冗余，**尚未确认**。本计划只落地 `prune` 的 target 与"裁剪后强制自检 + 失败回滚"的安全网，裁剪规则本身待单独确认后补。
+- **F-006 `make prune` 的实际裁剪口径**：按痛点拆解第 9 章，"多余的 npm 包"的判定标准（`devDependencies` 口径 vs 运行时 require 闭包口径）以及 `apps/zcode-cli/pnpm-workspace.yaml` 的 `supportedArchitectures` 跨平台可选依赖是否算冗余，**尚未确认**。本计划只落地 `prune` 的 target 与"裁剪后强制自检 + 失败回滚"的安全网，裁剪规则本身待单独确认后补。
 - **F-009 离线 / 受限网络降级**、**F-010 卸载**：均为 P2，不在本轮。
-- **Windows 支持**：`apps/qcode-cli/pnpm-workspace.yaml` 声明了 win32 架构，但 Makefile 在 Windows 上不可用。本计划按 Unix（macOS/Linux）设计，Windows 若要支持需另立方案。
+- **Windows 支持**：`apps/zcode-cli/pnpm-workspace.yaml` 声明了 win32 架构，但 Makefile 在 Windows 上不可用。本计划按 Unix（macOS/Linux）设计，Windows 若要支持需另立方案。
 - **修改 `@zcode/cli` 的 `bin` 声明或发布成 npm 包**：本仓库 `private: true`，不涉及发布链路。
 - **`pnpm.overrides` / `patchedDependencies` 被新版本 pnpm 忽略的告警**：验证时已观察到该告警，属既存问题，**不在本计划范围内**，仅记录。
 - **不引入新的第三方依赖**：本计划的所有逻辑都应用 Node 标准库与仓库既有脚本实现。

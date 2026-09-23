@@ -4,7 +4,7 @@
 // Reference: file read input / output shape
 
 import { z } from "zod";
-import { VIDEO_INPUT_MAX_BYTES } from "@zcode/shared";
+import { VIDEO_INPUT_MAX_BYTES } from "@qcode/shared";
 import type { ToolCallId, TraceId } from "../interfaces/shared.js";
 import { toToolJsonSchema } from "./json-schema.js";
 import { getReadPdfPagesValidationFailure, READ_PDF_PAGES_DESCRIPTION } from "./read-pdf.js";

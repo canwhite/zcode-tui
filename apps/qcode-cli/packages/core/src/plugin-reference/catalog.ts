@@ -5,7 +5,7 @@ import type {
   PluginMetadata,
   PluginReferenceCatalog,
   PluginReferenceCatalogEntry,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 function collectDeclaredSkillQualifiedNames(plugin: PluginMetadata): string[] {
   const names = new Set<string>();

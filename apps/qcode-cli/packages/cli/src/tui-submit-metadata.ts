@@ -1,4 +1,4 @@
-import type { TuiSubmitPromptResult } from "@zcode/tui";
+import type { TuiSubmitPromptResult } from "@qcode/tui";
 import type { CommandCenterMode, CommandCenterApp } from "./command-center.js";
 
 export function withTuiMetadata(

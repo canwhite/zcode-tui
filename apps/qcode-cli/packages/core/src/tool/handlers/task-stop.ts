@@ -8,7 +8,7 @@ import {
   createCoreError,
   type TaskStopInput,
   type TaskStopOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 
 const MAX_TASK_STOP_MODEL_BYTES = 100_000;

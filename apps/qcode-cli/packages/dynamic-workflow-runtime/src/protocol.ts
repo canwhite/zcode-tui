@@ -16,7 +16,7 @@
  * 任何引用该句柄的 ask 之前完成 local→engine ActorId 的映射（父进程的 create-actor 处理是纯同步的）。
  */
 
-import type { ArtifactContentOp, ArtifactPresetOp, WorldReadOp } from "@zcode/dynamic-workflow";
+import type { ArtifactContentOp, ArtifactPresetOp, WorldReadOp } from "@qcode/dynamic-workflow";
 
 // ————————————————————————————————————————————————————————————————
 // 结构化错误的线形态

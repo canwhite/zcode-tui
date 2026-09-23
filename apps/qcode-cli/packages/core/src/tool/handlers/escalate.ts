@@ -24,7 +24,7 @@ import {
   type EscalateInput,
   type EscalateOutput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler } from "../types.js";
 
 /** 答案可能是一整段说明；与 submit_result 同档的模型面上限。 */

@@ -7,7 +7,7 @@ import {
   type V4AttachmentChunkResult,
   type V4AttachmentCommitParams,
   type V4AttachmentCommitResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 interface UploadMetadata {
   fileName: string;

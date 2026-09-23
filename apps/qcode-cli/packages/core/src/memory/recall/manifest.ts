@@ -1,5 +1,5 @@
 import { basename, relative, sep } from "node:path";
-import type { FileSystemPort } from "@zcode/contracts";
+import type { FileSystemPort } from "@qcode/contracts";
 import { parse as parseYaml } from "yaml";
 
 import { MEMORY_RECALL_TYPES, type MemoryManifestEntry, type MemoryRecallType } from "./types.js";

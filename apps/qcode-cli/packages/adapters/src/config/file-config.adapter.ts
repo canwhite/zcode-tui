@@ -10,7 +10,7 @@ import {
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
-import type { RuntimeConfigPatch, UiLocale } from "@zcode/contracts";
+import type { RuntimeConfigPatch, UiLocale } from "@qcode/contracts";
 import { z } from "zod";
 import {
   CANONICAL_CUA_PLUGIN_ID,

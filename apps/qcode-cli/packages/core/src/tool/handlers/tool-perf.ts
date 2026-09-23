@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { CommandExecutionTelemetry, ToolExecutionTelemetry } from "@zcode/contracts";
+import type { CommandExecutionTelemetry, ToolExecutionTelemetry } from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 import { analyzeBashCommand } from "./bash-command-parser.js";
 import { BASH_COMMAND_REGISTRY } from "./generated/bash-command-registry.js";

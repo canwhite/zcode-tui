@@ -18,7 +18,7 @@ import type {
   ToolArtifactWriteRequest,
   ToolArtifactWriteResult,
   ToolBinaryArtifactReadResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { maybeThrowStorageFsFault } from "./fs-fault-injection.js";
 
 export * from "./session-store.js";
@@ -29,7 +29,7 @@ export {
   InMemorySessionEventStore,
   createInMemorySessionEventStore,
   type InMemorySessionEventStoreOptions,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export interface NodeToolArtifactStoreOptions {
   imageCacheRootDir: string;

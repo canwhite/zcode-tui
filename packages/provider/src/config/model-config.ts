@@ -16,7 +16,7 @@ import {
   type modelPropertiesDataSchema,
   type modelOptionSpecsDataSchema,
   type modelConfigDataSchema,
-} from "@zcode/shared/model-config";
+} from "@qcode/shared/model-config";
 import { validateConfigSchema } from "./schema-validation.js";
 import { clearManualModelConfig } from "./manual-model-config.js";
 import {

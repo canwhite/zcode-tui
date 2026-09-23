@@ -5,7 +5,7 @@ import {
   type CollaborationMode,
   type PermissionBrokerResult,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { HookRunResult } from "../../hooks/index.js";
 import type { PermissionDecisionResult } from "../../permission/service.js";
 import { hookMatcherToolNamesForTool } from "../compat.js";

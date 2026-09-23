@@ -9,9 +9,9 @@
 // 独立成模块而不是塞进 observation.ts：铸造链（toProgressPayload）在 launch.ts，而 launch.ts
 // 已经 import observation.ts（谓词），反向 import 就是环。
 
-import type { DwfRunSessionListItem } from "@zcode/adapters/storage";
-import type { DynamicWorkflowRunProgressPayload } from "@zcode/contracts";
-import type { JournalStorePort, RunEvent, StoredEvent } from "@zcode/dynamic-workflow";
+import type { DwfRunSessionListItem } from "@qcode/adapters/storage";
+import type { DynamicWorkflowRunProgressPayload } from "@qcode/contracts";
+import type { JournalStorePort, RunEvent, StoredEvent } from "@qcode/dynamic-workflow";
 import { toProgressPayload } from "./dynamic-workflow-run-launch.js";
 import { TERMINAL_RUN_STATUSES } from "./dynamic-workflow-run-observation.js";
 

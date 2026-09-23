@@ -9,13 +9,13 @@
 // `kind = "artifact"` 的行），不是引擎内部的 `RunSettlement.artifact`（脚本顶层返回值，端口上
 // 叫 `output` / `result`）。同一个词两个义。
 
-import type { DwfRunIntrospectionQueries } from "@zcode/adapters/storage";
+import type { DwfRunIntrospectionQueries } from "@qcode/adapters/storage";
 import type {
   DynamicWorkflowRunArtifact,
   DynamicWorkflowRunArtifactKind,
   DynamicWorkflowRunArtifactVersion,
-} from "@zcode/contracts";
-import type { JournalStorePort, NodeRecord } from "@zcode/dynamic-workflow";
+} from "@qcode/contracts";
+import type { JournalStorePort, NodeRecord } from "@qcode/dynamic-workflow";
 
 /**
  * 终态快照与 `getRunDetail` 上的 `artifacts`：**用户面产物**。

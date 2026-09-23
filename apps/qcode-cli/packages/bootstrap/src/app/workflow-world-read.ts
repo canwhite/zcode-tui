@@ -19,8 +19,8 @@ import {
   resolve as resolvePath,
   sep,
 } from "node:path";
-import type { ExecutionPort, FileSystemPort } from "@zcode/contracts";
-import { WORLD_READ_CAPS, WorkflowError, type WorldReadOp } from "@zcode/dynamic-workflow";
+import type { ExecutionPort, FileSystemPort } from "@qcode/contracts";
+import { WORLD_READ_CAPS, WorkflowError, type WorldReadOp } from "@qcode/dynamic-workflow";
 import {
   GIT_SHOW_PREFIX_ARGV,
   GIT_STATUS_ARGV,

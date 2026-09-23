@@ -20,7 +20,7 @@ import {
   type ExitPlanModeInput,
   type ExitPlanModeOutput,
   type ToolPermissionSpec,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolExecutionContext, ToolHandler } from "../types.js";
 import { writeApprovedPlanFile } from "../../runtime/helpers/plan-file-continuity.js";
 import {

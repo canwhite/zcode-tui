@@ -11,7 +11,7 @@ import {
   type ModelInputFormat,
   type ModelMessageContent,
   type ModelMessageContentBlock,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { AiSdkModelAdapterError } from "./errors.js";
 import { providerOptionsForReasoningBlock } from "./anthropic-reasoning-metadata.js";
 import {

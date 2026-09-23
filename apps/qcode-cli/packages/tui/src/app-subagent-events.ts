@@ -1,4 +1,4 @@
-import { SessionEventType, type SessionEvent } from "@zcode/contracts";
+import { SessionEventType, type SessionEvent } from "@qcode/contracts";
 
 const TOOL_EVENTS = new Set<string>([
   SessionEventType.ToolCallScheduled,

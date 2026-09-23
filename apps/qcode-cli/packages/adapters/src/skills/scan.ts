@@ -25,7 +25,7 @@
 import { lstatSync, readdirSync, statSync } from "node:fs";
 import { lstat, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { SKILL_FILE_NAME, shouldWalkSkillDirectoryEntry } from "@zcode/shared";
+import { SKILL_FILE_NAME, shouldWalkSkillDirectoryEntry } from "@qcode/shared";
 
 interface ScanSkillFilesOptions {
   /**

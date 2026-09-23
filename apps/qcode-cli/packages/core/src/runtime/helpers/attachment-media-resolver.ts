@@ -1,5 +1,5 @@
 import { basename, isFileSystemPortError, resolvePath } from "../deps.js";
-import { VIDEO_INPUT_MAX_BYTES } from "@zcode/contracts";
+import { VIDEO_INPUT_MAX_BYTES } from "@qcode/contracts";
 import type {
   FilePartSource,
   FileSystemPort,

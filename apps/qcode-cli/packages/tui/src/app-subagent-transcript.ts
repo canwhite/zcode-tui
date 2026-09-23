@@ -1,4 +1,4 @@
-import { SessionEventType, type SessionEvent } from "@zcode/contracts";
+import { SessionEventType, type SessionEvent } from "@qcode/contracts";
 import type React from "react";
 import type { Message } from "./app-model.js";
 import { applyModelStreamingEvent } from "./app-model-streaming.js";

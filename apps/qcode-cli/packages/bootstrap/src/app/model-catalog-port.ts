@@ -11,8 +11,8 @@
 // 工具层要的窄条目。刻意不共用一个投影函数——两张脸的字段集与在场规则各自独立，硬要合并只会
 // 让一次为 picker 做的改动悄悄改掉模型解析的判据。共用的是**默认档位那条规则**（见下）。
 
-import type { ModelCatalogEntry, ModelCatalogPort } from "@zcode/contracts";
-import type { ModelSelection } from "@zcode/shared/model-selection";
+import type { ModelCatalogEntry, ModelCatalogPort } from "@qcode/contracts";
+import type { ModelSelection } from "@qcode/shared/model-selection";
 import type { ProviderRegistryModelSource } from "./provider-registry-model-runtime.js";
 
 interface ModelCatalogPortDeps {

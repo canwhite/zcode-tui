@@ -11,7 +11,7 @@
 // - 重订阅 = 替换：同 connectionId 重复 subscribe 即作废旧订阅并清其
 //   flush buffer，旧 subscriptionId 不再产帧，客户端按 subId 丢弃旧代际帧。
 import { Buffer } from "node:buffer";
-import { SessionEventType, type SessionEvent } from "@zcode/contracts";
+import { SessionEventType, type SessionEvent } from "@qcode/contracts";
 import type {
   CommandEnvelope,
   ConversationDelta,
@@ -26,7 +26,7 @@ import type {
   ToolCallRow,
   V4ConversationPlansResult,
   V4ConversationRowsRangeResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import {
   DELIVERY_PROFILES,
   PROTOCOL_V4_LIMITS,
@@ -34,7 +34,7 @@ import {
   filterConversationDeltasForProfile,
   filterConversationRowsForProfile,
   utf8JsonByteLength,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import {
   ProductProjection,
   type StableForkCandidateResolution,

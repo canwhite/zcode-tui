@@ -185,5 +185,5 @@ export type {
   LogEntry,
   SessionEvent,
   SessionEventSink,
-} from "@zcode/contracts";
-export { LogLevel, SessionEventType } from "@zcode/contracts";
+} from "@qcode/contracts";
+export { LogLevel, SessionEventType } from "@qcode/contracts";

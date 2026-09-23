@@ -1,4 +1,4 @@
-import type { TuiCopy } from "@zcode/i18n";
+import type { TuiCopy } from "@qcode/i18n";
 import React from "react";
 import {
   FILE_MENTION_VISIBLE_COUNT,

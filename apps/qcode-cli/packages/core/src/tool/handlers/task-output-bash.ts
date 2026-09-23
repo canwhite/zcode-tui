@@ -1,5 +1,5 @@
 import { open } from "node:fs/promises";
-import type { BackgroundExecutionSnapshot, TaskOutputTask } from "@zcode/contracts";
+import type { BackgroundExecutionSnapshot, TaskOutputTask } from "@qcode/contracts";
 import type { RuntimeTaskSnapshot } from "../../runtime-task/registry.js";
 import type { ToolExecutionContext } from "../types.js";
 

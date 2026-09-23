@@ -4,7 +4,7 @@ import {
   type SessionEntryInfo,
   type SessionEntryType,
   type SessionId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { decodeSessionEntryRow } from "../codecs.js";
 import { encodeJson } from "../json.js";
 import type { SessionEntryRow } from "../rows.js";

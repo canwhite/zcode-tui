@@ -1,9 +1,9 @@
-import { createChildTraceContext, type WorkflowPhaseDefinition } from "@zcode/contracts";
+import { createChildTraceContext, type WorkflowPhaseDefinition } from "@qcode/contracts";
 import { phaseNodeId } from "./ids.js";
 import { buildPhasePrompt } from "./prompts.js";
 import type { ExpertWorkflowRuntimeContext } from "./runtime-context.js";
 import type { ExpertPhaseRunResult, ExpertWorkflowRunOptions } from "./types.js";
-import type { ExpertWorkflowRunSnapshot } from "@zcode/contracts";
+import type { ExpertWorkflowRunSnapshot } from "@qcode/contracts";
 
 export async function runPhase(
   ctx: ExpertWorkflowRuntimeContext,

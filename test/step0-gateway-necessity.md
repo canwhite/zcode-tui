@@ -22,7 +22,7 @@
 | #   | 前提                     | 状态        | 依据                                                                                                                                                                                                                                                                                                                                                                                 |
 | --- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | ①   | key 来源与受影响用户一致 | ✅          | `~/.zcode/v2/credentials.json` 仅有 `account-provider:*` 键、无 `oauth:*` 键 → 由 `configureCodingPlanApiKey`（非登录路径）写入。`~/.zcode/v2/provider_config.json` 的 `defaultModelSelection.providerId` = `account:bigmodel-individual-coding-plan`，即运行时走账号型 provider + 凭据库。该 key 在 `/api/anthropic` 可用（**套餐**端点；标准 key 走 `/api/paas/v4`）→ 确属套餐 key |
-| ②   | 走真实客户端，非裸 curl  | ✅          | 用 `node apps/qcode-cli/packages/cli/dist/zcode.cjs -p ...` 真实调用；探针打在 `resolveOfficialCodingPlanGatewayUrl` 入口与各返回分支                                                                                                                                                                                                                                                |
+| ②   | 走真实客户端，非裸 curl  | ✅          | 用 `node apps/zcode-cli/packages/cli/dist/zcode.cjs -p ...` 真实调用；探针打在 `resolveOfficialCodingPlanGatewayUrl` 入口与各返回分支                                                                                                                                                                                                                                                |
 | ③   | 两条路由都测             | ⚠️ **部分** | 仅测 route #1（`bigmodel`）。route #2（`api.z.ai`）在本机**无 zai 套餐凭据，不可测**                                                                                                                                                                                                                                                                                                 |
 | ④   | 临时开关测完即删         | ✅          | 探针随 Step 1 删除 `official-coding-plan-gateway.ts` 一并消失（该文件即探针所在处）                                                                                                                                                                                                                                                                                                  |
 
@@ -97,9 +97,9 @@
 
 ```bash
 pnpm run build                      # 必须全量：filter 构建不会重建 adapters
-node apps/qcode-cli/packages/cli/dist/zcode.cjs -p "Reply with exactly: PONG" \
+node apps/zcode-cli/packages/cli/dist/zcode.cjs -p "Reply with exactly: PONG" \
   --disallowed-tools Bash Edit Write Read Glob Grep WebFetch WebSearch Task
-ZCODE_DEBUG_S0_DISABLE_GATEWAY=1 node apps/qcode-cli/packages/cli/dist/zcode.cjs -p "..." # 直连状态
+ZCODE_DEBUG_S0_DISABLE_GATEWAY=1 node apps/zcode-cli/packages/cli/dist/zcode.cjs -p "..." # 直连状态
 ```
 
 对照 stderr 中的 `[DEBUG-S0-]` 行即可确认两种状态下的实际请求 URL。

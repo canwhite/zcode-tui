@@ -3557,7 +3557,7 @@ export const zcodeOffPeakListResultSchema = z
   .strict();
 export type ZCodeOffPeakListProtocolResult = z.infer<typeof zcodeOffPeakListResultSchema>;
 
-export const zcodeProtocolMethods = {
+export const qcodeProtocolMethods = {
   runtimeCapabilities: "runtime/capabilities",
   computerUseOperationEvent: "computer-use/operation-event",
   sessionCreate: "session/create",
@@ -3663,31 +3663,31 @@ export const zcodeProtocolMethods = {
   interactionBrowserExecute: "interaction/browserExecute",
 } as const;
 
-export type ZCodeProtocolMethod = (typeof zcodeProtocolMethods)[keyof typeof zcodeProtocolMethods];
+export type QCodeProtocolMethod = (typeof qcodeProtocolMethods)[keyof typeof qcodeProtocolMethods];
 
 export const zcodeProtocolEmptyResultSchema = z.object({}).strict();
 
 // 最新 V4 主链已不再依赖旧版全量方法表；这里仅保留仍被兼容测试和 browser broker
 // 消费的最小契约集合，避免重新引入已移除的 legacy 方法。
 export const zcodeProtocolSessionMethodContracts = {
-  [zcodeProtocolMethods.workspaceHookTrustGrant]: {
+  [qcodeProtocolMethods.workspaceHookTrustGrant]: {
     params: zcodeWorkspaceHookTrustGrantParamsSchema,
     result: zcodeWorkspaceHookTrustGrantResultSchema,
   },
-  [zcodeProtocolMethods.mcpList]: {
+  [qcodeProtocolMethods.mcpList]: {
     params: zcodeMcpListParamsSchema,
     result: zcodeMcpListResultSchema,
   },
-  [zcodeProtocolMethods.interactionBrowserList]: {
+  [qcodeProtocolMethods.interactionBrowserList]: {
     params: zcodeBrowserListParamsSchema,
     result: zcodeBrowserListResultSchema,
   },
-  [zcodeProtocolMethods.interactionBrowserExecute]: {
+  [qcodeProtocolMethods.interactionBrowserExecute]: {
     params: zcodeBrowserExecuteParamsSchema,
     result: zcodeBrowserExecuteResultSchema,
   },
 } as const satisfies Partial<
-  Record<ZCodeProtocolMethod, { params: z.ZodTypeAny; result: z.ZodTypeAny }>
+  Record<QCodeProtocolMethod, { params: z.ZodTypeAny; result: z.ZodTypeAny }>
 >;
 
 export type ZCodeProtocolSessionMethodContract =

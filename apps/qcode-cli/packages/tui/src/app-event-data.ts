@@ -1,4 +1,4 @@
-import { createModelUsageSummary, type ModelUsageSummary } from "@zcode/contracts";
+import { createModelUsageSummary, type ModelUsageSummary } from "@qcode/contracts";
 import type { CacheStats, ContextUsage } from "./app-model.js";
 import { asRecord, booleanField, numberField, stringField } from "./state.js";
 

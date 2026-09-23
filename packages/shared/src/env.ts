@@ -9,11 +9,11 @@ export type ArmsRumEnv = "local" | "prod";
 declare const __QCODE_ENV__: string;
 declare const __QCODE_PRODUCT_FLAVOR__: string;
 
-export function normalizeZCodeEnv(value: string | undefined): ZCodeEnv {
+export function normalizeQCodeEnv(value: string | undefined): ZCodeEnv {
   return value?.trim().toLowerCase() === "production" ? "production" : "test";
 }
 
-export const QCODE_ENV = normalizeZCodeEnv(
+export const QCODE_ENV = normalizeQCodeEnv(
   typeof __QCODE_ENV__ !== "undefined" ? __QCODE_ENV__ : undefined,
 );
 
@@ -22,18 +22,18 @@ export const QCODE_ENV = normalizeZCodeEnv(
  * 桌面构建通过 `QCODE_PREVIEW_IDENTITY=1` 显式注入 preview，得到连接生产后端的 Preview 包；
  * 未注入 define 的 bundle（web、CLI、测试）沿用旧的单轴语义。
  */
-export function normalizeZCodeProductFlavor(
+export function normalizeQCodeProductFlavor(
   value: string | undefined,
-  zcodeEnv: ZCodeEnv,
+  qcodeEnv: ZCodeEnv,
 ): ZCodeProductFlavor {
   const normalized = value?.trim().toLowerCase();
   if (normalized === "production" || normalized === "preview") {
     return normalized;
   }
-  return zcodeEnv === "production" ? "production" : "preview";
+  return qcodeEnv === "production" ? "production" : "preview";
 }
 
-export const QCODE_PRODUCT_FLAVOR = normalizeZCodeProductFlavor(
+export const QCODE_PRODUCT_FLAVOR = normalizeQCodeProductFlavor(
   typeof __QCODE_PRODUCT_FLAVOR__ !== "undefined" ? __QCODE_PRODUCT_FLAVOR__ : undefined,
   QCODE_ENV,
 );
@@ -58,6 +58,6 @@ export const QCODE_ARMS_RUM_ENDPOINT =
   typeof process !== "undefined" ? (process.env.QCODE_ARMS_RUM_ENDPOINT ?? "") : "";
 
 /** 将本地运行态与编译期 QCODE_ENV 映射为 ARMS 控制台识别的上报环境标签 */
-export function mapZCodeEnvToArmsRumEnv(runtimeEnv: ZCodeRuntimeEnv): ArmsRumEnv {
+export function mapQCodeEnvToArmsRumEnv(runtimeEnv: ZCodeRuntimeEnv): ArmsRumEnv {
   return runtimeEnv !== "development" && QCODE_ENV === "production" ? "prod" : "local";
 }

@@ -6,8 +6,8 @@
 // 条目淘汰）与 service 侧关闭和外来终态行检查的闭包。
 // 它们只借用 service 的注册表与 journal，经窄依赖递进来；service 文件头的不变式 6、7 仍是它们的规格。
 
-import type { Logger } from "@zcode/contracts";
-import type { JournalStorePort, RunSettlement } from "@zcode/dynamic-workflow";
+import type { Logger } from "@qcode/contracts";
+import type { JournalStorePort, RunSettlement } from "@qcode/dynamic-workflow";
 import {
   TERMINAL_RUN_STATUSES,
   type RunRegistryEntry,

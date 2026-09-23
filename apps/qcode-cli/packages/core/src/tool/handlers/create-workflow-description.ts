@@ -1,8 +1,8 @@
 // Composed at module load from the dynamic-workflow facade so the model always
 // sees the current API surface.
 
-import { FACADE_DTS } from "@zcode/dynamic-workflow";
-import { SAVED_WORKFLOW_PROJECT_DIR, WORKFLOW_DRAFTS_DIR } from "@zcode/contracts";
+import { FACADE_DTS } from "@qcode/dynamic-workflow";
+import { SAVED_WORKFLOW_PROJECT_DIR, WORKFLOW_DRAFTS_DIR } from "@qcode/contracts";
 
 const INTRO = [
   "Create and run a dynamic workflow: a TypeScript script, written against the facade below, that orchestrates multiple model-driven subagents with plain control flow (loops, conditionals, fan-out) and typed intermediate results.",

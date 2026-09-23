@@ -1,5 +1,5 @@
 import type { CliRenderer, TerminalColors } from "@mbears/opentui-core";
-import type { UiThemeMode } from "@zcode/contracts";
+import type { UiThemeMode } from "@qcode/contracts";
 import { isTuiThemeMode } from "./state.js";
 
 const THEME_MODE_WAIT_TIMEOUT_MS = 250;

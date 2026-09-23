@@ -3,7 +3,7 @@ import {
   WorkflowCriticResultSchema,
   type WorkflowCriticReopenProposal,
   type WorkflowCriticResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { isRecord, parsePlannerJson, stringValue } from "./json.js";
 
 export function parseCriticResult(response: string): WorkflowCriticResult {

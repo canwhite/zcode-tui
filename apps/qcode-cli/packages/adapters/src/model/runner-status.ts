@@ -8,12 +8,12 @@ import type {
   QueryId,
   ResolvedModelApiCallObservation,
   TraceId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   ModelFailureReason as ModelFailureReasonValue,
   createTraceId,
   resolveModelApiCallObservation,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { UNBOUNDED_RETRY_MAX_ATTEMPTS } from "./retry-budget.js";
 // 请求归因 header 一族住在 runner-attribution.ts（max-lines 拆分）；公开面仍从本文件导出，
 // 既有 importer 不必改路径。

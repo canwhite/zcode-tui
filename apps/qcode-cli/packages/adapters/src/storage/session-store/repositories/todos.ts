@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { SessionId, TodoItem } from "@zcode/contracts";
+import type { SessionId, TodoItem } from "@qcode/contracts";
 import { decodeTodoRow } from "../codecs.js";
 import type { TodoRow } from "../rows.js";
 import { touchSession } from "./sessions.js";

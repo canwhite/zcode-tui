@@ -3,7 +3,7 @@
 // 单独成模块是为了让「换 app 时重挂」这条性质可被直接单测：若埋在 tui-prompt-handler
 // 的闭包里，只能靠一整套 app 工厂假件才能验，而漏挂的后果很安静——换 session 后 TUI 再也
 // 收不到出回合事件（dwf 进度、通知驱动回合），界面看起来完全正常。
-import type { SessionEvent } from "@zcode/contracts";
+import type { SessionEvent } from "@qcode/contracts";
 
 /** 从 runtime 上读出订阅函数；读不到就返回 undefined（能力不在静态类型面上）。 */
 type SessionEventSubscriberReader = (

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { atomicWritePrivateTextFile, backupCorruptFile, withFileLock } from "@zcode/shared/node";
+import { atomicWritePrivateTextFile, backupCorruptFile, withFileLock } from "@qcode/shared/node";
 import { createZCodeCredentialCipher, type ZCodeCredentialCipher } from "./credential-cipher.js";
 
 /**
@@ -17,7 +17,7 @@ import { createZCodeCredentialCipher, type ZCodeCredentialCipher } from "./crede
  * 老用户磁盘上若仍留有这些键，本模块**不读取、不参与解析、也不主动删除**。
  */
 
-const ZCODE_DATA_BASE_DIR_ENV_KEY = "ZCODE_DATA_BASE_DIR";
+const QCODE_DATA_BASE_DIR_ENV_KEY = "QCODE_DATA_BASE_DIR";
 const credentialChangeListeners = new Map<
   string,
   Set<() => void | Promise<void>>
@@ -168,7 +168,7 @@ export function resolveSharedZCodeCredentialsPath(
   }
 
   const env = options.env ?? process.env;
-  const baseDir = options.baseDir ?? env[ZCODE_DATA_BASE_DIR_ENV_KEY] ?? homedir();
+  const baseDir = options.baseDir ?? env[QCODE_DATA_BASE_DIR_ENV_KEY] ?? homedir();
   return join(resolveUserPath(baseDir), ".zcode", "v2", "credentials.json");
 }
 

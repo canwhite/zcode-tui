@@ -1,4 +1,4 @@
-import { READ_DEFAULT_MAX_LINES, type ModelMessageContentBlock } from "@zcode/contracts";
+import { READ_DEFAULT_MAX_LINES, type ModelMessageContentBlock } from "@qcode/contracts";
 
 import { formatReadTextOutput } from "../tool/handlers/read-text.js";
 import { wrapSystemReminderForSource } from "./source.js";

@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 
-import type { FileSystemPort, Logger, TraceContext } from "@zcode/contracts";
+import type { FileSystemPort, Logger, TraceContext } from "@qcode/contracts";
 
 import { ensureMemoryDirectoryExists } from "../memory/directory.js";
 import type { AgentRuntimeConfig, MemoryRuntimeConfig } from "../runtime/types.js";

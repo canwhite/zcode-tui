@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
-import { acquireFileLock } from "@zcode/shared/node";
-import { ZCODE_FILE_LOCK_TIMEOUT_ERROR_CODE } from "@zcode/shared";
+import { acquireFileLock } from "@qcode/shared/node";
+import { QCODE_FILE_LOCK_TIMEOUT_ERROR_CODE } from "@qcode/shared";
 import type { SharedZCodeCredentialStore } from "../auth/shared-credentials.js";
 import { isRecord, mcpOAuthCredentialKey } from "./oauth-credentials.js";
 
@@ -62,7 +62,7 @@ export async function tryAcquireAuthorizationLease(input: {
       release,
     };
   } catch (error) {
-    if (getErrorCode(error) === ZCODE_FILE_LOCK_TIMEOUT_ERROR_CODE) return undefined;
+    if (getErrorCode(error) === QCODE_FILE_LOCK_TIMEOUT_ERROR_CODE) return undefined;
     // EACCES/EPERM 等表示凭据目录不可写，交互授权无论如何都不可能成功，必须上报而不是静默降级。
     throw error;
   }

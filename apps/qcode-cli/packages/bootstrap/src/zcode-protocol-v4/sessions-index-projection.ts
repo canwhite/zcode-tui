@@ -8,7 +8,7 @@ import {
   type SessionSummary,
   type SessionsIndexDelta,
   type SessionsIndexSnapshot,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 /** 派生一条 summary 需要的、快照之外的会话级元信息（来自 session-store record / 事件时刻）。 */
 export interface SessionSummaryDeriveExtra {

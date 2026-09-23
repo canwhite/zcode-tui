@@ -1,5 +1,5 @@
-import type { ZCodeToolExecResource, BackgroundBashOutputResult } from "@zcode/shared";
-import type { AiSdkModelAdapter } from "@zcode/adapters/model";
+import type { ZCodeToolExecResource, BackgroundBashOutputResult } from "@qcode/shared";
+import type { AiSdkModelAdapter } from "@qcode/adapters/model";
 import type {
   AgentRuntime,
   AgentRuntimeConfig,
@@ -20,14 +20,14 @@ import type {
   WorkspaceGenerateTextInput,
   WorkspaceHookReviewTarget,
   WorkspaceHookPolicyProvider,
-} from "@zcode/core";
+} from "@qcode/core";
 import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookTrustRevokeTarget,
-} from "@zcode/shared/zcode-protocol-v4";
-import type { ZCodeModelOption } from "@zcode/shared";
-import type { EffectiveModelSelectionResult } from "@zcode/shared/model-selection";
-export type { ZCodeModelOption } from "@zcode/shared";
+} from "@qcode/shared/zcode-protocol-v4";
+import type { ZCodeModelOption } from "@qcode/shared";
+import type { EffectiveModelSelectionResult } from "@qcode/shared/model-selection";
+export type { ZCodeModelOption } from "@qcode/shared";
 import type { ModelProviderSourceTitle } from "../model-config.js";
 import type { ZCodeInstalledPluginData } from "../plugins.js";
 import type {
@@ -90,11 +90,11 @@ import type {
   WorkflowEvent,
   WorkflowRunListItem,
   ExecutionShellSelection,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { NodeReplBrowserBroker } from "./node-repl-browser-broker.js";
 import type { SessionTranscriptMessage } from "../session-transcript.js";
 import type { WorkspaceHookReviewCommandResult } from "./workspace-hook-review-controller.js";
-import type { AgentTelemetryRuntimeOwner, WorkspaceHookPolicy } from "@zcode/contracts";
+import type { AgentTelemetryRuntimeOwner, WorkspaceHookPolicy } from "@qcode/contracts";
 import type { ProviderRegistryModelSource } from "./provider-registry-model-runtime.js";
 
 export interface WorkspaceHookReviewHostContext {
@@ -212,7 +212,7 @@ export interface SubmitPromptOptionsBase {
 }
 
 export type SubmitPromptOptions = SubmitPromptOptionsBase &
-  import("@zcode/contracts").TurnBackgroundAttribution;
+  import("@qcode/contracts").TurnBackgroundAttribution;
 
 export type PrepareUserExecutionBoundary = (
   options?: Pick<SubmitPromptOptions, "abortSignal" | "traceContext">,
@@ -328,7 +328,7 @@ export interface ZCodeApp {
   readSubagents(input?: {
     endedCursor?: string;
     endedLimit?: number;
-  }): Promise<import("@zcode/shared").ZCodeSessionSubagentsResult>;
+  }): Promise<import("@qcode/shared").ZCodeSessionSubagentsResult>;
   readSubagentTranscript(
     childSessionId: string,
   ): Promise<import("./subagent-observation.js").SubagentTranscriptSnapshot>;

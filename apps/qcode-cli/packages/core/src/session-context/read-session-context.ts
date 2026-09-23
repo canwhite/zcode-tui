@@ -4,7 +4,7 @@ import {
   type ReadSessionContextOutput,
   type ReadSessionContextReference,
   type SessionInfo,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { activeSessionMessages } from "../agent/session-history-hydrator.js";
 import { dedupeParts, formatPartForContext } from "./parts.js";
 import { truncateText } from "./utils.js";

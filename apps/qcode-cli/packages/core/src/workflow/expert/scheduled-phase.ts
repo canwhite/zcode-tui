@@ -1,4 +1,4 @@
-import { type ExpertWorkflowRunSnapshot, type WorkflowPhaseDefinition } from "@zcode/contracts";
+import { type ExpertWorkflowRunSnapshot, type WorkflowPhaseDefinition } from "@qcode/contracts";
 import { WorkflowGraphScheduler } from "../scheduler.js";
 import { executableNodeIdsForPhase, safeArtifactName } from "./ids.js";
 import { parseWorkflowPlannerResult } from "./parsers/planner-result.js";

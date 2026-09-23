@@ -1,5 +1,5 @@
-import type { ModelRequestAuth } from "@zcode/contracts";
-import { ModelErrorCode, ModelProtocolError } from "@zcode/contracts";
+import type { ModelRequestAuth } from "@qcode/contracts";
+import { ModelErrorCode, ModelProtocolError } from "@qcode/contracts";
 import type { AiSdkModelTextRequest, ResolvedAiSdkModel } from "./runner-runtime.js";
 
 export class RuntimeHeadersRefreshError extends Error {

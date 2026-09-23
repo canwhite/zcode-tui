@@ -1,4 +1,4 @@
-import type { PluginDiagnosticCode } from "@zcode/contracts";
+import type { PluginDiagnosticCode } from "@qcode/contracts";
 
 class PluginSourceMaterializationError extends Error {
   readonly diagnosticCode: PluginDiagnosticCode;

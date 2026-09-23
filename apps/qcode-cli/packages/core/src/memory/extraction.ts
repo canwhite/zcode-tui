@@ -1,4 +1,4 @@
-import type { MessageId, MessageWithParts, ToolPart } from "@zcode/contracts";
+import type { MessageId, MessageWithParts, ToolPart } from "@qcode/contracts";
 import { resolveContainedMemoryFilePath } from "./memory-file-path.js";
 import { formatMemoryManifest } from "./recall/manifest.js";
 import type { MemoryManifestEntry } from "./recall/types.js";

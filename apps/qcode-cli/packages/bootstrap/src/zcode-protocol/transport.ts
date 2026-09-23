@@ -5,9 +5,9 @@ import type {
   ZCodeProtocolRequest,
   ZCodeProtocolRequestId,
   ZCodeProtocolResponse,
-} from "@zcode/shared";
-import { zcodeProtocolMessageSchema, zcodeProtocolMethods } from "@zcode/shared";
-import type { Logger } from "@zcode/contracts";
+} from "@qcode/shared";
+import { zcodeProtocolMessageSchema, qcodeProtocolMethods } from "@qcode/shared";
+import type { Logger } from "@qcode/contracts";
 
 type ZCodeProtocolOutgoingMessage =
   | ZCodeProtocolError
@@ -227,8 +227,8 @@ export class ZCodeProtocolNdjsonConnection {
     return (
       "id" in message &&
       "method" in message &&
-      (message.method === zcodeProtocolMethods.sessionStop ||
-        message.method === zcodeProtocolMethods.workspaceCancelGenerateText)
+      (message.method === qcodeProtocolMethods.sessionStop ||
+        message.method === qcodeProtocolMethods.workspaceCancelGenerateText)
     );
   }
 

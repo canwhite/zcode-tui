@@ -36,7 +36,7 @@ import type {
   WorkflowPort,
   WorkflowEscalatePort,
   WorkflowSubmitPort,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type {
   JsonSchema,
   ModelToolSideEffectScope,
@@ -54,7 +54,7 @@ import type {
   ToolTimeoutPolicy,
   ToolExecutionSpanWriter,
   ToolExecutionTelemetry,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { PersistedReadFileStateMetadata } from "./read-file-state-metadata.js";
 import type { RuntimeTaskRegistry } from "../runtime-task/registry.js";
 

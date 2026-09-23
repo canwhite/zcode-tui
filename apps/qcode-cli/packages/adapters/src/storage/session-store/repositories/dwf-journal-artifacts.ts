@@ -16,7 +16,7 @@
  */
 
 import type { DatabaseSync } from "node:sqlite";
-import type { NodeRecord } from "@zcode/dynamic-workflow";
+import type { NodeRecord } from "@qcode/dynamic-workflow";
 import { decodeNode, type DwfEventRow, type DwfNodeRow } from "./dwf-journal-codecs.js";
 
 /** {@link listArtifactItems} 的分页袋（游标 = journal sequence）。 */

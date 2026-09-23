@@ -145,7 +145,7 @@ export async function scanInstalledPackages(root, projects) {
   }
   for (const project of projects) await scanNodeModules(join(project.path, "node_modules"));
   await scanNodeModules(join(root, "node_modules"));
-  await scanNodeModules(join(root, "apps/zcode-cli/node_modules"));
+  await scanNodeModules(join(root, "apps/qcode-cli/node_modules"));
   return installed;
 }
 

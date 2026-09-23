@@ -1,6 +1,6 @@
 import { createMessageId, traceContextToLogContext } from "../deps.js";
 import type { MessageId, TraceContext } from "../deps.js";
-import type { BackgroundResultOriginMeta } from "@zcode/contracts";
+import type { BackgroundResultOriginMeta } from "@qcode/contracts";
 import { createRuntimeCommandId, type TaskNotificationRuntimeCommand } from "../command-queue.js";
 import { runtimeInputMetadata } from "../../agent/runtime-input-presentation.js";
 import type { AgentRuntimeInternal } from "../internal.js";

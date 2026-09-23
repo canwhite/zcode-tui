@@ -19,13 +19,13 @@ import type {
   ModelRequestAdmission,
   ModelRequestAdmissionTicket,
   ModelRequestTarget,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   ConcurrencyController,
   type ConcurrencyChange,
   type ConcurrencyControllerSnapshot,
   type ConcurrencyThrottleReason,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { resolveWorkflowConcurrencyCeiling } from "./workflow-concurrency-ceiling.js";
 
 /** provider key：最具体的配额键。 */

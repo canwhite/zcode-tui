@@ -3,7 +3,7 @@ import type {
   MessagePart,
   MessageWithParts,
   ToolPart,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   parseReadFileStateMetadata,
   type PersistedReadFileStateTool,

@@ -1,4 +1,4 @@
-import { createModelId, createModelProviderId } from "@zcode/contracts";
+import { createModelId, createModelProviderId } from "@qcode/contracts";
 import { createMessageId, createPartId } from "../deps.js";
 import type {
   MessageId,

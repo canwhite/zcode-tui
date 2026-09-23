@@ -5,7 +5,7 @@
 // 这里是 dwf 专属的三段文案——升级问答、run 级停滞与
 // provider 停下；后者由终态通知与 GetWorkflowRun 共用。
 
-import type { DynamicWorkflowRunError } from "@zcode/contracts";
+import type { DynamicWorkflowRunError } from "@qcode/contracts";
 import { escapeXml, truncateTaskNotification } from "./notification.js";
 
 /**

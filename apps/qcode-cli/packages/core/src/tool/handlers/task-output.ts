@@ -12,7 +12,7 @@ import {
   type TaskOutputInput,
   type TaskOutputResult,
   type TaskOutputTask,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { RuntimeTaskSnapshot } from "../../runtime-task/registry.js";
 import { formatPersistedOutputEnvelope } from "../result-persistence-format.js";
 import type {

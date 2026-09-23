@@ -1,4 +1,4 @@
-import type { ExpertWorkflowRunSnapshot } from "@zcode/contracts";
+import type { ExpertWorkflowRunSnapshot } from "@qcode/contracts";
 
 export function formatExpertWorkflowStatus(snapshot: ExpertWorkflowRunSnapshot): string {
   const lines = [

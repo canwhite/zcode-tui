@@ -5,11 +5,11 @@
 // 派生：actor-created（登记子代理 ↔ 子会话 ↔ 发起轮）与 run-settled（该 run 全部子代理的终态）。
 // 没有 `launchInputId`（升级前发起的 run）就不发：没有锚点的 step 无处可挂，宁缺毋造。
 
-import type { DynamicWorkflowRunProgressPayload } from "@zcode/contracts";
+import type { DynamicWorkflowRunProgressPayload } from "@qcode/contracts";
 import {
   conversationTelemetryFactSchema,
   type ConversationTelemetryFact,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 
 const ACTOR_CREATED_EVENT_TYPE = "actor-created";
 const RUN_SETTLED_EVENT_TYPE = "run-settled";

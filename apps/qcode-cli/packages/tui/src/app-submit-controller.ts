@@ -1,6 +1,6 @@
 import React from "react";
-import type { ModelSelection } from "@zcode/shared";
-import type { SessionEvent, TurnId } from "@zcode/contracts";
+import type { ModelSelection } from "@qcode/shared";
+import type { SessionEvent, TurnId } from "@qcode/contracts";
 import { resolveBtwSubmission, type BtwState, type BtwSubmission } from "./app-btw.js";
 import { submitDuringActiveTurn, submitIdleTurn } from "./app-submit.js";
 import type {

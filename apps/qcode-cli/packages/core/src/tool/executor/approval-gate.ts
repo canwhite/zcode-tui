@@ -3,7 +3,7 @@ import {
   type PermissionOptionsPolicy,
   type ToolResultDisplayPayload,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ExecutableToolCall, ToolEntry } from "../types.js";
 import type { ToolExecutorDeps } from "./types.js";
 

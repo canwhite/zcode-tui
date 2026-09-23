@@ -3,12 +3,12 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
-import { resolveRuntimeZCodeEndpointOrigin, DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "@zcode/shared";
+import { resolveRuntimeZCodeEndpointOrigin, DEFAULT_QCODE_ENDPOINT_ORIGIN } from "@qcode/shared";
 import {
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  QCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-} from "@zcode/provider-node";
+} from "@qcode/provider-node";
 import {
   CONFIG_HOME_COMMANDS_DIR,
   CONFIG_HOME_INSTRUCTION_FILE,
@@ -20,7 +20,7 @@ import {
   resolveVendoredOfficialAssetPath,
   resolveVendoredOfficialRoot,
   ZHIPU_OFFICIAL_ASSET_BASE_URL,
-} from "@zcode/adapters";
+} from "@qcode/adapters";
 import type { CliEnv } from "./env.js";
 import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
 import { providerIdFromBaseUrl } from "./personal-vendor.js";
@@ -216,22 +216,22 @@ function checkEnvSource(gate: DoctorGateOptions): DoctorCheck {
 }
 
 function checkEndpoint(env: CliEnv): DoctorCheck {
-  const configured = env.ZCODE_BASE_URL?.trim();
+  const configured = env.QCODE_BASE_URL?.trim();
   const origin = resolveRuntimeZCodeEndpointOrigin(env);
-  if (!configured && origin === DEFAULT_ZCODE_ENDPOINT_ORIGIN) {
+  if (!configured && origin === DEFAULT_QCODE_ENDPOINT_ORIGIN) {
     return {
       id: "config.endpoint",
       label: "端点解析",
       status: "warn",
-      detail: `${origin}（未配置 ZCODE_BASE_URL，使用内置默认值）`,
-      fix: "如需指向自建服务，请在 .env 中显式设置 ZCODE_BASE_URL",
+      detail: `${origin}（未配置 QCODE_BASE_URL，使用内置默认值）`,
+      fix: "如需指向自建服务，请在 .env 中显式设置 QCODE_BASE_URL",
     };
   }
   return {
     id: "config.endpoint",
     label: "端点解析",
     status: "pass",
-    detail: `${origin}${configured ? "（来自 ZCODE_BASE_URL）" : ""}`,
+    detail: `${origin}${configured ? "（来自 QCODE_BASE_URL）" : ""}`,
   };
 }
 
@@ -253,7 +253,7 @@ function readActiveModelSelection(
 
 function resolveDoctorPersonalConfigPath(env: CliEnv): string {
   return (
-    env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ||
+    env[QCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ||
     join(homedir(), ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME)
   );
 }
@@ -291,7 +291,7 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
   // 用户无从判断。这里显式比对内置清单，把失效点名出来。
   const selectedProviderId = selection.providerId;
   if (selectedProviderId?.startsWith("account:")) {
-    const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+    const vendors = readBuiltinVendors(env[QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
     const stillExists = vendors.some(
       (vendor) => vendor.accountProviderId === selectedProviderId,
     );
@@ -333,8 +333,8 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
         status: "warn",
         detail: activeId
           ? `未在 .env 中声明厂商；当前生效由已有配置决定：${activeId}`
-          : "未在 .env 中声明厂商（ZCODE_VENDOR_* 缺失）",
-        fix: "如需由 .env 驱动厂商，请填写 ZCODE_VENDOR 与 ZCODE_VENDOR_API_KEY",
+          : "未在 .env 中声明厂商（QCODE_VENDOR_* 缺失）",
+        fix: "如需由 .env 驱动厂商，请填写 QCODE_VENDOR 与 QCODE_VENDOR_API_KEY",
       };
     }
     return {
@@ -346,7 +346,7 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
     };
   }
 
-  const vendors = readBuiltinVendors(env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
+  const vendors = readBuiltinVendors(env[QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]);
   const resolved = resolveVendor(parsed.config, vendors);
 
   if (!resolved.ok) {
@@ -392,7 +392,7 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
 }
 
 function checkBuiltinProviderConfig(env: CliEnv): DoctorCheck {
-  const explicit = env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const explicit = env[QCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (!explicit) {
     // 运行时若没有该变量，CLI 会落到随包/仓库内的内置配置；此处不作失败判定。
     return {
@@ -414,7 +414,7 @@ function checkBuiltinProviderConfig(env: CliEnv): DoctorCheck {
         id: "config.provider",
         label: "Provider 配置源",
         status: "fail",
-        detail: `ZCODE_BUILTIN_PROVIDER_CONFIG_FILE 指向的文件不存在：${explicit}`,
+        detail: `QCODE_BUILTIN_PROVIDER_CONFIG_FILE 指向的文件不存在：${explicit}`,
         fix: "修正该路径或清空该变量以使用内置配置",
       };
 }

@@ -1,5 +1,5 @@
 import type { FetchLike, AuthProvider } from "@modelcontextprotocol/client";
-import type { Logger, McpOAuthConfig } from "@zcode/contracts";
+import type { Logger, McpOAuthConfig } from "@qcode/contracts";
 import type { SharedZCodeCredentialStore } from "../auth/shared-credentials.js";
 import { isCanonicalTokenNearExpiry, loadCredentialPair } from "./oauth-credentials.js";
 import { createInteractiveAuthorizationRequiredError } from "./oauth-errors.js";

@@ -6,7 +6,7 @@ import {
   type HookExecutionDescriptor,
   type HookInput,
   type Logger,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { matchesHookMatcher } from "./output.js";
 import type { HookRegistration, HookRunOptions } from "./types.js";
 

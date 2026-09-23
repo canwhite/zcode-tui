@@ -4,7 +4,7 @@ import {
   type ModelSelection,
   type TraceContext,
   type TurnInputIntentMetadata,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { getCurrentModelInvocationContext } from "../deps.js";
 import type { AgentRuntimeInternal } from "../internal.js";
 import { cloneModelSelection } from "../model-selection.js";
@@ -16,7 +16,7 @@ export function createTurnModel(
   runtime: AgentRuntimeInternal,
   options: {
     selection?: ModelSelection;
-    requestDependencies?: import("@zcode/contracts").ModelRequestDependencies;
+    requestDependencies?: import("@qcode/contracts").ModelRequestDependencies;
   } = {},
 ): Model {
   const selection = options.selection ?? runtime.getSessionModelSelection();

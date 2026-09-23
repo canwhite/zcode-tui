@@ -9,7 +9,7 @@ import type {
   WorkflowGraphPlannerResult,
   WorkflowGraphRecord,
   WorkflowRunSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 export interface WorkflowGraphSchedulerActivityInput {
   abortSignal?: AbortSignal;

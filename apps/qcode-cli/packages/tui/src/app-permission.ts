@@ -4,7 +4,7 @@ import {
   AskUserQuestionInputSchema,
   CREATE_WORKFLOW_TOOL_NAME,
   type PermissionBrokerResult,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type React from "react";
 import type { ApprovalPrompt } from "./app-model.js";
 import { createQuestionPromptState } from "./app-question-state.js";

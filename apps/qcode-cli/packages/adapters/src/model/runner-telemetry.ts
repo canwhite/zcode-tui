@@ -2,7 +2,7 @@ import {
   ModelFailureReason,
   type ModelApiErrorPhase,
   type ModelFailureExceptionKind,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { APICallError } from "ai";
 import {
   findProviderBusinessError,

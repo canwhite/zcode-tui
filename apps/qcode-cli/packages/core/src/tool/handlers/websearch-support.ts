@@ -1,4 +1,4 @@
-import type { TraceContext } from "@zcode/contracts";
+import type { TraceContext } from "@qcode/contracts";
 import type { ToolExecutionContext } from "../types.js";
 
 const WEBSEARCH_TOOL_NAME = "WebSearch";

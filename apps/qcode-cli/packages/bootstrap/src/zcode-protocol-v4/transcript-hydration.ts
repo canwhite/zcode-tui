@@ -18,8 +18,8 @@ import type {
   ModelSelection,
   TurnFileChangeSummary,
   TurnInputIntentMetadata,
-} from "@zcode/contracts";
-import type { EventId, SessionEvent, SessionId, TraceId, TurnId } from "@zcode/contracts";
+} from "@qcode/contracts";
+import type { EventId, SessionEvent, SessionId, TraceId, TurnId } from "@qcode/contracts";
 import {
   CompactTimelineStatus,
   CompactTrigger,
@@ -29,12 +29,12 @@ import {
   parseCompletedToolPartMetadata,
   SessionEventType,
   STREAM_RECOVERY_DISCARDED_ERROR_NAME,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   getConversationModelOnlyTurnTriggerSource,
   getConversationMessageProjectionPolicy,
   isConversationRealUserTurnStarter,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import {
   conversationInputIntentSchema,
   errorAttributionSchema,
@@ -42,7 +42,7 @@ import {
   workflowNotificationMetaSchema,
   type ErrorAttribution,
   type WorkflowLaunchMeta,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import { shouldHideInvalidToolCallFromProduct } from "../tool-call-product-visibility.js";
 import { HYDRATION_TRACE_ID } from "./projection-state.js";
 

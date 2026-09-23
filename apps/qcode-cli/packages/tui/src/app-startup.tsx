@@ -1,5 +1,5 @@
 import { useKeyboard } from "@mbears/opentui-react";
-import { getZCodeCopy } from "@zcode/i18n";
+import { getZCodeCopy } from "@qcode/i18n";
 import React from "react";
 import { EmptyTranscriptLogo } from "./app-empty-transcript.js";
 import { palette } from "./app-model.js";

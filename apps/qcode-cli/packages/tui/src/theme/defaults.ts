@@ -1,4 +1,4 @@
-import type { UiThemeMode } from "@zcode/contracts";
+import type { UiThemeMode } from "@qcode/contracts";
 import type { TuiThemeTokens } from "./types.js";
 
 export const DEFAULT_TUI_THEME_MODE: UiThemeMode = "dark";

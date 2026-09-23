@@ -19,7 +19,7 @@ import {
   ListModelsOutputSchema,
   type ListModelsOutput,
   type ModelMessageContent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler, ToolHandlerFailure } from "../types.js";
 import { formatModelCatalogId } from "./model-reference.js";
 

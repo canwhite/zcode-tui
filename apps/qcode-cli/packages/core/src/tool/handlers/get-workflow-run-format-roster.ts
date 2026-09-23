@@ -14,7 +14,7 @@ import type {
   GetWorkflowRunOutput,
   GetWorkflowRunPhase,
   GetWorkflowRunSubagent,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   escapeWorkflowRunText,
   formatRelativeAge,

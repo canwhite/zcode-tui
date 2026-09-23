@@ -2,12 +2,12 @@ import type {
   AiSdkModelExecutionConfig,
   AiSdkNetworkConfig,
   EnvRecord,
-} from "@zcode/adapters/model";
+} from "@qcode/adapters/model";
 import {
   resolveRuntimeZCodeEnv,
   resolveRuntimeZCodeEndpointOrigin,
-  ZCODE_APP_VERSION_ENV,
-} from "@zcode/shared";
+  QCODE_APP_VERSION_ENV,
+} from "@qcode/shared";
 import {
   createRuntimePlatformHeaders,
   normalizePrintableHeaderValue,
@@ -53,9 +53,9 @@ function buildCliZCodeSourceHeaders(
   const locale = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().locale);
   const timezone = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().timeZone);
   // HTTP-Referer 原先经 resolveRuntimeZCodeEndpointOrigin 缺省回落到
-  // DEFAULT_ZCODE_ENDPOINT_ORIGIN（https://zcode.z.ai），等于**每个模型请求都隐式声明
+  // DEFAULT_QCODE_ENDPOINT_ORIGIN（https://zcode.z.ai），等于**每个模型请求都隐式声明
   // 该来源**——这正是不希望存在的隐式回连。现改为只在用户显式配置了端点
-  // （ZCODE_BASE_URL / ZCODE_ENDPOINT_ORIGIN）时才发送该头。
+  // （QCODE_BASE_URL / QCODE_ENDPOINT_ORIGIN）时才发送该头。
   const refererOrigin = resolveConfiguredEndpointOrigin(env);
   return {
     ...(refererOrigin ? { "HTTP-Referer": refererOrigin } : {}),
@@ -75,7 +75,7 @@ function buildCliZCodeSourceHeaders(
  * `HTTP-Referer`）。用于避免隐式回落到内置默认端点。
  */
 function resolveConfiguredEndpointOrigin(env: EnvRecord): string | undefined {
-  const explicit = env.ZCODE_BASE_URL?.trim() || env.ZCODE_ENDPOINT_ORIGIN?.trim();
+  const explicit = env.QCODE_BASE_URL?.trim() || env.QCODE_ENDPOINT_ORIGIN?.trim();
   if (!explicit) return undefined;
   try {
     return resolveRuntimeZCodeEndpointOrigin(env);
@@ -89,7 +89,7 @@ function resolveAppVersionForHeaders(
   env: EnvRecord,
   options: Pick<RuntimeExecutionConfigOptions, "appVersion">,
 ): string | undefined {
-  return normalizePrintableHeaderValue(env[ZCODE_APP_VERSION_ENV] ?? options.appVersion);
+  return normalizePrintableHeaderValue(env[QCODE_APP_VERSION_ENV] ?? options.appVersion);
 }
 
 function detectDefaultProviderSourceTitle(): ModelProviderSourceTitle {

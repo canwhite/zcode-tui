@@ -340,7 +340,7 @@ export interface ZCodeTaskMeta {
   lastError?: ZCodeTaskLastError;
   /** 任务级文件改动摘要，仅用于列表/标题展示，真实回滚仍以 fileChanges 为准 */
   changeSummary?: ZCodeTaskChangeSummary;
-  /** qcode-cli /goal 会话目标；null 表示已显式清空。 */
+  /** zcode-cli /goal 会话目标；null 表示已显式清空。 */
   target?: ZCodeTaskGoal | null;
 }
 export interface ZCodeTaskChangeSummary {
@@ -566,7 +566,7 @@ export interface ZCodeToolCall {
   skillMetadata?: {
     qualifiedName?: string;
     pluginId?: string;
-    source?: "agents" | "qcode" | "bundled" | "plugin" | "remote";
+    source?: "agents" | "zcode" | "bundled" | "plugin" | "remote";
   };
 }
 export interface ZCodeToolCallUpdate {
@@ -595,7 +595,7 @@ export interface ZCodeToolCallUpdate {
   skillMetadata?: {
     qualifiedName?: string;
     pluginId?: string;
-    source?: "agents" | "qcode" | "bundled" | "plugin" | "remote";
+    source?: "agents" | "zcode" | "bundled" | "plugin" | "remote";
   };
 }
 export interface ZCodePlan {
@@ -829,7 +829,7 @@ export interface ZCodeConfigOptionUpdate {
   inputId?: InputId;
   configOptions: ZCodeConfigOption[];
 }
-/** qcode-cli/GLM agent 专属：模型变化后同步思考等级选项和上下文窗口。 */
+/** zcode-cli/GLM agent 专属：模型变化后同步思考等级选项和上下文窗口。 */
 export interface ZCodeGlmAgentModelStateUpdate extends ZCodeGlmAgentModelStateUpdatePayload {
   type: "glm_agent_model_state_update";
   taskId: string;
@@ -880,7 +880,7 @@ export interface ZCodeSessionInfoUpdate {
    */
   apiRetry?: ZCodeApiRetryStatus | null;
   /**
-   * qcode-cli 通过兼容 session_info_update._meta.zcode.target 投影的 /goal 状态补丁。
+   * zcode-cli 通过兼容 session_info_update._meta.zcode.target 投影的 /goal 状态补丁。
    * `undefined` 表示本次没有 target 变化；`target: null` 表示清空。
    */
   target?: ZCodeTaskGoalChangedPatch;

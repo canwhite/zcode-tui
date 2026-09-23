@@ -14,8 +14,8 @@ import {
   parseRemoteWorkspaceIdentity,
   type ZCodeSessionContextUsage,
   type ZCodeWorkspaceRef,
-} from "@zcode/shared";
-import { createExternalTurnFaultError } from "@zcode/core";
+} from "@qcode/shared";
+import { createExternalTurnFaultError } from "@qcode/core";
 import {
   V4_NOTIFICATIONS,
   conversationInputIntentSchema,
@@ -25,7 +25,7 @@ import {
   type V4ConversationFileChangesResult,
   type V4ConversationFileRewindPreviewResult,
   type SessionSummary,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import { V4CommandExecutor } from "../zcode-protocol-v4/commands/executor.js";
 import { V4QueuePromotionLeaseUnavailableError } from "../zcode-protocol-v4/commands/handlers/queue.js";
 import { V4CapabilityUnsupportedError } from "../zcode-protocol-v4/commands/handlers/interaction-background.js";
@@ -65,7 +65,7 @@ import {
   SessionEventType,
   createEventId,
   createSessionId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type {
   CollaborationMode,
   DynamicWorkflowRunProgressPayload,
@@ -80,7 +80,7 @@ import type {
   TraceId,
   TurnId,
   WorkspaceId,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { HYDRATION_TRACE_ID } from "../zcode-protocol-v4/projection-state.js";
 import { resolveWorkspaceRefFromId } from "./mapper.js";
 import { buildLiveWorkspaceConfigStateV4 } from "./v4-workspace-config.js";

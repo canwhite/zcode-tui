@@ -1,10 +1,10 @@
 import {
-  ZCODE_AGENT_CA_CERT_ENV_KEY,
-  ZCODE_HTTP_PROXY_ENV_KEY,
-  ZCODE_NO_PROXY_ENV_KEY,
-  ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
+  QCODE_AGENT_CA_CERT_ENV_KEY,
+  QCODE_HTTP_PROXY_ENV_KEY,
+  QCODE_NO_PROXY_ENV_KEY,
+  QCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
   readZCodeToolEnvPassthroughEnv,
-} from "@zcode/shared";
+} from "@qcode/shared";
 
 export interface NetworkEgressEnvPolicy {
   caCertFile?: string;
@@ -36,8 +36,8 @@ const CA_SOURCE_KEYS = [
   "GIT_SSL_CAINFO",
 ] as const;
 const CA_TARGET_KEYS = CA_SOURCE_KEYS;
-const EXPLICIT_CA_SOURCE_KEYS = [ZCODE_AGENT_CA_CERT_ENV_KEY] as const;
-const EXPLICIT_NO_PROXY_SOURCE_KEYS = [ZCODE_NO_PROXY_ENV_KEY] as const;
+const EXPLICIT_CA_SOURCE_KEYS = [QCODE_AGENT_CA_CERT_ENV_KEY] as const;
+const EXPLICIT_NO_PROXY_SOURCE_KEYS = [QCODE_NO_PROXY_ENV_KEY] as const;
 
 export function applyNetworkEgressEnv(
   env: Record<string, string>,
@@ -47,7 +47,7 @@ export function applyNetworkEgressEnv(
   const sourceEnv = options.sourceEnv ?? {};
   const network = options.network ?? {};
 
-  deleteEnvKey(env, ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, platform);
+  deleteEnvKey(env, QCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, platform);
   if (options.toolEnvPassthrough !== false) {
     applyToolEnvPassthroughEnv(env, sourceEnv, platform);
   }
@@ -83,7 +83,7 @@ function applyProxyEnv(
   }
 
   const zcodeProxy = normalizeProxyValue(
-    getFirstEnvValue(sourceEnv, [ZCODE_HTTP_PROXY_ENV_KEY], platform),
+    getFirstEnvValue(sourceEnv, [QCODE_HTTP_PROXY_ENV_KEY], platform),
   );
   if (zcodeProxy) {
     for (const key of ALL_PROXY_KEYS) {

@@ -11,7 +11,7 @@ import {
   type WorkflowNodeStatus,
   type WorkflowPhaseDefinition,
   type WorkflowPhaseSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { createExpertWorkflowDefinition, workflowDefinitionPhaseMap } from "../definition.js";
 import type { WorkflowGraphNodeChange, WorkflowSnapshotLifecycleResult } from "../lifecycle.js";
 import { phaseNodeId, safeRunIdSegment } from "./ids.js";

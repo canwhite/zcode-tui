@@ -1,10 +1,10 @@
-import type { OffPeakPort, OffPeakTaskSummary } from "@zcode/contracts";
+import type { OffPeakPort, OffPeakTaskSummary } from "@qcode/contracts";
 import {
   zcodeOffPeakCreateResultSchema,
   zcodeOffPeakListResultSchema,
-  zcodeProtocolMethods,
+  qcodeProtocolMethods,
   type ZCodeOffPeakTaskProtocolSnapshot,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type {
   ZCodeProtocolAgentServerContext,
   ZCodeProtocolSessionRecord,
@@ -50,7 +50,7 @@ export function createProtocolOffPeakPort(
         let bound: boolean;
         try {
           const listed = await context.requestClient(
-            zcodeProtocolMethods.offPeakList,
+            qcodeProtocolMethods.offPeakList,
             {},
             zcodeOffPeakListResultSchema,
           );
@@ -70,7 +70,7 @@ export function createProtocolOffPeakPort(
         if (bound) throw new Error(OFF_PEAK_CREATE_IN_BOUND_SESSION_ERROR);
       }
       const result = await context.requestClient(
-        zcodeProtocolMethods.offPeakCreate,
+        qcodeProtocolMethods.offPeakCreate,
         {
           title: input.title,
           prompt: input.prompt,
@@ -95,7 +95,7 @@ export function createProtocolOffPeakPort(
     },
     async list() {
       const result = await context.requestClient(
-        zcodeProtocolMethods.offPeakList,
+        qcodeProtocolMethods.offPeakList,
         {},
         zcodeOffPeakListResultSchema,
       );

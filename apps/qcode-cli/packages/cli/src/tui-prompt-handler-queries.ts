@@ -1,6 +1,6 @@
 // tui-prompt-handler.ts 顶到 oxlint max-lines 上限（400 行），把 submitPrompt 上
 // 那组「拿到当前 App 就只读转发」的查询方法拆到本文件；公开面仍从 tui-prompt-handler.ts 导出。
-import { BtwModelRequestError } from "@zcode/core";
+import { BtwModelRequestError } from "@qcode/core";
 import type { CommandCenterApp } from "./command-center.js";
 import { listAppEffortOptions } from "./command-center/effort-options.js";
 import type { TuiPromptHandler } from "./tui-command-state.js";
@@ -8,7 +8,7 @@ import type {
   TuiSideQuestionFailureReason,
   TuiSideQuestionResult,
   TuiSessionMetadata,
-} from "@zcode/tui";
+} from "@qcode/tui";
 
 export async function readTuiSessionMetadata(app: CommandCenterApp): Promise<TuiSessionMetadata> {
   const modelOptions = (await app.listModels?.()) ?? [];

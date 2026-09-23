@@ -16,7 +16,7 @@ import { runPhase } from "./phase-runner.js";
 import { buildReport } from "./prompts.js";
 import { runScheduledPhase } from "./scheduled-phase.js";
 import type { ExpertWorkflowCommandResult, ExpertWorkflowRunOptions } from "./types.js";
-import type { ExpertWorkflowRunSnapshot, WorkflowPhaseDefinition } from "@zcode/contracts";
+import type { ExpertWorkflowRunSnapshot, WorkflowPhaseDefinition } from "@qcode/contracts";
 
 export async function continueRun(
   ctx: ExpertWorkflowRuntimeContext,

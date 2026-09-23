@@ -18,7 +18,7 @@
 //   1. 先校验后落盘：写临时文件 → 校验 sha256 → 原子 rename。半成品永远不会冒充完整文件。
 //   2. 幂等：本地已存在且 sha256 匹配 → 直接跳过，**不发起任何网络请求**。
 //   3. 落盘位置必须通过 git check-ignore 断言（覆盖全部 6 个 .gitignore）。
-//      实测反例：apps/zcode-cli/dependencies/vendor/** 被 apps/zcode-cli/.gitignore
+//      实测反例：apps/qcode-cli/dependencies/vendor/** 被 apps/qcode-cli/.gitignore
 //      的裸 vendor 规则静默忽略——本地正常、克隆即崩。
 
 import { createHash } from "node:crypto";
@@ -103,7 +103,7 @@ async function localState(resource) {
  * git check-ignore 断言。
  *
  * 作用域是**整个仓库**而不是只查根 .gitignore——本仓库有 6 个 .gitignore，
- * R4 的陷阱正是由 apps/zcode-cli/.gitignore 里的一条裸 vendor 造成的。
+ * R4 的陷阱正是由 apps/qcode-cli/.gitignore 里的一条裸 vendor 造成的。
  * git 自身会合并全部规则，所以直接问 git 比自己实现匹配可靠。
  */
 export function assertNotIgnored(paths) {

@@ -1,4 +1,4 @@
-import type { SessionTaskType } from "@zcode/contracts";
+import type { SessionTaskType } from "@qcode/contracts";
 
 /**
  * 左侧任务列表的 session 类型投影。

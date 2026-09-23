@@ -1,5 +1,5 @@
-import type { RuntimeInputPresentation } from "@zcode/contracts";
-import { createModelId, createModelProviderId } from "@zcode/contracts";
+import type { RuntimeInputPresentation } from "@qcode/contracts";
+import { createModelId, createModelProviderId } from "@qcode/contracts";
 import { SessionEventType, createPartId, traceContextToLogContext } from "../deps.js";
 import type {
   EnvInfo,

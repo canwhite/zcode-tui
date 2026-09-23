@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
-import type { BrowserControlPort, TraceContext } from "@zcode/contracts";
+import type { BrowserControlPort, TraceContext } from "@qcode/contracts";
 import {
   zcodeBrowserExecuteResultSchema,
   zcodeBrowserListResultSchema,
-  zcodeProtocolMethods,
-} from "@zcode/shared";
+  qcodeProtocolMethods,
+} from "@qcode/shared";
 import {
   protocolTraceFromTraceContext,
   requireSession,
@@ -42,7 +42,7 @@ export function createProtocolBrowserControlBroker(
     await Promise.allSettled(
       connections.map(({ browserId, browserGeneration }) =>
         context.requestClient(
-          zcodeProtocolMethods.interactionBrowserExecute,
+          qcodeProtocolMethods.interactionBrowserExecute,
           {
             ...buildBrowserRequestContext(context, { sessionId, turnId }),
             browserId,
@@ -58,7 +58,7 @@ export function createProtocolBrowserControlBroker(
   return {
     async list({ sessionId, turnId, traceContext, signal }) {
       const result = await context.requestClient(
-        zcodeProtocolMethods.interactionBrowserList,
+        qcodeProtocolMethods.interactionBrowserList,
         buildBrowserRequestContext(context, { sessionId, turnId, traceContext }),
         zcodeBrowserListResultSchema,
         buildRequestOptions(traceContext, signal),
@@ -87,7 +87,7 @@ export function createProtocolBrowserControlBroker(
         // 已下发动作无法证明无副作用时由 manager 返回 uncertain 标记。
         void context
           .requestClient(
-            zcodeProtocolMethods.interactionBrowserExecute,
+            qcodeProtocolMethods.interactionBrowserExecute,
             {
               ...buildBrowserRequestContext(context, { sessionId, turnId, traceContext }),
               browserId,
@@ -103,7 +103,7 @@ export function createProtocolBrowserControlBroker(
       else signal?.addEventListener("abort", cancelBackendRequest, { once: true });
       try {
         return await context.requestClient(
-          zcodeProtocolMethods.interactionBrowserExecute,
+          qcodeProtocolMethods.interactionBrowserExecute,
           {
             ...requestContext,
             browserId,

@@ -9,7 +9,7 @@ import {
   isToolResultUserMessage,
   type ProjectedRuntimeMessageEntry,
 } from "./provider-mid-conversation-system.js";
-import type { ModelMessageContent, ModelMessageContentBlock } from "@zcode/contracts";
+import type { ModelMessageContent, ModelMessageContentBlock } from "@qcode/contracts";
 import type { ModelInputMessage, RuntimeMessageEntry } from "../../agent/message-history.js";
 import {
   cloneModelInputMessage,

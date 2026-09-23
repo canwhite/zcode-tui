@@ -9,7 +9,7 @@ import type {
   SessionTaskLinkRecord,
   WorkflowAgentOptions,
   WorkflowScriptMeta,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { decodeJson } from "../json.js";
 
 export interface WorkflowDefinitionRow {

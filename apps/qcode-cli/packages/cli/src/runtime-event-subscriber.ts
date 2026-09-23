@@ -4,7 +4,7 @@
 // （`tui-prompt-handler.ts` → `tui-session-event-relay.ts`）。能力读取器需要独立于任何
 // venue：若放在 headless 专属模块里，TUI 侧就得从一个名为 headless 的模块 import 一个
 // 名为 Headless 的读取器——名字对行为撒谎。它只回答「这个 runtime 能不能跨回合订阅」。
-import type { SessionEvent } from "@zcode/contracts";
+import type { SessionEvent } from "@qcode/contracts";
 
 /**
  * 从 `unknown` 上动态读一个函数成员。

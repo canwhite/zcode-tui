@@ -30,7 +30,7 @@ import {
   type ReadTextOutput,
   type FileSystemStatResult,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { resolveWorkspacePath } from "../path-policy.js";
 import { createReadFileStateKey, normalizeReadFileStateMtimeMs } from "../read-file-state.js";
 import { createReadFileStateMetadata } from "../read-file-state-metadata.js";

@@ -2,13 +2,13 @@ import {
   AMEND_WORKFLOW_TOOL_NAME,
   CREATE_WORKFLOW_TOOL_NAME,
   RESUME_WORKFLOW_RUN_TOOL_NAME,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type {
   ExecutionPort,
   DynamicWorkflowRunSnapshot,
   SubagentTaskSnapshot,
   WorkflowTaskSnapshot,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   isTerminalRuntimeTask,
   type RuntimeTaskSnapshot,

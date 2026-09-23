@@ -1,6 +1,6 @@
 // 引擎事件的 journal sequence 截取层。独立成模块而不是留在 launch.ts 里：那边的职责是「装配并启动一个 run」，而这里是
 // 「把 appendEvent 分配到的号截给紧随其后的 emit」——两件事各自完整，且这一件只有一个消费者。
-import type { JournalStorePort, RunEvent, StoredEvent } from "@zcode/dynamic-workflow";
+import type { JournalStorePort, RunEvent, StoredEvent } from "@qcode/dynamic-workflow";
 
 /**
  * 包一层 journal，只为把 `appendEvent` 分配到的 sequence 截下来供紧随其后的 emit 使用。

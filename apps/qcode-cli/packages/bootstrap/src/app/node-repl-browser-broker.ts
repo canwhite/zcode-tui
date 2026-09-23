@@ -3,14 +3,14 @@ import { rm } from "node:fs/promises";
 import { createServer, type Server, type Socket } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { BrowserControlPort, Logger, McpServerConfig, TraceContext } from "@zcode/contracts";
+import type { BrowserControlPort, Logger, McpServerConfig, TraceContext } from "@qcode/contracts";
 import {
   NODE_REPL_BROWSER_BROKER_SOCKET_ENV,
   NODE_REPL_BROWSER_BROKER_TOKEN_ENV,
   nodeReplBrowserBrokerRequestSchema,
   type NodeReplBrowserBrokerRequest,
   type NodeReplBrowserBrokerResponse,
-} from "@zcode/shared";
+} from "@qcode/shared";
 
 const NODE_REPL_MCP_SERVER_NAME = "node_repl";
 const MAX_REQUEST_BYTES = 1024 * 1024;

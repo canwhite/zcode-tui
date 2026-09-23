@@ -12,8 +12,8 @@ import type {
   TuiSessionMetadata,
   TuiSubmitPrompt,
   TuiSubscribeSessionEvents,
-} from "@zcode/tui";
-import type { ZCodeAppOptions } from "@zcode/bootstrap";
+} from "@qcode/tui";
+import type { ZCodeAppOptions } from "@qcode/bootstrap";
 import type { CliModeState, CliPermissionMode, CliRuntimeMode } from "./cli-types.js";
 
 /**
@@ -31,8 +31,8 @@ export type TuiPromptHandler = TuiSubmitPrompt & {
   getSessionMetadata?: () => Promise<TuiSessionMetadata>;
   listEffortOptions?: () => Promise<readonly TuiEffortOption[]>;
   listMcpServers?: TuiListMcpServers;
-  readSubagents?: import("@zcode/tui").TuiReadSubagents;
-  readSubagentTranscript?: import("@zcode/tui").TuiReadSubagentTranscript;
+  readSubagents?: import("@qcode/tui").TuiReadSubagents;
+  readSubagentTranscript?: import("@qcode/tui").TuiReadSubagentTranscript;
   listWorkflowRuns?: TuiListWorkflowRuns;
   replayWorkflowRuns?: TuiReplayWorkflowRuns;
   getMainSessionId?: TuiGetMainSessionId;

@@ -4,7 +4,7 @@ import {
   SessionEventType,
   type SessionEvent,
   type SessionModeChangedPayload,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { AgentRuntimeInternal } from "./internal.js";
 import { buildExecutionStateEntry, readRuntimeExecutionState } from "./execution-state.js";
 import {

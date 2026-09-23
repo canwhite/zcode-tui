@@ -1,6 +1,6 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
-import type { EnvInfo } from "@zcode/contracts";
+import type { EnvInfo } from "@qcode/contracts";
 
 const DEFAULT_GIT_COMMAND_TIMEOUT_MS = 3000;
 const DEFAULT_COMMAND_MAX_BUFFER_BYTES = 1024 * 1024;

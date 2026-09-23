@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// 把构建产物暴露成终端里可直接输入的 `zcode`。
+// 把构建产物暴露成终端里可直接输入的 `qcode`。
 //
 // 取舍：用软链接而不是 `pnpm link --global`。
-//   - @zcode/cli 是 workspace 成员（private），全局链接会把整棵 workspace 依赖带进全局；
+//   - @qcode/cli 是 workspace 成员（private），全局链接会把整棵 workspace 依赖带进全局；
 //   - 软链接保留 argv[1] 的解析结果，进程名与 doctor 的“命令可达”判定都能对上。
 // 代价是 dist 被删后链接变悬空——这由 make clean 一并清理，属于已知且可控的形态。
 
@@ -26,14 +26,14 @@ import { repoRoot } from "./toolchain.mjs";
 export const cliEntry = join(
   repoRoot,
   "apps",
-  "zcode-cli",
+  "qcode-cli",
   "packages",
   "cli",
   "dist",
-  "zcode.cjs",
+  "qcode.cjs",
 );
 
-const launcherName = "zcode";
+const launcherName = "qcode";
 
 /** 回落到用户级目录：不依赖 sudo，也不受 pnpm 全局目录配置影响。 */
 function fallbackBinDir() {
@@ -78,7 +78,7 @@ export const isOnPath = (dir, env = process.env) =>
     .some((candidate) => candidate === dir);
 
 /** 写入 shell 配置的行都带这个标记，便于识别来源与安全撤销。 */
-export const SHELL_PATH_MARKER = "# zcode: added by `make install`";
+export const SHELL_PATH_MARKER = "# qcode: added by `make install`";
 
 /**
  * 按登录 shell 选择要写入的配置文件。
@@ -173,7 +173,7 @@ export function ensureShellPath(dir, log = console.log, env = process.env) {
     "utf8",
   );
   log(`[expose] 已把 ${dir} 加入 ${profile.path}`);
-  log(`[expose] 新开一个终端即可使用 zcode；撤销：删除该文件中 "${SHELL_PATH_MARKER}" 及其下一行`);
+  log(`[expose] 新开一个终端即可使用 qcode；撤销：删除该文件中 "${SHELL_PATH_MARKER}" 及其下一行`);
   return { status: "added", path: profile.path };
 }
 

@@ -10,7 +10,7 @@
 // （-roster-phases / -roster-subagents / -roster）共用它的产物，于是一次 getRunDetail
 // 只读一遍事件——这条读面在 run 越长时越贵，读两遍就是白付一倍。
 
-import type { StoredEvent } from "@zcode/dynamic-workflow";
+import type { StoredEvent } from "@qcode/dynamic-workflow";
 
 /**
  * 算「还在动吗」时**算数**的事件类型：脚本自己往前走了，或者某个 ask 往前走了。

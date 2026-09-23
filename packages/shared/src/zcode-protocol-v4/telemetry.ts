@@ -138,7 +138,7 @@ const toolLifecycleFactSchema = z
     background: z.boolean().optional(),
     skillQualifiedName: z.string().min(1).optional(),
     skillPluginId: z.string().min(1).optional(),
-    skillSource: z.enum(["agents", "qcode", "bundled", "plugin", "remote"]).optional(),
+    skillSource: z.enum(["agents", "zcode", "bundled", "plugin", "remote"]).optional(),
     performance: toolPerformanceFactSchema.optional(),
     automationId: z.string().min(1).optional(),
   })

@@ -15,7 +15,7 @@
 
 三条现状事实决定了本计划的形状：
 
-- **`config.storage.dir` 不是配置家目录**。`apps/qcode-cli/packages/contracts/src/config/index.ts:303` 的 `~/.zcode` 是**整个运行时数据树**的根 —— session db、凭据、provider 配置、日志、rollout、workflows 全在其下（`bootstrap/src/app/paths.ts:5` 的 `getCliStorageRoot` 再派生出 `cli/plugins`、`cli/{debug,rollout}`）。**因此本计划不改 `storage.dir`**：那会把所有既有会话、凭据、记忆一并搬到 `~/.claude`，属于远超本次诉求的破坏性迁移。
+- **`config.storage.dir` 不是配置家目录**。`apps/zcode-cli/packages/contracts/src/config/index.ts:303` 的 `~/.zcode` 是**整个运行时数据树**的根 —— session db、凭据、provider 配置、日志、rollout、workflows 全在其下（`bootstrap/src/app/paths.ts:5` 的 `getCliStorageRoot` 再派生出 `cli/plugins`、`cli/{debug,rollout}`）。**因此本计划不改 `storage.dir`**：那会把所有既有会话、凭据、记忆一并搬到 `~/.claude`，属于远超本次诉求的破坏性迁移。
 - **skill 根目录已有多生态先例**。`adapters/src/skills/roots.ts:94-105` 的 `skillRootsForBase` 已经是「`.zcode` 优先 + `.agents` 兜底」的合并语义，且 `adapters/src/skills/index.ts:31-36` 的 `PLUGIN_MANIFEST_RELATIVE_PATHS` 里已经包含 `.claude-plugin/plugin.json`。`.claude` 生态在本仓库并非全新概念，本次是把它提升为用户级 skill 的主来源。
 - **「用户自定义名字出现在一级」已有成熟通道**。自定义命令（`~/.zcode/commands`）与内置命令同列于 `AVAILABLE_COMMANDS`，但它们**不被 `parseSlashCommand` 识别**，而是解析为 `type === "unknown"` 后在 prompt 层异步探测（`cli/src/prompt-command.ts:257-265`、`isResolvableCustomCommand` at `:458`）。**skill 升一级应复用这条通道**，而不是去动同步的 `parseSlashCommand`。
 
@@ -33,7 +33,7 @@
 
 ### Phase 1 — 配置家目录抽象（先立地基，不改行为）
 
-1. **引入配置家目录解析层**。在 `apps/qcode-cli/packages/bootstrap/src/app/paths.ts` 增加 `getUserConfigHome(env)`，返回 `~/.claude` 的解析结果，作为**用户级配置面**的唯一来源。刻意与 `getCliStorageRoot`（运行时数据）并列而非替代，避免误伤 session/凭据。
+1. **引入配置家目录解析层**。在 `apps/zcode-cli/packages/bootstrap/src/app/paths.ts` 增加 `getUserConfigHome(env)`，返回 `~/.claude` 的解析结果，作为**用户级配置面**的唯一来源。刻意与 `getCliStorageRoot`（运行时数据）并列而非替代，避免误伤 session/凭据。
 2. **自举同构目录**（对应痛点 F-007）。`~/.claude` 不存在时按需创建 `skills/`、`CLAUDE.md` 等与现有 `.claude` 同构的结构。要求：幂等（重复启动不覆盖、不重复创建）、失败不留半成品（临时目录 + 原子 rename，或「只在缺失时才 mkdir」的逐步创建）。若已存在则**只读不写**。
 
    > ✅ **已按折中方案实现（2026-09-22）**：做**轻量自举**，不装任何外部工具。
@@ -157,7 +157,7 @@
 - **全局扫描（必做，勿只改单点）**：`.zcode` 作为用户级配置面的引用不止一处，改完 `skills/roots.ts` 后**必须**扫描同类：
   - `adapters/src/commands/roots.ts:10,27` —— 自定义命令根，与 skill 根是**同构代码**，二者若不同步会造成「skill 接轨了、命令没接轨」的不一致。
   - `adapters/src/context/index.ts:237` —— 用户级指令。
-  - `grep -rn 'join(homedir(), "\.zcode"' apps/qcode-cli/packages --include='*.ts'` —— 一次性列出全部直连点，逐个判定「这是配置面还是运行时数据」。**配置面改，运行时数据不改**。这个判定必须逐条写下来，不能凭印象批量改。
+  - `grep -rn 'join(homedir(), "\.zcode"' apps/zcode-cli/packages --include='*.ts'` —— 一次性列出全部直连点，逐个判定「这是配置面还是运行时数据」。**配置面改，运行时数据不改**。这个判定必须逐条写下来，不能凭印象批量改。
 - **向后兼容（缺口已封口）**：`~/.zcode/skills` 与 `~/.zcode/AGENTS.md` 的处置已定为**严格独占、直接移除**（Open Questions 第 1 条）。因此存在一处**有意的破坏性变更**：存量用户升级后旧路径不再生效。
   - 补偿措施不是保留旧根，而是**启动期可见提示 + README 迁移表**（见 Pre-Mortem「存量用户迁移」条目）。
   - 回滚方式：revert `skillRootsForBase` 的 `.zcode` 根删除 hunk 即恢复旧读取路径；**旧文件全程未被删除**，故回滚无数据损失。
@@ -520,7 +520,7 @@
 **失败场景**：`SkillSource` 现为 `"agents" | "zcode" | "bundled" | "plugin" | "remote"`（`contracts/src/skills/index.ts:9`）。新增 `"claude"` 后，类型检查能抓出**穷尽 switch**，但抓不出 `if (source === "zcode")`、`source !== "bundled"` 这类**非穷尽条件**。表现为某个来源标记的地方把 `.claude` skill 归错类（如优先级排序、`disabledPaths` 匹配、展示分组）。
 
 **Mitigation**:
-- 改类型后跑 `grep -rn 'SkillSource\|source ===\|source !==' apps/qcode-cli/packages --include='*.ts' | grep -v dist`，**逐条人工判定**，不依赖类型检查兜底。
+- 改类型后跑 `grep -rn 'SkillSource\|source ===\|source !==' apps/zcode-cli/packages --include='*.ts' | grep -v dist`，**逐条人工判定**，不依赖类型检查兜底。
 - 把新字面量放在联合类型的**首位**并在类型处加注释说明它与 `zcode` / `agents` 的关系与优先级。
 - 验证时断言 `zcode skills list` 中来自 `.claude` 的条目 source 显示为 `claude`，且排序在 `zcode` 与 `agents` 之前。
 
@@ -619,6 +619,6 @@
 **Mitigation**:
 - skill 名探测必须抽成**单一函数**，两处入口共用，不得复制逻辑。
 - 验证清单中**同时覆盖两条入口**：TUI 交互 与 `zcode -p "/pain-decomposition <task>"`。
-- 改动后跑 `grep -rn 'buildManualSkillPrompt' apps/qcode-cli/packages --include='*.ts' | grep -v dist`，确认所有调用点都被覆盖。
+- 改动后跑 `grep -rn 'buildManualSkillPrompt' apps/zcode-cli/packages --include='*.ts' | grep -v dist`，确认所有调用点都被覆盖。
 
 ---

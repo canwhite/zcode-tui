@@ -23,7 +23,7 @@ import type {
   StoredEvent,
   WorkflowErrorJson,
   WorldReadInput,
-} from "@zcode/dynamic-workflow";
+} from "@qcode/dynamic-workflow";
 import { decodeJson, encodeJson } from "../json.js";
 
 /**

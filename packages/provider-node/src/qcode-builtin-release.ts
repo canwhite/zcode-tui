@@ -5,7 +5,7 @@ import {
   type ModelConfigRules,
   type ProviderConfigMap,
   type ProviderTemplateMap,
-} from "@zcode/provider";
+} from "@qcode/provider";
 
 export const QCODE_BUILTIN_RELEASE_SCHEMA_VERSION = 1 as const;
 const RETIRED_ZAPI_PROVIDER_ID = "builtin:zapi";

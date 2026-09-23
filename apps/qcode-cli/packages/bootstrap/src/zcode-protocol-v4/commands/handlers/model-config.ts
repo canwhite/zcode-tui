@@ -3,12 +3,12 @@
 // + applyRequestedSessionConfig（createSession.config 消费共用件）。
 // 每个命令组一个文件：handler 纯函数 (host, envelope) → CommandResult|undefined，
 // 决策逻辑直驱 core（app.setModel / app.setMode / runtime.emit*），不经旧协议 op。
-import type { CollaborationMode, ModelSelection } from "@zcode/contracts";
+import type { CollaborationMode, ModelSelection } from "@qcode/contracts";
 import type {
   CommandEnvelope,
   CommandPayloadMap,
   CommandResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import { V4CommandNoopError } from "../../v4-gateway.js";
 import { runSessionModelConfigMutation } from "../../model-config-mutation.js";
 import { requireRecord } from "../record-access.js";

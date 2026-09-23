@@ -23,7 +23,7 @@ import type {
   ExecutionPort,
   FileSystemPort,
   Logger,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import {
   buildAskSpecs,
   collectDiagnostics,
@@ -40,8 +40,8 @@ import {
   type RunEvent,
   type ValidateFn,
   type WorkflowDriver,
-} from "@zcode/dynamic-workflow";
-import { runWorkflowScript } from "@zcode/dynamic-workflow-runtime";
+} from "@qcode/dynamic-workflow";
+import { runWorkflowScript } from "@qcode/dynamic-workflow-runtime";
 import { dynamicWorkflowChildSpawn } from "./dynamic-workflow-run-launch.js";
 import { resolveWorkflowConcurrencyCeiling } from "./workflow-concurrency-ceiling.js";
 import { executeWorldRead, type WorldReadDeps } from "./workflow-world-read.js";

@@ -1,4 +1,4 @@
-import type { BackgroundBashOutputResult } from "@zcode/shared";
+import type { BackgroundBashOutputResult } from "@qcode/shared";
 import type { AgentRuntimeInternal } from "../internal.js";
 
 /** 执行记录按启动时 sessionId 验证归属，祖先 runtime 也不能读到其他会话的 workId。 */

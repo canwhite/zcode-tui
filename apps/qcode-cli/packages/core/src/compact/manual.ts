@@ -1,5 +1,5 @@
-import { CompactTrigger } from "@zcode/contracts";
-import { ESTIMATED_TOKEN_CHAR_DIVISOR } from "@zcode/shared";
+import { CompactTrigger } from "@qcode/contracts";
+import { ESTIMATED_TOKEN_CHAR_DIVISOR } from "@qcode/shared";
 import type {
   CompactBoundaryPayload,
   CompactPhase,
@@ -9,8 +9,8 @@ import type {
   MessageId,
   ModelMessageContent,
   TraceContext,
-} from "@zcode/contracts";
-import { modelMessageContentBlockToText, modelMessageContentToText } from "@zcode/contracts";
+} from "@qcode/contracts";
+import { modelMessageContentBlockToText, modelMessageContentToText } from "@qcode/contracts";
 import { groupByAssistantStartedRounds } from "./rounds.js";
 
 const EMPTY_TOOL_CALL_INPUT_JSON = "{}";

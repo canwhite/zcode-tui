@@ -4,7 +4,7 @@ import {
   BASH_RESOURCE_MAX_SAMPLES,
   BASH_RESOURCE_SAMPLE_INTERVAL_MS,
   type ZCodeToolExecResource,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import { createProcessProbe, type ProcessProbe } from "../device/process-probe.js";
 
 import { subscribeBashOutputProgress } from "./bash-progress-poller.js";

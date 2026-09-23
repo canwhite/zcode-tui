@@ -11,7 +11,7 @@ import type {
   SessionTaskType,
   StableForkGoalBoundaryMetadata,
   TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type {
   CommandAck,
   CommandEnvelope,
@@ -21,7 +21,7 @@ import type {
   StableForkTarget,
   StableForkTargetResolution,
   ConversationRowTarget,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/zcode-protocol-v4";
 import type { ZCodeApp } from "../../app/types.js";
 import type { V4InteractionRegistry } from "../interaction-registry.js";
 import type {

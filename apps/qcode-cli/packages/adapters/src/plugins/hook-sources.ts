@@ -1,7 +1,7 @@
 import { readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
-import type { HookEventName, PluginDiagnostic } from "@zcode/contracts";
-import { HookEventName as HookEventNameValue } from "@zcode/contracts";
+import type { HookEventName, PluginDiagnostic } from "@qcode/contracts";
+import { HookEventName as HookEventNameValue } from "@qcode/contracts";
 import { fileExists, isRecord, resolveInside } from "./helpers.js";
 import type { LoadedPlugin } from "./types.js";
 

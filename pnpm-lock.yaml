@@ -132,22 +132,22 @@ importers:
       '@modelcontextprotocol/client':
         specifier: 2.0.0
         version: 2.0.0
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/dynamic-workflow':
+      '@qcode/dynamic-workflow':
         specifier: workspace:*
         version: link:../dynamic-workflow
-      '@zcode/model-option-map':
+      '@qcode/model-option-map':
         specifier: workspace:*
         version: link:../../../../packages/model-option-map
-      '@zcode/provider':
+      '@qcode/provider':
         specifier: workspace:*
         version: link:../../../../packages/provider
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
-      '@zcode/zcode-cua':
+      '@qcode/zcode-cua':
         specifier: workspace:*
         version: link:../../../../packages/zcode-cua
       ai:
@@ -196,34 +196,34 @@ importers:
 
   apps/qcode-cli/packages/bootstrap:
     dependencies:
-      '@zcode/adapters':
+      '@qcode/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/core':
+      '@qcode/core':
         specifier: workspace:*
         version: link:../core
-      '@zcode/dynamic-workflow':
+      '@qcode/dynamic-workflow':
         specifier: workspace:*
         version: link:../dynamic-workflow
-      '@zcode/dynamic-workflow-runtime':
+      '@qcode/dynamic-workflow-runtime':
         specifier: workspace:*
         version: link:../dynamic-workflow-runtime
-      '@zcode/i18n':
+      '@qcode/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@zcode/provider':
+      '@qcode/provider':
         specifier: workspace:*
         version: link:../../../../packages/provider
-      '@zcode/provider-node':
+      '@qcode/provider-node':
         specifier: workspace:*
         version: link:../../../../packages/provider-node
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
-      '@zcode/telemetry':
+      '@qcode/telemetry':
         specifier: workspace:*
         version: link:../telemetry
       diff:
@@ -248,16 +248,16 @@ importers:
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/core':
+      '@qcode/core':
         specifier: workspace:*
         version: link:../core
-      '@zcode/node-repl-host':
+      '@qcode/node-repl-host':
         specifier: workspace:*
         version: link:../node-repl-host
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
       zod:
@@ -267,15 +267,15 @@ importers:
       '@modelcontextprotocol/client':
         specifier: 2.0.0
         version: 2.0.0
+      '@qcode/adapters':
+        specifier: workspace:*
+        version: link:../adapters
+      '@qcode/bootstrap':
+        specifier: workspace:*
+        version: link:../bootstrap
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
-      '@zcode/adapters':
-        specifier: workspace:*
-        version: link:../adapters
-      '@zcode/bootstrap':
-        specifier: workspace:*
-        version: link:../bootstrap
       esbuild:
         specifier: ^0.25.0
         version: 0.25.12
@@ -288,37 +288,37 @@ importers:
 
   apps/qcode-cli/packages/cli:
     dependencies:
-      '@zcode/adapters':
+      '@qcode/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@zcode/bootstrap':
+      '@qcode/bootstrap':
         specifier: workspace:*
         version: link:../bootstrap
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/core':
+      '@qcode/core':
         specifier: workspace:*
         version: link:../core
-      '@zcode/dynamic-workflow-runtime':
+      '@qcode/dynamic-workflow-runtime':
         specifier: workspace:*
         version: link:../dynamic-workflow-runtime
-      '@zcode/i18n':
+      '@qcode/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@zcode/provider':
+      '@qcode/provider':
         specifier: workspace:*
         version: link:../../../../packages/provider
-      '@zcode/provider-node':
+      '@qcode/provider-node':
         specifier: workspace:*
         version: link:../../../../packages/provider-node
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
-      '@zcode/shared-types':
+      '@qcode/shared-types':
         specifier: workspace:*
         version: link:../shared-types
-      '@zcode/tui':
+      '@qcode/tui':
         specifier: workspace:*
         version: link:../tui
       dotenv:
@@ -330,7 +330,7 @@ importers:
 
   apps/qcode-cli/packages/contracts:
     dependencies:
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
       zod:
@@ -346,19 +346,19 @@ importers:
 
   apps/qcode-cli/packages/core:
     dependencies:
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/dynamic-workflow':
+      '@qcode/dynamic-workflow':
         specifier: workspace:*
         version: link:../dynamic-workflow
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
-      '@zcode/shared-types':
+      '@qcode/shared-types':
         specifier: workspace:*
         version: link:../shared-types
-      '@zcode/zcode-cua':
+      '@qcode/zcode-cua':
         specifier: workspace:*
         version: link:../../../../packages/zcode-cua
       cheerio:
@@ -445,7 +445,7 @@ importers:
 
   apps/qcode-cli/packages/dynamic-workflow-runtime:
     dependencies:
-      '@zcode/dynamic-workflow':
+      '@qcode/dynamic-workflow':
         specifier: workspace:*
         version: link:../dynamic-workflow
     devDependencies:
@@ -455,7 +455,7 @@ importers:
 
   apps/qcode-cli/packages/i18n:
     dependencies:
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
 
@@ -464,16 +464,16 @@ importers:
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/core':
+      '@qcode/core':
         specifier: workspace:*
         version: link:../core
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
-      '@zcode/zcode-cua':
+      '@qcode/zcode-cua':
         specifier: workspace:*
         version: link:../../../../packages/zcode-cua
       zod:
@@ -501,7 +501,7 @@ importers:
 
   apps/qcode-cli/packages/swift-bridge:
     dependencies:
-      '@zcode/shared-types':
+      '@qcode/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
@@ -531,7 +531,7 @@ importers:
       '@opentelemetry/sdk-trace-base':
         specifier: 2.6.1
         version: 2.6.1(@opentelemetry/api@1.9.1)
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
     devDependencies:
@@ -547,13 +547,13 @@ importers:
       '@mbears/opentui-react':
         specifier: 0.2.15
         version: 0.2.15(react-devtools-core@7.0.1)(react@19.2.7)(typescript@6.0.2)(web-tree-sitter@0.25.10)(ws@8.18.0)
-      '@zcode/contracts':
+      '@qcode/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@zcode/i18n':
+      '@qcode/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../../../../packages/shared
       react:
@@ -601,10 +601,10 @@ importers:
 
   packages/provider:
     dependencies:
-      '@zcode/model-option-map':
+      '@qcode/model-option-map':
         specifier: workspace:*
         version: link:../model-option-map
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../shared
       zod:
@@ -617,29 +617,29 @@ importers:
 
   packages/provider-node:
     dependencies:
-      '@zcode/provider':
+      '@qcode/provider':
         specifier: workspace:*
         version: link:../provider
-      '@zcode/shared':
+      '@qcode/shared':
         specifier: workspace:*
         version: link:../shared
       zod:
         specifier: 4.6.5
         version: 4.6.5
     devDependencies:
+      '@qcode/model-option-map':
+        specifier: workspace:*
+        version: link:../model-option-map
       '@types/node':
         specifier: ^25.5.0
         version: 25.6.0
-      '@zcode/model-option-map':
-        specifier: workspace:*
-        version: link:../model-option-map
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
 
   packages/shared:
     dependencies:
-      '@zcode/model-option-map':
+      '@qcode/model-option-map':
         specifier: workspace:*
         version: link:../model-option-map
       zod:

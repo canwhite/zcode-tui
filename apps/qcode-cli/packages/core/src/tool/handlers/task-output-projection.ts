@@ -2,7 +2,7 @@
 // （projectTask 及 dwf / agent 分支）、输出文件尾部快照读取和紧凑文件大小格式化拆到本文件；
 // 公开面仍从 task-output.ts 导出。
 import { open } from "node:fs/promises";
-import type { TaskOutputTask } from "@zcode/contracts";
+import type { TaskOutputTask } from "@qcode/contracts";
 import type { RuntimeTaskSnapshot } from "../../runtime-task/registry.js";
 import type { ToolExecutionContext } from "../types.js";
 import { projectBashTask } from "./task-output-bash.js";

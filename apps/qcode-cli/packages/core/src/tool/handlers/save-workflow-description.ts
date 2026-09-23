@@ -1,8 +1,8 @@
 // Composed at module load from the dynamic-workflow facade so the model always
 // sees the current API surface — same construction as CreateWorkflow's description.
 
-import { FACADE_DTS } from "@zcode/dynamic-workflow";
-import { SAVED_WORKFLOW_GLOBAL_DIR, SAVED_WORKFLOW_PROJECT_DIR } from "@zcode/contracts";
+import { FACADE_DTS } from "@qcode/dynamic-workflow";
+import { SAVED_WORKFLOW_GLOBAL_DIR, SAVED_WORKFLOW_PROJECT_DIR } from "@qcode/contracts";
 
 const INTRO = [
   "Save a dynamic-workflow script so it can be run again later by name. The required `scope` field decides where it lives.",

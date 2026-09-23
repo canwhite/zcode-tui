@@ -1,6 +1,6 @@
-import type { SupportedLocale } from "@zcode/contracts";
+import type { SupportedLocale } from "@qcode/contracts";
 
-export type { SupportedLocale, UiLocale } from "@zcode/contracts";
+export type { SupportedLocale, UiLocale } from "@qcode/contracts";
 
 export interface ZCodeCopy {
   cli: CliCopy;

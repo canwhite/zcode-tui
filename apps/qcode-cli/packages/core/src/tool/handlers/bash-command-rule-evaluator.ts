@@ -1,4 +1,4 @@
-import type { PermissionRuleBehavior, PermissionRuleValue } from "@zcode/contracts";
+import type { PermissionRuleBehavior, PermissionRuleValue } from "@qcode/contracts";
 import { wildcardToRegExp } from "../../permission/rule-matching.js";
 
 interface BashRuleEvaluationInput {

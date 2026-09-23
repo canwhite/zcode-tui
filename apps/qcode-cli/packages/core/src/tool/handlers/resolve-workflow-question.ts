@@ -19,7 +19,7 @@ import {
   type ModelMessageContent,
   type ResolveWorkflowQuestionInput,
   type ResolveWorkflowQuestionOutput,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type {
   ToolEntry,
   ToolExecutionContext,

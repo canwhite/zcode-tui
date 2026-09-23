@@ -1,15 +1,15 @@
 import { join } from "node:path";
-import { createNodeContextSourceAdapter } from "@zcode/adapters/context";
-import { createNodeExecutionAdapter } from "@zcode/adapters/exec";
-import { createNodeFileSystemAdapter } from "@zcode/adapters/fs";
-import { createNodeWebFetchHttpClientAdapter } from "@zcode/adapters/http";
-import { createNodeSkillAdapter } from "@zcode/adapters/skills";
-import type { ConfigResult } from "@zcode/adapters/config";
-import { createInMemorySessionEventStore } from "@zcode/adapters/storage";
+import { createNodeContextSourceAdapter } from "@qcode/adapters/context";
+import { createNodeExecutionAdapter } from "@qcode/adapters/exec";
+import { createNodeFileSystemAdapter } from "@qcode/adapters/fs";
+import { createNodeWebFetchHttpClientAdapter } from "@qcode/adapters/http";
+import { createNodeSkillAdapter } from "@qcode/adapters/skills";
+import type { ConfigResult } from "@qcode/adapters/config";
+import { createInMemorySessionEventStore } from "@qcode/adapters/storage";
 import {
   createNodeWorkflowDefinitionStore,
   createNodeWorkflowStore,
-} from "@zcode/adapters/workflow";
+} from "@qcode/adapters/workflow";
 import {
   AgentRuntime,
   ExpertWorkflowRuntime,
@@ -18,7 +18,7 @@ import {
   type AgentRuntimeDeps,
   type PermissionService,
   type WorkflowAgentRunner,
-} from "@zcode/core";
+} from "@qcode/core";
 import {
   type AgentExecutionTelemetryPort,
   createChildTraceContext,
@@ -37,7 +37,7 @@ import {
   type ToolArtifactStorePort,
   type TraceContext,
   type WorkflowDefinition,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
 import type { PrepareUserExecutionBoundary, ZCodeAppOptions } from "./types.js";
 import { createWorkflowMethods, type WorkflowFacade } from "./workflow-methods.js";

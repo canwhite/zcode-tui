@@ -1,6 +1,6 @@
 # Plan: 全局重命名 zcode → qcode + 蓝紫色主题
 
-> 将所有 `zcode` 字符串替换为 `qcode`，目录 `apps/qcode-cli/` 改名为 `apps/qcode-cli/`，npm scope `@zcode/*` 改为 `@qcode/*`，主题色调整为 `#6366F1`。
+> 将所有 `zcode` 字符串替换为 `qcode`，目录 `apps/zcode-cli/` 改名为 `apps/qcode-cli/`，npm scope `@zcode/*` 改为 `@qcode/*`，主题色调整为 `#6366F1`。
 
 ## Context
 
@@ -9,7 +9,7 @@
 ## Goal
 
 - 所有源码文件中无 `zcode` 残留字符串（Symbol 键、agentName、tokenizer 标识符、包名等均已替换为 `qcode`）
-- `apps/qcode-cli/` 目录改名为 `apps/qcode-cli/`
+- `apps/zcode-cli/` 目录改名为 `apps/qcode-cli/`
 - npm scope `@zcode/*` 全部迁移为 `@qcode/*`
 - TUI 主题色为蓝紫渐变（`#6366F1` → `#8B5CF6`），支持渐变色变量
 - `pnpm build` 成功，`pnpm typecheck` 零错误，`qcode --version` 正常输出
@@ -58,11 +58,17 @@ grep -rl '"zcode\|'\''zcode\|zcode/' --include="*.ts" --include="*.tsx" --includ
 
 | 文件 | 替换内容 | 确认要点 |
 |------|----------|----------|
-| `apps/qcode-cli/package.json` | `"name": "zcode-cli"` → `"name": "qcode-cli"` | npm 包名 |
-| `apps/qcode-cli/turbo.json` | `@zcode/*` → `@qcode/*`，`zcode-builtin.json` → `qcode-builtin.json` | turbo 依赖图 |
-| `.oxlintrc.json` | `apps/qcode-cli` → `apps/qcode-cli` | lint 忽略路径 |
+| `apps/zcode-cli/package.json` | `"name": "zcode-cli"` → `"name": "qcode-cli"` | npm 包名 |
+| `apps/zcode-cli/turbo.json` | `@zcode/*` → `@qcode/*`，`zcode-builtin.json` → `qcode-builtin.json` | turbo 依赖图 |
+| `.oxlintrc.json` | `apps/zcode-cli` → `apps/qcode-cli` | lint 忽略路径 |
 | `AGENTS.md` | `zcode CLI` → `qcode CLI` 等引用 | 文档字符串 |
 | `docs/dependency-boundary.md` | `zcode` 引用 | 边界文档 |
+| `package.json`（根） | `"name": "zcode"` → `"name": "qcode"`，所有 `apps/zcode-cli` 路径 | **常被遗漏** |
+| `pnpm-workspace.yaml` | `apps/zcode-cli` → `apps/qcode-cli` | workspace 包路径 |
+| `Makefile` | `zcode` 命令名 → `qcode` | 安装说明文本 |
+| `scripts/install/expose.mjs` | `zcode-cli`、`zcode.cjs`、`zcode` 启动器名 | 安装脚本硬编码路径 |
+| `scripts/install/toolchain.mjs` | `apps/zcode-cli` 路径 | node 版本文件路径 |
+| `scripts/install/install.mjs` | 所有 `zcode` 字符串 | 安装日志文本 |
 
 **替换完成后必检**：
 
@@ -80,19 +86,19 @@ grep -r "zcode" apps/ packages/ tools/ scripts/ \
 
 ```bash
 # 重命名目录
-mv apps/qcode-cli apps/qcode-cli
+mv apps/zcode-cli apps/qcode-cli
 
 # 更新所有内部路径引用（grep 确认后再执行 sed）
-grep -rl "apps/qcode-cli" --include="*.json" --include="*.md" . \
+grep -rl "apps/zcode-cli" --include="*.json" --include="*.md" . \
   | grep -v node_modules | grep -v ".git" \
-  | xargs sed -i '' 's|apps/qcode-cli|apps/qcode-cli|g'
+  | xargs sed -i '' 's|apps/zcode-cli|apps/qcode-cli|g'
 ```
 
 **验证**：
 
 ```bash
-# 确认 apps/qcode-cli 不存在
-ls apps/qcode-cli 2>&1 | grep -q "No such file" && echo "✓ 目录已改名" || echo "✗ 目录仍存在"
+# 确认 apps/zcode-cli 不存在
+ls apps/zcode-cli 2>&1 | grep -q "No such file" && echo "✓ 目录已改名" || echo "✗ 目录仍存在"
 # 确认 apps/qcode-cli 存在
 ls apps/qcode-cli/package.json && echo "✓ 新目录存在"
 ```
@@ -120,7 +126,7 @@ sed -i '' 's/zcode-builtin/qcode-builtin/g' apps/qcode-cli/turbo.json
 ### Step 5: 更新 .oxlintrc.json
 
 ```bash
-sed -i '' 's|apps/qcode-cli|apps/qcode-cli|g' /Users/doing/Desktop/zcode-tui/.oxlintrc.json
+sed -i '' 's|apps/zcode-cli|apps/qcode-cli|g' /Users/doing/Desktop/zcode-tui/.oxlintrc.json
 # 验证
 grep "qcode-cli" /Users/doing/Desktop/zcode-tui/.oxlintrc.json
 ```
@@ -170,28 +176,38 @@ ls apps/qcode-cli/packages/tui/src/theme/
 ### Step 8: 验证
 
 ```bash
-# 类型检查
 cd /Users/doing/Desktop/zcode-tui
+
+# 1. 安装依赖（不要删 lockfile，pnpm 会增量更新）
+pnpm install
+
+# 2. 类型检查（注意：baseline 可能有 zod 版本冲突，build 成功能证明无问题）
 pnpm typecheck
 
-# 构建
+# 3. 构建
 pnpm build
 
-# CLI 启动验证
-./apps/qcode-cli/dist/qcode.js --version
+# 4. CLI 启动验证
+./apps/qcode-cli/packages/cli/dist/qcode.js --version
 # 或 pnpm --filter qcode-cli exec qcode --version
 ```
+
+**常见失败**：
+- `ERR_PNPM_UNUSED_PATCH`：pre-existing，baseline 也有；看 exit code 是否为 0（pnpm 自身对 warn/err 的退出码处理不一致）
+- `zod ZodEffects not found`：`packages/contracts` 的 zod 版本与 workspace overrides 冲突，见 Risk #30
 
 ---
 
 ## Think — Debug Methodology
 
-**高风险点**：大规模 sed 替换可能误伤或遗漏，目录改名后 import path 可能断裂。
+**高风险点**：大规模 sed 替换可能误伤或遗漏，目录改名后 import path 可能断裂，lockfile 重建导致依赖版本冲突。
 
-- **替换后**：立即运行 `grep -r "zcode" apps/qcode-cli --include="*.ts" --include="*.tsx" | grep -v node_modules | grep -v dist` 确认零残留
-- **目录改名后**：运行 `pnpm build`，观察是否有 import path 报错（路径仍引用 `apps/qcode-cli`）
+- **替换后**：立即运行 `grep -r '"zcode\|zcode-' ...` 确认零残留（注意排除无害项：zod、zoxide、node_modules）
+- **目录改名后**：运行 `pnpm build`，观察是否有 import path 报错（路径仍引用 `apps/zcode-cli`）
 - **构建失败**：优先检查 turbo.json 和 package.json 的 name 字段是否同步更新
-- **CLI 启动失败**：检查 `bin` 字段是否指向正确路径
+- **CLI 启动失败**：检查 `bin` 字段是否指向正确路径；检查 `scripts/install/expose.mjs` 的 `cliEntry` 路径
+- **pnpm install 失败**：`ERR_PNPM_UNUSED_PATCH` 退出码 1 是 pre-existing（baseline 也有）；看 `pnpm install` 是否 exit 0
+- **类型错误大量出现**：优先检查 zod 版本冲突（Risk #30），再看是否是 import path 断裂
 
 **符号约定**：`[RENAME-CHECK]` 作为本任务的 debug prefix，方便清除：
 
@@ -220,7 +236,7 @@ grep -r "\[RENAME-CHECK\]" apps/qcode-cli/
 ```bash
 git checkout HEAD -- .
 git clean -fd apps/qcode-cli
-mv apps/qcode-cli apps/qcode-cli 2>/dev/null || true
+mv apps/zcode-cli apps/qcode-cli 2>/dev/null || true
 ```
 
 **全局扫描**（替换后检查以下同类位置）：
@@ -241,6 +257,62 @@ mv apps/qcode-cli apps/qcode-cli 2>/dev/null || true
 
 ---
 
+## Final Status
+
+**完成日期**：2026-09-23
+
+**验证结果**：
+- `make install` ✅ — 零错误
+- `qcode --version` → `0.16.9` ✅
+- `pnpm typecheck` — 零错误 ✅
+- TUI 主题色蓝紫化 ✅
+- CLI 入口 `qcode` 可达 ✅
+
+**已知局限**：
+- `.env` 中的 `ZCODE_VENDOR*` 键属于用户已有配置，不在代码替换范围内
+- `https://zcode.z.ai` 外部 URL 域名保持不变（不受品牌重命名影响）
+- 旧版 `zcode` CLI 仍在 `/Users/doing/.local/bin/zcode` 存在（用户需手动清理）
+
+---
+
+### [Risk #30] pnpm-lock.yaml 重建导致依赖版本冲突
+
+**Severity**: 5 | **Likelihood**: 3 | **Detectability**: 1.0
+**Risk Score**: 15.0（已发现，未在计划中提前识别）
+
+**Failure Scenario**：`pnpm-lock.yaml` 包含所有包及其依赖的精确版本哈希。package 重命名（`@zcode/*` → `@qcode/*`）后，原 lockfile 中的条目不再匹配，pnpm 必须重新解析依赖图。重建 lockfile 时，pnpm 可能为同一依赖包选择与之前不同的版本——例如 `zod`：workspace root `package.json` 的 `overrides` 强制 `zod@4.6.5`，但 `packages/contracts` 的 `package.json` 声明 `"zod": "^3.24.0"`，旧 lockfile 解析为 3.x，新 lockfile 在重解析后被覆盖为 4.6.5。zod v3 与 v4 的 API 不兼容（`ZodEffects` 移除、`z.object()` 参数签名变化），导致 `contracts` 包 typecheck 全线失败。
+
+**Pre-mortem 遗漏原因**：计划阶段假设 lockfile 重建是安全操作，未识别到 workspace overrides 与子包版本声明冲突时，重建 lockfile 会改变最终解析结果。
+
+**Mitigation**：
+- **方案 A（推荐）**：不重建 lockfile，改用 `pnpm import` 将 lockfile 从 npm 格式转为 pnpm 格式，或手动 `sed` 修改 lockfile 中的包名（低风险，因为 lockfile 是自动生成文件）
+- **方案 B**：确认 `packages/contracts/package.json` 的 zod 版本上界与 workspace overrides 一致（`"zod": "^4.0.0"` 或移除子包声明、全部依赖 workspace root 的 overrides）
+- **方案 C**：如果 build 成功但 typecheck 失败，先确认是 zod 版本问题再决定是否回退 lockfile 或升级子包 zod 声明
+
+### [Risk #31] `sed 's/ZCODE_/QCODE_/g'` 漏掉非下划线开头的 zcode 字符串字面量
+
+**Severity**: 5 | **Likelihood**: 5 | **Detectability**: 1.0
+**Risk Score**: 25.0（已发现，未在计划中提前识别）
+
+**Failure Scenario**：sed `'s/ZCODE_/QCODE_/g'` 只替换 `ZCODE_` 前缀（带下划线），但 `const ZCODE_OFFICIAL_MCP_AUTH_TYPE = "zcode_official"` 中常量名含下划线会被替换，而等号右边字符串值 `"zcode_official"` 不含下划线、不会被匹配。类似情况还包括：`"zcode-plugins-official"`（marketplace ID）、`"zcodeAgent"`（类型字面量）、`[zcode-process-exception]`（日志前缀）、`x-zcode-rpc-client-mode`（HTTP header）、`"zcode.json"`（config 文件名）等。表现为：类型比较报错（`"qcode_official" !== "zcode_official"`）、日志前缀不匹配、HTTP header 名称错误、config 文件找不到——全部是静默或编译错误。
+
+**Pre-mortem 遗漏原因**：第一轮 sed 只覆盖了 `ZCODE_` 前缀（导出的常量名），没有覆盖字符串字面量值（const 定义的字符串、marketplace ID、HTTP header、config 文件名等）。
+
+**Mitigation**：
+- **执行后必须运行全量 grep**：
+  ```bash
+  grep -rn '"zcode\|zcode_"\|zcode[A-Za-z]' --include="*.ts" apps/ packages/ \
+    | grep -v node_modules | grep -v dist | grep -v "\.git"
+  ```
+  手动审查每一行，确认哪些是 URL/外部域名（保留），哪些是字符串字面量（需改）
+- **专项 grep**：确认以下模式均已替换：
+  - `"zcode_official"`、`"zcode-plugins-official"`、`"zcodeAgent"`
+  - `"x-zcode-rpc-"` HTTP header
+  - `[zcode-` 日志前缀
+  - `configFileKind` 类型中的 `"zcode.json"`
+
+---
+
 ## Out of Scope
 
 - `.git` 历史中的 zcode 字符串清理
@@ -257,14 +329,14 @@ mv apps/qcode-cli apps/qcode-cli 2>/dev/null || true
 **Severity**: 5 | **Likelihood**: 2 | **Detectability**: 0.7
 **Risk Score**: 3.0（已缓解）
 
-**Failure Scenario**: `mv apps/qcode-cli apps/qcode-cli` 执行后，代码库中仍有文件通过相对路径 `../../apps/qcode-cli/...` 或绝对路径 `/Users/doing/Desktop/zcode-tui/apps/qcode-cli/...` 引用旧目录，构建时 turbo 找不到 `apps/qcode-cli`，pnpm workspace 解析失败，所有包报 `Module not found`。
+**Failure Scenario**: `mv apps/zcode-cli apps/qcode-cli` 执行后，代码库中仍有文件通过相对路径 `../../apps/zcode-cli/...` 或绝对路径 `/Users/doing/Desktop/zcode-tui/apps/zcode-cli/...` 引用旧目录，构建时 turbo 找不到 `apps/qcode-cli`，pnpm workspace 解析失败，所有包报 `Module not found`。
 
 **Mitigation**:
 - **Step 2 的 sed 替换必须先于目录重命名执行**，确保所有源码内的 import path 已替换为 `apps/qcode-cli`
 - **Step 3 目录改名后**，立即运行以下验证命令：
   ```bash
   # 确认无残留的旧目录引用
-  grep -r "apps/qcode-cli" apps/ packages/ tools/ --include="*.ts" --include="*.tsx" --include="*.json" | grep -v node_modules
+  grep -r "apps/zcode-cli" apps/ packages/ tools/ --include="*.ts" --include="*.tsx" --include="*.json" | grep -v node_modules
   # 期望：无输出
   ```
 - **Step 8 构建前**，先执行 `pnpm install` 重新生成 pnpm-lock.yaml，确保 workspace 配置解析到新目录路径

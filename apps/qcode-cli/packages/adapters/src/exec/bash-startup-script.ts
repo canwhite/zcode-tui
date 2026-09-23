@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { windowsPathToGitBashPath } from "@zcode/contracts";
-import type { ExecutionRequest, ExecutionShellDialect } from "@zcode/contracts";
+import { windowsPathToGitBashPath } from "@qcode/contracts";
+import type { ExecutionRequest, ExecutionShellDialect } from "@qcode/contracts";
 import { buildEmbeddedSearchPreludeContent } from "./embedded-search-prelude.js";
 
 export type StartupShellDialect = ExecutionShellDialect | "legacy-shell";

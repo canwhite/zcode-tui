@@ -1,4 +1,4 @@
-import { DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY as DEFAULT_BUDGET_STRATEGY } from "@zcode/shared";
+import { DEFAULT_QCODE_MODEL_CONTEXT_BUDGET_STRATEGY as DEFAULT_BUDGET_STRATEGY } from "@qcode/shared";
 import { traceContextToLogContext } from "../deps.js";
 import type { TraceContext } from "../deps.js";
 

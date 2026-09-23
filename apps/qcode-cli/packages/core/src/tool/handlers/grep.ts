@@ -16,7 +16,7 @@ import {
   type GrepInput,
   type GrepOutput,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import { resolveToolWorkingDirectory, resolveWorkspacePath } from "../path-policy.js";
 import type { ToolEntry, ToolHandler } from "../types.js";
 

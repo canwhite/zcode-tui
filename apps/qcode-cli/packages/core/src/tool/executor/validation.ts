@@ -1,4 +1,4 @@
-import { CoreErrorType, createCoreError, isCoreError } from "@zcode/contracts";
+import { CoreErrorType, createCoreError, isCoreError } from "@qcode/contracts";
 import type { RuntimeInputValidationIssue } from "../input-normalization.js";
 import { createInitialInputValidationModelContent } from "../input-validation-model-content.js";
 import { validateJsonSchemaValue } from "../json-schema.js";

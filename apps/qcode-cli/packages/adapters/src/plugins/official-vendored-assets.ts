@@ -81,13 +81,13 @@ export function resolveVendoredOfficialRoot(): string | undefined {
   //   2) 验收脚本证明「本地副本确实是必需的」——把它指向不存在的路径，
   //      在断网下安装必须失败。不这样做就只能靠"装成功了"来推断命中了本地，
   //      而那同样可能是缓存或回源造成的假通过。
-  const override = process.env.ZCODE_VENDORED_ASSETS_ROOT?.trim();
+  const override = process.env.QCODE_VENDORED_ASSETS_ROOT?.trim();
   if (override) {
     if (existsSync(join(override, "marketplace.json"))) {
-      debugLog(`使用 ZCODE_VENDORED_ASSETS_ROOT 指定的本地副本根：${override}`);
+      debugLog(`使用 QCODE_VENDORED_ASSETS_ROOT 指定的本地副本根：${override}`);
       return override;
     }
-    debugLog(`ZCODE_VENDORED_ASSETS_ROOT=${override} 下没有 marketplace.json，视为无本地副本`);
+    debugLog(`QCODE_VENDORED_ASSETS_ROOT=${override} 下没有 marketplace.json，视为无本地副本`);
     return undefined;
   }
 
@@ -110,7 +110,7 @@ export function resolveVendoredOfficialRoot(): string | undefined {
 }
 
 /**
- * 常驻诊断，默认关闭：`ZCODE_DEBUG_VENDOR=1` 时输出。
+ * 常驻诊断，默认关闭：`QCODE_DEBUG_VENDOR=1` 时输出。
  *
  * 保留它是因为"本地副本没被找到"是这条链路在交付现场最可能、也最难远程判断的故障——
  * 它的表现只是"插件装不上"，而原因可能是：跑在没带 `third-party/vendored/` 的目录下、
@@ -118,7 +118,7 @@ export function resolveVendoredOfficialRoot(): string | undefined {
  * 而一行基准目录日志就能一次区分。
  */
 function debugLog(message: string): void {
-  if (process.env.ZCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] ${message}`);
+  if (process.env.QCODE_DEBUG_VENDOR) console.error(`[DEBUG-vendor] ${message}`);
 }
 
 /** 本地副本的绝对路径；不存在则 undefined。 */

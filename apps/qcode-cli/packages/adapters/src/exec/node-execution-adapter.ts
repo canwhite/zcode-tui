@@ -1,6 +1,6 @@
 import { NodeExecutionAdapterLifecycle } from "./node-execution-adapter-lifecycle.js";
 import type { NodeExecutionAdapterOptions } from "./execution-adapter-types.js";
-import type { ExecutionPort } from "@zcode/contracts";
+import type { ExecutionPort } from "@qcode/contracts";
 
 export class NodeExecutionAdapter extends NodeExecutionAdapterLifecycle implements ExecutionPort {}
 

@@ -1,4 +1,4 @@
-import type { Logger } from "@zcode/contracts";
+import type { Logger } from "@qcode/contracts";
 
 /** 关闭信号不能等卡住的初始化 Promise；迟到资源由创建边界负责释放。 */
 export async function acquireProtocolStartupResource<T>(options: {

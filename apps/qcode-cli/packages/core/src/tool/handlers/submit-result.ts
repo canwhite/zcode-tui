@@ -23,7 +23,7 @@ import {
   type SubmitResultOutput,
   type SubmitViolation,
   type TraceContext,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 import type { ToolEntry, ToolHandler, ToolHandlerFailure } from "../types.js";
 
 const MAX_SUBMIT_RESULT_MODEL_BYTES = 16_000;

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { BrowserBackendDescriptor } from "@zcode/contracts/browser-control";
+import type { BrowserBackendDescriptor } from "@qcode/contracts/browser-control";
 import { BrowserApiPolicy, loadBrowserApiManifest, type BrowserApiManifest } from "./manifest.js";
 
 interface BrowserDocumentsManifest {

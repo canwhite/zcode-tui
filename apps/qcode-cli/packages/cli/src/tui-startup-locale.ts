@@ -1,7 +1,7 @@
-import { createConfig } from "@zcode/adapters/config";
-import type { RuntimeConfigPatch } from "@zcode/contracts";
-import { resolveLocale, type SupportedLocale } from "@zcode/i18n";
-import type { GlobalOptions } from "@zcode/shared-types";
+import { createConfig } from "@qcode/adapters/config";
+import type { RuntimeConfigPatch } from "@qcode/contracts";
+import { resolveLocale, type SupportedLocale } from "@qcode/i18n";
+import type { GlobalOptions } from "@qcode/shared-types";
 import type { RunDependencies } from "./cli-types.js";
 
 type ResolveTuiStartupLocaleInput = {

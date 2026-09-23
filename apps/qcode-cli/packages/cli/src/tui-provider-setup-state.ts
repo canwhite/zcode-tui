@@ -1,4 +1,4 @@
-import { getZCodeCopy } from "@zcode/i18n";
+import { getZCodeCopy } from "@qcode/i18n";
 import type { CommandCenterApp } from "./command-center.js";
 
 export function providerSetupRequiredResponse(locale?: string): string {

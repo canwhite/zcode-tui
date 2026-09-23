@@ -3,7 +3,7 @@
 // ============================================================
 
 import type { ContextSection, EnvInfo } from "../types.js";
-import type { Model } from "@zcode/contracts";
+import type { Model } from "@qcode/contracts";
 import { estimateTokens } from "../utils.js";
 
 const ENVIRONMENT_HEADING = "# Environment";

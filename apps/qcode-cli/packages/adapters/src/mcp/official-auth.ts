@@ -10,13 +10,13 @@ import {
   summarizeOfficialMcpIdentityHeaders,
   type McpServerFailureKind,
   type OfficialMcpAuthFailureKind,
-} from "@zcode/shared";
+} from "@qcode/shared";
 import type {
   Logger,
   McpOfficialProvenance,
   OfficialMcpAuthHeadersPort,
   OfficialMcpTrustedOriginRegistry,
-} from "@zcode/contracts";
+} from "@qcode/contracts";
 
 /** 由 adapter 抛出的、带稳定分类的官方鉴权错误。禁止调用方按 message 文本分流。 */
 export class OfficialMcpAuthError extends Error {

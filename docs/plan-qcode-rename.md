@@ -268,10 +268,24 @@ mv apps/zcode-cli apps/qcode-cli 2>/dev/null || true
 - TUI 主题色蓝紫化 ✅
 - CLI 入口 `qcode` 可达 ✅
 
+**第四轮后验结果**（2026-09-23 续）：
+- `pnpm typecheck` — 零错误 ✅
+- `pnpm build` — 成功 ✅
+- IPC channels: 131 个 `zcode:*` 字符串全部替换为 `qcode:*` ✅
+- `generate-bash-command-registry.mjs` 警告路径修复 (`apps/zcode-cli` → `apps/qcode-cli`) ✅
+
+**不需改动的字符串类型**（无害）：
+- `zcodeBuiltinProviders` / `zcodeBuiltinProviderTemplates`：TypeScript 类型属性键，非字符串字面量，无运行时影响
+- `zcodeBackgroundTaskNotificationToolUpdateStatus` 等 schema 标识符：TypeScript 符号标识符，非用户可见字符串，无运行时影响
+- `zcode-guide@qcode-plugins-official`：远程插件包名，不是我们的品牌，无需改名
+- `@qcode/zcode-cua`（包名）、`.zcode-plugin`（目录名）、`zcode-${agentType}`（外部 API agent 名）：均应保留原样
+- `agentName: \`zcode-${request.agentType}\``：发往外部服务的 User-Agent 字符串，不应修改
+
 **已知局限**：
 - `.env` 中的 `ZCODE_VENDOR*` 键属于用户已有配置，不在代码替换范围内
 - `https://zcode.z.ai` 外部 URL 域名保持不变（不受品牌重命名影响）
 - 旧版 `zcode` CLI 仍在 `/Users/doing/.local/bin/zcode` 存在（用户需手动清理）
+- **`Tool not found: Grep`**：运行时错误，registry 注册链经代码路径分析正确，暂未能复现，需运行时环境再验证
 
 ---
 

@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 export const SIDEBAR_WIDTH = 42;
 export const SIDEBAR_HORIZONTAL_PADDING_COLUMNS = 1;
 export const SIDEBAR_CONTENT_WIDTH = SIDEBAR_WIDTH - SIDEBAR_HORIZONTAL_PADDING_COLUMNS * 2;
-export const SIDEBAR_COLLAPSED_WIDTH = 12;
+export const SIDEBAR_COLLAPSED_WIDTH = 8;
 const SIDEBAR_AUTO_VISIBLE_BREAKPOINT = 120;
 export const SIDEBAR_OVERLAY_BACKGROUND = RGBA.fromInts(0, 0, 0, 70);
 

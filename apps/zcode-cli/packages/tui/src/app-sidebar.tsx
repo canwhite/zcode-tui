@@ -71,11 +71,11 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
           width: SIDEBAR_COLLAPSED_WIDTH,
         },
       },
-      collapseToggleButton(">", props.onToggleCollapse),
+      collapseToggleButton("<", props.onToggleCollapse),
     );
   }
 
-  // 展开态：渲染完整侧边栏，底部加收缩按钮（<）
+  // 展开态：渲染完整侧边栏，底部加收缩按钮（>）
   return h(
     "box",
     {
@@ -139,7 +139,7 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
         ]
       : []),
     h("box", { style: { flexGrow: 1 } }),
-    collapseToggleButton("<", props.onToggleCollapse),
+    collapseToggleButton(">", props.onToggleCollapse),
     h(
       "text",
       { style: { ...SIDEBAR_TEXT_ROW_STYLE, fg: palette.muted } },

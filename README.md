@@ -26,13 +26,13 @@ ZCode 是 AI 编程工作台。
 
 > 下限 22.13.0 来自 `node:sqlite`：该模块在 Node 22.5.0 引入，22.13.0 起不再需要 `--experimental-sqlite`。Node 20/21 没有这个内置模块，启动即报 `ERR_UNKNOWN_BUILTIN_MODULE`，无法通过降低声明来兼容。
 
+**一条命令搞定（推荐）**：
+
 ```bash
-pnpm bootstrap
+make install   # 安装依赖、构建、全局暴露 zcode，并预置 .env 与模型配置
 ```
 
-`pnpm bootstrap` 安装 workspace 依赖，随后执行 `build:bootstrap` —— 即构建 `@zcode/cli` 及其全部 workspace 依赖。安装路径不包含 electron 等桌面端依赖。
-
-Agent CLI 与运行时源码位于 [apps/zcode-cli/](apps/zcode-cli/)，作为普通目录随本仓库一起克隆，无需单独拉取或初始化 Git submodule。
+`make install` 会依次执行：环境检查 → `pnpm bootstrap` → 全局暴露 CLI → 生成 `.env` 模板 → 运行 `zcode doctor` 自检。安装完成后在 `.env` 填入 `ZCODE_VENDOR_API_KEY` 即可使用。
 
 其他可单独执行的入口：
 
@@ -40,8 +40,12 @@ Agent CLI 与运行时源码位于 [apps/zcode-cli/](apps/zcode-cli/)，作为�
 | ---------------- | ---------------------------------------- |
 | `pnpm install`   | 安装依赖                                 |
 | `pnpm build`     | 递归执行各 workspace 包的构建脚本        |
+| `pnpm bootstrap` | 安装依赖 + 构建 `@zcode/cli` 及全部 workspace 依赖 |
 | `pnpm typecheck` | 对保留的根包执行 TypeScript 项目引用检查 |
 | `pnpm lint`      | 运行根 linter                            |
+| `make doctor`    | 运行安装自检（等价于 `zcode doctor`）    |
+| `make prune`     | 裁剪构建/发布依赖，保留运行所需闭包      |
+| `make clean`     | 清空 node_modules 与 dist，移除全局启动器 |
 
 ## 开发与运行
 
@@ -58,14 +62,54 @@ pnpm --filter "@zcode/cli..." build
 node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
 ```
 
+### 侧问（/btw）
+
+Agent 正在执行长任务时，可在不打断主任务的情况下提问：
+
+```bash
+/btw <问题>
+```
+
+答案在浮层中呈现，来自当前会话上下文。**不写入转录、不调用工具、不中断主任务**，关闭浮层后焦点回到主输入框。
+
+适用场景：主任务运行中（流式输出、工具执行、审批等待）随时可用；上下文信息不足时会明确拒答而非编造。
+
 ## 配置
 
-根目录 [.env.example](.env.example) 提供服务地址与构建配置示例，可按需复制到 `.env`，本地覆盖放入 `.env.local`。
+根目录 [.env.example](.env.example) 提供配置示例，可按需复制到 `.env`，本地覆盖放入 `.env.local`。
+
+### 配置默认模型
+
+模型配置通过 `ZCODE_VENDOR_*` 变量驱动，修改后重启 CLI 即可生效：
+
+```bash
+ZCODE_VENDOR=bigmodel         # 厂商：bigmodel/zai（个人套餐）、bigmodel-standard/zai-standard（API）
+ZCODE_VENDOR_MODEL=GLM-5.3    # 默认模型
+ZCODE_VENDOR_API_KEY=         # 填入你的 API Key
+```
+
+可用厂商（`ZCODE_VENDOR`）：
+
+| 类别     | 厂商名                                                       | 说明                      |
+| -------- | ------------------------------------------------------------ | ------------------------- |
+| 套餐     | `bigmodel` / `zai`                                           | 个人套餐（默认）          |
+| 套餐     | `bigmodel-team-plan` / `zai-team-plan`                      | 团队套餐                  |
+| API Key  | `bigmodel-standard` / `zai-standard`                         | 智谱标准 API              |
+| API Key  | `moonshot`（别名 `kimi`）、`minimax`、`deepseek`、`qwen`（别名 `qwen-cn`）、`qwen-intl`、`xiaomi`、`openai`、`anthropic`、`xai`、`openrouter` | 第三方厂商 |
+| API Key  | `opencode-go-chat` / `opencode-go-messages` / `opencode-go-responses` | OpenCode 接口      |
+| API Key  | `opencode-zen-chat` / `opencode-zen-messages`              | OpenCode Zen 接口    |
+| 自建端点 | 留空 `ZCODE_VENDOR`，只填 `ZCODE_VENDOR_BASE_URL`           | 直连自建端点            |
+
+> `ZCODE_VENDOR_API_KEY` 支持从环境变量读取（`${MY_API_KEY}` 语法），避免 Key 明文出现在命令行历史。
+
+### 其他配置项
 
 | 配置                                 | 用途                                             |
 | ------------------------------------ | ------------------------------------------------ |
 | `ZCODE_DATA_BASE_DIR`                | 应用数据基目录，数据写入其下的 `.zcode/`         |
 | `ZCODE_BUILTIN_PROVIDER_CONFIG_FILE` | 本地 Provider 配置文件路径；未设置时使用内置配置 |
+| `ZCODE_CONFIG_HOME`                  | 个人配置家目录（默认 `~/.claude`），不影响运行时数据 |
+| `ZCODE_NO_CONFIG_HOME_BOOTSTRAP`     | 设为 `1` 关闭首次运行自动创建 `~/.claude` 的行为 |
 
 运行时变量可在启动命令的环境中显式设置。随客户端发布的默认配置见 [config/README.md](config/README.md)。
 

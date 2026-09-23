@@ -12,7 +12,7 @@ import { REMOTE_ASSET_INSTALL_MODES } from "./remoteAssetInstallMode.js";
 import { PROCESS_RESOURCE_CLI_LANES } from "./processResourceTelemetry.js";
 import { isKnownRemoteResourcePackageId } from "./remoteResourcePackages.js";
 import { zcodeProviderSchema } from "./providers.js";
-import { zcodeAgentProviderSchema } from "./zcode-agent-policy.js";
+import { qcodeAgentProviderSchema } from "./qcode-agent-policy.js";
 import { modelSelectionSchema } from "./model-selection.js";
 import { providerProvisioningTriggerSchema } from "./provider-provisioning.js";
 import {
@@ -100,7 +100,7 @@ export const remoteTargetSchema = z.discriminatedUnion("kind", [
 ]);
 
 export const helloMessageSchema = z.object({
-  type: z.literal("zcode-hello"),
+  type: z.literal("qcode-hello"),
   version: z.string(),
   platform: z.string(),
   arch: z.string(),
@@ -108,7 +108,7 @@ export const helloMessageSchema = z.object({
 });
 
 export const helloAckMessageSchema = z.object({
-  type: z.literal("zcode-hello-ack"),
+  type: z.literal("qcode-hello-ack"),
   version: z.string(),
   clientId: nonEmptyStringSchema,
 });
@@ -188,7 +188,7 @@ export const hostInitLocalMessageSchema = z.object({
   workspaceIdentity: nonEmptyStringSchema.optional(),
   agentWarmupTargets: z.array(hostAgentWarmupTargetSchema).max(3).optional(),
   agentSpawnFallbackCwd: nonEmptyStringSchema.optional(),
-  zcodeBuiltinProviderConfigFilePath: nonEmptyStringSchema,
+  qcodeBuiltinProviderConfigFilePath: nonEmptyStringSchema,
   runtimeProcessEnvPatch: z
     .record(z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/), z.string())
     .optional(),
@@ -1163,7 +1163,7 @@ export const zcodeTaskMetaSchema = z.object({
   model: z.string().optional(),
   thoughtLevel: nonEmptyStringSchema.optional(),
   runtimeEpoch: z.number().int().nonnegative().optional(),
-  provider: zcodeAgentProviderSchema.optional(),
+  provider: qcodeAgentProviderSchema.optional(),
   migrationSource: zcodeTaskMigrationSourceSchema.optional(),
   forkedFromTaskId: nonEmptyStringSchema.optional(),
   // cron automation 身份：随 meta_json 一起持久化（单一来源），同时在写入时投影到 tasks 表

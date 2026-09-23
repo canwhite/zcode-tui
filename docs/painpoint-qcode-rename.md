@@ -123,7 +123,7 @@ flowchart LR
 
 ### 5.2 边界场景
 
-- **目录名包含 `zcode`**：当前 `apps/zcode-cli` 目录是否也改？（影响 import path 和 CI 配置）
+- **目录名包含 `zcode`**：当前 `apps/qcode-cli` 目录是否也改？（影响 import path 和 CI 配置）
 - **npm scope**：`@zcode/` 下的 scope 包是否也改？
 - **node_modules 缓存**：首次替换后需清除缓存再构建
 - **历史 git 记录**：已有提交中的 `zcode` 字符串不会被自动清理
@@ -153,7 +153,7 @@ flowchart LR
 ### F-002: package.json name 字段更新
 | 字段 | 内容 |
 |------|------|
-| **功能描述** | 将 `apps/zcode-cli/package.json` 的 `name` 从 `zcode-cli` 改为 `qcode-cli`，并同步更新 bin 入口键名 |
+| **功能描述** | 将 `apps/qcode-cli/package.json` 的 `name` 从 `zcode-cli` 改为 `qcode-cli`，并同步更新 bin 入口键名 |
 | **痛点溯源** | 痛点 C / 第 1 节 |
 | **词性溯源** | 名词"包名" + 动词"改" |
 | **依赖实体** | PackageConfig（回 3.2） |
@@ -238,7 +238,7 @@ flowchart LR
 
 以下问题需要在实施前确认，否则可能导致返工：
 
-1. **目录名是否改？** `apps/zcode-cli/` 目录是否也改名为 `apps/qcode-cli/？如改，CI 配置（turbo.json、github workflows）中的路径引用均需同步更新。
+1. **目录名是否改？** `apps/qcode-cli/` 目录是否也改名为 `apps/qcode-cli/？如改，CI 配置（turbo.json、github workflows）中的路径引用均需同步更新。
 2. **npm scope 是否改？** 当前 `@zcode/*` 下的 scope 包（`@zcode/cli`、`@zcode/core` 等）是否也改为 `@qcode/*`？还是仅改产品名，scope 保留？
 3. **已有历史提交中的 zcode 是否清理？** git 历史中的 `zcode` 字符串不会被自动清理，清理历史需要 `git filter-branch` 或 `git replace`，成本较高，是否必要？
 4. **蓝紫色的具体色值？** "蓝紫色"（HSL 260°–290°）跨度 30°，建议提供具体参考色（如 `#7C3AED` 紫色或 `#2563EB` 蓝色），否则 F-004 需要多轮视觉评审。

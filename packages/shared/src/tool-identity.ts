@@ -1,4 +1,4 @@
-export const ZCODE_KNOWN_TOOL_NAMES = [
+export const QCODE_KNOWN_TOOL_NAMES = [
   "Read",
   "Write",
   "Edit",
@@ -36,7 +36,7 @@ export const ZCODE_KNOWN_TOOL_NAMES = [
   "submit_result",
 ] as const;
 
-export type ZCodeKnownToolName = (typeof ZCODE_KNOWN_TOOL_NAMES)[number];
+export type ZCodeKnownToolName = (typeof QCODE_KNOWN_TOOL_NAMES)[number];
 
 export type ZCodeToolFamily =
   | "file-read"
@@ -92,7 +92,7 @@ const TOOL_FAMILY_BY_NAME: Record<ZCodeKnownToolName, ZCodeToolFamily> = {
 };
 
 const TOOL_NAME_BY_LOWER = new Map<string, ZCodeKnownToolName>(
-  ZCODE_KNOWN_TOOL_NAMES.map((toolName) => [toolName.toLowerCase(), toolName]),
+  QCODE_KNOWN_TOOL_NAMES.map((toolName) => [toolName.toLowerCase(), toolName]),
 );
 
 export function normalizeZCodeToolName(

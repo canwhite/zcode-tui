@@ -7,9 +7,9 @@
  *
  * Run: pnpm exec tsx test/repro-pp10-skill-command.mts
  */
-import { listZCodeSkills } from "../apps/zcode-cli/packages/bootstrap/src/skills.js";
-import { loadZCodeCustomCommand } from "../apps/zcode-cli/packages/bootstrap/src/custom-commands.js";
-import { createCommandCenter } from "../apps/zcode-cli/packages/cli/src/command-center/create.js";
+import { listZCodeSkills } from "../apps/qcode-cli/packages/bootstrap/src/skills.js";
+import { loadZCodeCustomCommand } from "../apps/qcode-cli/packages/bootstrap/src/custom-commands.js";
+import { createCommandCenter } from "../apps/qcode-cli/packages/cli/src/command-center/create.js";
 
 const WORKING_DIRECTORY = process.argv[2] ?? process.cwd();
 const SKILL_NAME = "pain-decomposition";

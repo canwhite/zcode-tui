@@ -13,7 +13,7 @@
 ## 1. 痛点分支
 
 - 痛点 A：`.env` 目前只影响 endpoint 解析（`ZCODE_BASE_URL` 等），**厂商的 base url / key / model 不在 `.env` 里**——用户对"配置在哪"的心智模型与实际生效位置不一致。
-- 痛点 B：写入入口只支持两家——`zcode configure` 的 `--provider` 只接受 `bigmodel | zai`（`apps/zcode-cli/packages/cli/src/run.ts` 的 `CODING_PLAN_PROVIDERS`），且走的是 `zhipu-account` + Coding Plan 专属链路，普通 api-key 厂商进不来。
+- 痛点 B：写入入口只支持两家——`zcode configure` 的 `--provider` 只接受 `bigmodel | zai`（`apps/qcode-cli/packages/cli/src/run.ts` 的 `CODING_PLAN_PROVIDERS`），且走的是 `zhipu-account` + Coding Plan 专属链路，普通 api-key 厂商进不来。
 - 痛点 C：**协议类型（api.type）无法在 `.env` 声明**——内置配置里存在三种协议 `anthropic-messages` / `openai-chat-completions` / `openai-responses`（`packages/provider/src/config/provider-data-schema.ts:4`），同一个 base url 配错协议就是直接不可用，而用户无从表达。
 - 痛点 D：换厂商后**旧配置不会被取代**——当前生效的是个人 Provider Config 里的 `defaultModelSelection` 指向 `account:bigmodel-individual-coding-plan`；再配一家不会自动切过去，也没有"当前生效的是哪家"的可见性。
 - 痛点 E：自定义厂商**没有模型清单可查**——内置厂商在 `builtinModelIds` 里带了模型列表（如 `bigmodel-api` 带 `GLM-5.3 / GLM-5.3-Flash`），自建端点没有等价来源，用户只能猜模型名。

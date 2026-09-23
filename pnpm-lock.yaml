@@ -78,7 +78,7 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
 
-  apps/zcode-cli:
+  apps/qcode-cli:
     dependencies:
       dotenv:
         specifier: ^17.4.2
@@ -118,7 +118,7 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  apps/zcode-cli/packages/adapters:
+  apps/qcode-cli/packages/adapters:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: 3.0.81
@@ -194,7 +194,7 @@ importers:
         specifier: ^2.10.3
         version: 2.10.3
 
-  apps/zcode-cli/packages/bootstrap:
+  apps/qcode-cli/packages/bootstrap:
     dependencies:
       '@zcode/adapters':
         specifier: workspace:*
@@ -243,7 +243,7 @@ importers:
         specifier: ^3.3.1
         version: 3.3.1
 
-  apps/zcode-cli/packages/browser-use-plugin:
+  apps/qcode-cli/packages/browser-use-plugin:
     dependencies:
       '@modelcontextprotocol/server':
         specifier: 2.0.0
@@ -286,7 +286,7 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  apps/zcode-cli/packages/cli:
+  apps/qcode-cli/packages/cli:
     dependencies:
       '@zcode/adapters':
         specifier: workspace:*
@@ -328,7 +328,7 @@ importers:
         specifier: 1.59.1
         version: 1.59.1
 
-  apps/zcode-cli/packages/contracts:
+  apps/qcode-cli/packages/contracts:
     dependencies:
       '@zcode/shared':
         specifier: workspace:*
@@ -344,7 +344,7 @@ importers:
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/core:
+  apps/qcode-cli/packages/core:
     dependencies:
       '@zcode/contracts':
         specifier: workspace:*
@@ -387,7 +387,7 @@ importers:
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/debug:
+  apps/qcode-cli/packages/debug:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.4
@@ -433,7 +433,7 @@ importers:
         specifier: ^7.2.6
         version: 7.3.3(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.9.0)
 
-  apps/zcode-cli/packages/dynamic-workflow:
+  apps/qcode-cli/packages/dynamic-workflow:
     dependencies:
       typescript:
         specifier: ^5.9.0
@@ -443,7 +443,7 @@ importers:
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/dynamic-workflow-runtime:
+  apps/qcode-cli/packages/dynamic-workflow-runtime:
     dependencies:
       '@zcode/dynamic-workflow':
         specifier: workspace:*
@@ -453,13 +453,13 @@ importers:
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/i18n:
+  apps/qcode-cli/packages/i18n:
     dependencies:
       '@zcode/contracts':
         specifier: workspace:*
         version: link:../contracts
 
-  apps/zcode-cli/packages/node-repl-host:
+  apps/qcode-cli/packages/node-repl-host:
     dependencies:
       '@modelcontextprotocol/server':
         specifier: 2.0.0
@@ -493,19 +493,19 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  apps/zcode-cli/packages/shared-types:
+  apps/qcode-cli/packages/shared-types:
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/swift-bridge:
+  apps/qcode-cli/packages/swift-bridge:
     dependencies:
       '@zcode/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
-  apps/zcode-cli/packages/telemetry:
+  apps/qcode-cli/packages/telemetry:
     dependencies:
       '@opentelemetry/api':
         specifier: ^1.9.0
@@ -539,7 +539,7 @@ importers:
         specifier: ^24.0.0
         version: 24.12.2
 
-  apps/zcode-cli/packages/tui:
+  apps/qcode-cli/packages/tui:
     dependencies:
       '@mbears/opentui-core':
         specifier: 0.2.15
@@ -579,7 +579,7 @@ importers:
         specifier: ^4.20.0
         version: 4.21.0
 
-  apps/zcode-cli/tools/prompt-trajectory:
+  apps/qcode-cli/tools/prompt-trajectory:
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
@@ -591,7 +591,7 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  apps/zcode-cli/tools/typescript: {}
+  apps/qcode-cli/tools/typescript: {}
 
   packages/model-option-map:
     devDependencies:

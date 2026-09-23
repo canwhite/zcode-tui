@@ -29,7 +29,7 @@ export function resolveLegacyReasoningLevel(
     return undefined;
   const provider = snapshot.resolution.effectiveProviders.get(selection.providerId);
   if (!provider) return undefined;
-  const builtin = snapshot.config.zcodeBuiltinModelRules;
+  const builtin = snapshot.config.qcodeBuiltinModelRules;
   let oldRules = oldRulesCache.get(builtin);
   if (!oldRules) {
     oldRules = new ModelConfigRules(

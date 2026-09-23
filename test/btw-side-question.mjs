@@ -32,10 +32,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
 const btwSourcePath = join(
   repoRoot,
-  "apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.ts",
+  "apps/qcode-cli/packages/core/src/runtime/methods/btw-model-request.ts",
 );
 const zcodeCliHome = join(homedir(), ".zcode", "cli");
 

@@ -19,9 +19,9 @@
 | 内置模板自带 baseUrl/api/模型清单 | `config/provider/zcode-builtin.json` 的 `templateRules`（18+ 家，含 Moonshot / DeepSeek / Qwen / OpenAI / Anthropic / OpenRouter） |
 | **当前生效的是 Coding Plan，不是普通 api-key** | `~/.zcode/v2/provider_config.json` → `defaultModelSelection = { providerId: "account:bigmodel-individual-coding-plan", modelId: "GLM-5.3" }` |
 | 个人层当前是空的 | 同文件 `providerConfigRules = { providerRules: [] }` |
-| 凭据是加密落盘的 | `apps/zcode-cli/packages/adapters/src/auth/shared-credentials.ts` 使用 `createZCodeCredentialCipher` 加解密，非明文 |
+| 凭据是加密落盘的 | `apps/qcode-cli/packages/adapters/src/auth/shared-credentials.ts` 使用 `createZCodeCredentialCipher` 加解密，非明文 |
 | 两套存储并存 | Coding Plan key 在 `~/.zcode/v2/credentials.json`（加密）；普通 api-key 内联在 `provider_config.json` |
-| 内置配置随包分发，非远程必需 | `apps/zcode-cli/packages/cli/dist/provider/zcode-builtin.json` 存在；远端刷新失败时会走 `skipped (not-due)` 而非中断 |
+| 内置配置随包分发，非远程必需 | `apps/qcode-cli/packages/cli/dist/provider/zcode-builtin.json` 存在；远端刷新失败时会走 `skipped (not-due)` 而非中断 |
 
 已确认前提：一次只生效一个厂商 ｜ 内置列表内的厂商自动匹配、列表外的显式声明协议。
 
@@ -49,7 +49,7 @@
 
 - **两套存储必须先分清**：动手前先确认目标厂商走哪条链路（`api-key` 内联 vs `zhipu-account` + 凭据库）。混用是本次最可能的错误来源。
 - **在边界处立刻加日志**：`.env` 解析的出入口（读到了哪些键、值是否为空）、模板匹配的判定结果（命中哪个 templateId）、写入前后的 `defaultModelSelection` 实际值。**日志只打键名与结构，绝不打 key 值**。
-- **先读源码再断言**：`api.type` 三个取值的行为差异必须读 `apps/zcode-cli/packages/adapters/src/model/model-execution.ts` 的 `toAiSdkProviderConfig` 分支，不能靠猜。
+- **先读源码再断言**：`api.type` 三个取值的行为差异必须读 `apps/qcode-cli/packages/adapters/src/model/model-execution.ts` 的 `toAiSdkProviderConfig` 分支，不能靠猜。
 - **用真实请求验证**：写入成功不等于可用；必须用 `zcode -p` 实际发一次请求。
 - **定位顺序**：请求失败时，先确认"生效的是不是新厂商"（`doctor`），再看端点与协议，最后才看 key——顺序反了会在错误的层反复试。
 
@@ -158,7 +158,7 @@
 **Failure Scenario**: 内置模板里 OpenAI 与 xAI 用的是 `openai-responses`，据此在 `.env` 契约中把它列为合法取值。但个人 `api-key` 配置走该协议时若不被支持（schema 允许 ≠ 运行时支持），用户选了它只会得到失败，而文档却告诉他这是合法选项——**接口承诺了做不到的能力**。
 
 **Mitigation**:
-- 动手前**先读** `apps/zcode-cli/packages/adapters/src/model/model-execution.ts` 的 `toAiSdkProviderConfig` 分支，确认三个 `api.type` 在个人 api-key 路径下的实际行为。
+- 动手前**先读** `apps/qcode-cli/packages/adapters/src/model/model-execution.ts` 的 `toAiSdkProviderConfig` 分支，确认三个 `api.type` 在个人 api-key 路径下的实际行为。
 - 用真实请求**实测**该协议（验证清单已列为第 3 条）；若不成立，从 `.env` 契约的合法取值中移除，而不是留给用户试错。
 - 契约文档只承诺**已验证**的取值。
 

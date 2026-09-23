@@ -1,6 +1,6 @@
 # Plan: 全局重命名 zcode → qcode + 蓝紫色主题
 
-> 将所有 `zcode` 字符串替换为 `qcode`，目录 `apps/zcode-cli/` 改名为 `apps/qcode-cli/`，npm scope `@zcode/*` 改为 `@qcode/*`，主题色调整为 `#6366F1`。
+> 将所有 `zcode` 字符串替换为 `qcode`，目录 `apps/qcode-cli/` 改名为 `apps/qcode-cli/`，npm scope `@zcode/*` 改为 `@qcode/*`，主题色调整为 `#6366F1`。
 
 ## Context
 
@@ -9,7 +9,7 @@
 ## Goal
 
 - 所有源码文件中无 `zcode` 残留字符串（Symbol 键、agentName、tokenizer 标识符、包名等均已替换为 `qcode`）
-- `apps/zcode-cli/` 目录改名为 `apps/qcode-cli/`
+- `apps/qcode-cli/` 目录改名为 `apps/qcode-cli/`
 - npm scope `@zcode/*` 全部迁移为 `@qcode/*`
 - TUI 主题色为蓝紫渐变（`#6366F1` → `#8B5CF6`），支持渐变色变量
 - `pnpm build` 成功，`pnpm typecheck` 零错误，`qcode --version` 正常输出
@@ -58,9 +58,9 @@ grep -rl '"zcode\|'\''zcode\|zcode/' --include="*.ts" --include="*.tsx" --includ
 
 | 文件 | 替换内容 | 确认要点 |
 |------|----------|----------|
-| `apps/zcode-cli/package.json` | `"name": "zcode-cli"` → `"name": "qcode-cli"` | npm 包名 |
-| `apps/zcode-cli/turbo.json` | `@zcode/*` → `@qcode/*`，`zcode-builtin.json` → `qcode-builtin.json` | turbo 依赖图 |
-| `.oxlintrc.json` | `apps/zcode-cli` → `apps/qcode-cli` | lint 忽略路径 |
+| `apps/qcode-cli/package.json` | `"name": "zcode-cli"` → `"name": "qcode-cli"` | npm 包名 |
+| `apps/qcode-cli/turbo.json` | `@zcode/*` → `@qcode/*`，`zcode-builtin.json` → `qcode-builtin.json` | turbo 依赖图 |
+| `.oxlintrc.json` | `apps/qcode-cli` → `apps/qcode-cli` | lint 忽略路径 |
 | `AGENTS.md` | `zcode CLI` → `qcode CLI` 等引用 | 文档字符串 |
 | `docs/dependency-boundary.md` | `zcode` 引用 | 边界文档 |
 
@@ -80,19 +80,19 @@ grep -r "zcode" apps/ packages/ tools/ scripts/ \
 
 ```bash
 # 重命名目录
-mv apps/zcode-cli apps/qcode-cli
+mv apps/qcode-cli apps/qcode-cli
 
 # 更新所有内部路径引用（grep 确认后再执行 sed）
-grep -rl "apps/zcode-cli" --include="*.json" --include="*.md" . \
+grep -rl "apps/qcode-cli" --include="*.json" --include="*.md" . \
   | grep -v node_modules | grep -v ".git" \
-  | xargs sed -i '' 's|apps/zcode-cli|apps/qcode-cli|g'
+  | xargs sed -i '' 's|apps/qcode-cli|apps/qcode-cli|g'
 ```
 
 **验证**：
 
 ```bash
-# 确认 apps/zcode-cli 不存在
-ls apps/zcode-cli 2>&1 | grep -q "No such file" && echo "✓ 目录已改名" || echo "✗ 目录仍存在"
+# 确认 apps/qcode-cli 不存在
+ls apps/qcode-cli 2>&1 | grep -q "No such file" && echo "✓ 目录已改名" || echo "✗ 目录仍存在"
 # 确认 apps/qcode-cli 存在
 ls apps/qcode-cli/package.json && echo "✓ 新目录存在"
 ```
@@ -120,7 +120,7 @@ sed -i '' 's/zcode-builtin/qcode-builtin/g' apps/qcode-cli/turbo.json
 ### Step 5: 更新 .oxlintrc.json
 
 ```bash
-sed -i '' 's|apps/zcode-cli|apps/qcode-cli|g' /Users/doing/Desktop/zcode-tui/.oxlintrc.json
+sed -i '' 's|apps/qcode-cli|apps/qcode-cli|g' /Users/doing/Desktop/zcode-tui/.oxlintrc.json
 # 验证
 grep "qcode-cli" /Users/doing/Desktop/zcode-tui/.oxlintrc.json
 ```
@@ -189,7 +189,7 @@ pnpm build
 **高风险点**：大规模 sed 替换可能误伤或遗漏，目录改名后 import path 可能断裂。
 
 - **替换后**：立即运行 `grep -r "zcode" apps/qcode-cli --include="*.ts" --include="*.tsx" | grep -v node_modules | grep -v dist` 确认零残留
-- **目录改名后**：运行 `pnpm build`，观察是否有 import path 报错（路径仍引用 `apps/zcode-cli`）
+- **目录改名后**：运行 `pnpm build`，观察是否有 import path 报错（路径仍引用 `apps/qcode-cli`）
 - **构建失败**：优先检查 turbo.json 和 package.json 的 name 字段是否同步更新
 - **CLI 启动失败**：检查 `bin` 字段是否指向正确路径
 
@@ -220,7 +220,7 @@ grep -r "\[RENAME-CHECK\]" apps/qcode-cli/
 ```bash
 git checkout HEAD -- .
 git clean -fd apps/qcode-cli
-mv apps/zcode-cli apps/qcode-cli 2>/dev/null || true
+mv apps/qcode-cli apps/qcode-cli 2>/dev/null || true
 ```
 
 **全局扫描**（替换后检查以下同类位置）：
@@ -257,14 +257,14 @@ mv apps/zcode-cli apps/qcode-cli 2>/dev/null || true
 **Severity**: 5 | **Likelihood**: 2 | **Detectability**: 0.7
 **Risk Score**: 3.0（已缓解）
 
-**Failure Scenario**: `mv apps/zcode-cli apps/qcode-cli` 执行后，代码库中仍有文件通过相对路径 `../../apps/zcode-cli/...` 或绝对路径 `/Users/doing/Desktop/zcode-tui/apps/zcode-cli/...` 引用旧目录，构建时 turbo 找不到 `apps/qcode-cli`，pnpm workspace 解析失败，所有包报 `Module not found`。
+**Failure Scenario**: `mv apps/qcode-cli apps/qcode-cli` 执行后，代码库中仍有文件通过相对路径 `../../apps/qcode-cli/...` 或绝对路径 `/Users/doing/Desktop/zcode-tui/apps/qcode-cli/...` 引用旧目录，构建时 turbo 找不到 `apps/qcode-cli`，pnpm workspace 解析失败，所有包报 `Module not found`。
 
 **Mitigation**:
 - **Step 2 的 sed 替换必须先于目录重命名执行**，确保所有源码内的 import path 已替换为 `apps/qcode-cli`
 - **Step 3 目录改名后**，立即运行以下验证命令：
   ```bash
   # 确认无残留的旧目录引用
-  grep -r "apps/zcode-cli" apps/ packages/ tools/ --include="*.ts" --include="*.tsx" --include="*.json" | grep -v node_modules
+  grep -r "apps/qcode-cli" apps/ packages/ tools/ --include="*.ts" --include="*.tsx" --include="*.json" | grep -v node_modules
   # 期望：无输出
   ```
 - **Step 8 构建前**，先执行 `pnpm install` 重新生成 pnpm-lock.yaml，确保 workspace 配置解析到新目录路径

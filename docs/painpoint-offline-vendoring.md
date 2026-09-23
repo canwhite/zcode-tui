@@ -10,8 +10,8 @@
 
 ## 1. 痛点分支
 
-- 痛点 A：**获取点分散、各自直连公网**。至少四类，分属不同脚本、**没有统一入口、没有统一台账**：① `nodejs.org/dist/v<ver>/` 的 SEA 基座 Node 运行时（`apps/zcode-cli/packages/cli/scripts/sea-node-download.mjs:90,121`，带 SHASUMS256 校验，且有 `--node-binary` 这条离线逃生口）；② `codeload.github.com` 与 `sourceware.org` 的**上游源码包**（bfs / ugrep / oniguruma / pcre2 / zlib / bzip2 / zstd / brotli，`scripts/native-search-tools-config.mjs:47-90`）；③ `cdn-zcode.z.ai` 的官方插件市场清单与资产；④ `api.github.com` / `github.com` 的插件安装链路。
-- 痛点 B：**同一件事在仓库里有一半已经做对了，另一半没有——而"做对了的那一半"正好证明了另一半为什么是痛点**。做对的是 `apps/zcode-cli/dependencies/native-search/`：19 个预编译压缩包已入库、附 `SHA256SUMS`、`prepare-native-search-tools.mjs:44` 逐个校验后才解包，**全程不联网**，并且它既不在 `.gitignore` 里、也不会被 `make clean` 删——这正是诉求想要的标准形态。没做对的是**同一条链路的源码构建路径**（`pnpm build:native-search`，走 `native-search-tools-process.mjs:65` 的 `curl -L`），它是**唯一一个硬依赖公网、且没有任何离线退路的构建步骤**。此外 `bundled-resources/`、`prebuilds/`、`mock-cdn/`、`/.tmp/` 都在 `.gitignore` 里，`make clean`（`scripts/clean.mjs`）按名字删 `node_modules/` 与 `dist/` ——资源**既进不了仓库，也活不过一次清理**。
+- 痛点 A：**获取点分散、各自直连公网**。至少四类，分属不同脚本、**没有统一入口、没有统一台账**：① `nodejs.org/dist/v<ver>/` 的 SEA 基座 Node 运行时（`apps/qcode-cli/packages/cli/scripts/sea-node-download.mjs:90,121`，带 SHASUMS256 校验，且有 `--node-binary` 这条离线逃生口）；② `codeload.github.com` 与 `sourceware.org` 的**上游源码包**（bfs / ugrep / oniguruma / pcre2 / zlib / bzip2 / zstd / brotli，`scripts/native-search-tools-config.mjs:47-90`）；③ `cdn-zcode.z.ai` 的官方插件市场清单与资产；④ `api.github.com` / `github.com` 的插件安装链路。
+- 痛点 B：**同一件事在仓库里有一半已经做对了，另一半没有——而"做对了的那一半"正好证明了另一半为什么是痛点**。做对的是 `apps/qcode-cli/dependencies/native-search/`：19 个预编译压缩包已入库、附 `SHA256SUMS`、`prepare-native-search-tools.mjs:44` 逐个校验后才解包，**全程不联网**，并且它既不在 `.gitignore` 里、也不会被 `make clean` 删——这正是诉求想要的标准形态。没做对的是**同一条链路的源码构建路径**（`pnpm build:native-search`，走 `native-search-tools-process.mjs:65` 的 `curl -L`），它是**唯一一个硬依赖公网、且没有任何离线退路的构建步骤**。此外 `bundled-resources/`、`prebuilds/`、`mock-cdn/`、`/.tmp/` 都在 `.gitignore` 里，`make clean`（`scripts/clean.mjs`）按名字删 `node_modules/` 与 `dist/` ——资源**既进不了仓库，也活不过一次清理**。
 - 痛点 C：**运行期的 CDN 依赖只解决了一半，缺的那一半恰好没有退路**。官方插件市场的**清单**有本地内置分片兜底：`official-marketplace.ts` 把 `bundled-marketplace.json` 与 `cdn-marketplace.json` 分片持久化后合并，CDN 拉取失败或从未拉取过也不影响内置插件可列出（拉取本身是惰性的：无本地清单或用户显式刷新时才发生）。但**插件图标指向 `https://cdn-zcode.z.ai/zcode/official-plugin/assets`（`official-plugin-definitions.ts:58`）是直接渲染的 CDN URL，没有任何本地兜底**；而通过 GitHub 安装第三方插件的 `github-archive-source.ts:79`（`api.github.com/.../zipball/...`）**没有 sha256 校验**——与之相对，`type: zip` 那条路径是校验了 64 位 sha256 才解包的。同一个产品里，两条同样从公网拿代码的路径，一条校验一条不校验。
 - 痛点 D：**"离线"目前是一条没有接线的设计，而不是一个能跑的能力**。`INTRANET_MACHINE_HOST` / `ZCODE_DEPS_BASE_URL` / 内网探针（`scripts/intranetDefaults.mjs`、`packages/shared/src/intranetDefaults.ts`）定义了地址与"未配置就报错"的提示，但**下载侧没有任何代码消费它**，只有 `upload-sea-smb.mjs` 把它当上传目标用。也就是说：今天既不能靠公网（要被去掉），也不能靠内网镜像（没接线），本地化是唯一可行的方向。
 - 痛点 E：**资源没有统一台账，无法审计**。资源信息散落在 `third-party/runtime/sources.json`、`third-party/native-search/sources.json`、`scripts/native-search-tools-config.mjs`、`scripts/remote-native-search-tools-config.mjs`、`sea-targets.mjs` 里，**格式各异**（有的带 sha256 与 url，有的只有 sha256 没有下载地址，有的只有 url）。因此回答不了"全量是多少"，也就无法证明"所有"。
@@ -182,7 +182,7 @@ flowchart LR
 
 - **"所有"** → 需要一个**可复核的枚举口径**：对全仓扫描 URL / registry 引用，与台账做差集，差集为 0 才算数。否则"所有"永远无法证明，只会不断被发现"还有漏的"。
 - **"不做清理"** → `make clean` 需要一份**显式保留白名单**。靠目录命名恰好不在删除列表里是脆弱的——`scripts/clean.mjs` 目前只按 `node_modules` / `dist` 两个名字匹配。
-- **"不在 git ignore 里"** → 需要一条**断言**（`git check-ignore`），而不是"记得别再写进去"。仓库里同时有正反两个例子：反例是 `bundled-resources/` 正被忽略，而它看起来恰好是放这类资源的地方；正例是 `apps/zcode-cli/dependencies/native-search/` 的 19 个预编译包——它们既被跟踪、也不会被 `make clean` 删，**已经满足这条规则**。所以这不是"做不到"，而是"没有统一做法"。
+- **"不在 git ignore 里"** → 需要一条**断言**（`git check-ignore`），而不是"记得别再写进去"。仓库里同时有正反两个例子：反例是 `bundled-resources/` 正被忽略，而它看起来恰好是放这类资源的地方；正例是 `apps/qcode-cli/dependencies/native-search/` 的 19 个预编译包——它们既被跟踪、也不会被 `make clean` 删，**已经满足这条规则**。所以这不是"做不到"，而是"没有统一做法"。
 - **"随仓库上传"** → 需要一个**体积预算**。6 个 SEA target 的 Node 运行时是数十 MB 级 × 6，仓库会从 `.git` 37MB 的量级跳到数百 MB；克隆时间与 CI 拉取成本是新的真实代价，不能等到入库那天才发现。
 - **"相对独立的个体"** → 需要**可验证的离线态**：断网跑通一次才算成立，不能靠"代码里没有明显的 fetch"推定。`mise` 与 `pnpm` 自身的工具链下载也要算进来。
 - **"下载完之后整体扫一遍"** → 扫描需要**基线**：是"本次新增的本地副本"，还是"整个仓库"？范围不同，"特例判断"的结论完全不同（仓库里已经有真实特例：`.env.bak-*`、`.gitignore` 中引用已删脚本的规则、`patches/` 对 `@ai-sdk/*` 的改写）。
@@ -225,7 +225,7 @@ flowchart LR
 
 | 字段         | 内容                                                                                                                                                                                           |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **功能描述** | 按台账把资源下载、校验、落进一个"清理不删、忽略不命中"的受保护目录，并随仓库入库；形态对齐既有范例 `apps/zcode-cli/dependencies/native-search/`（入库 + 逐条 sha256 + 全程不联网），不另起一套 |
+| **功能描述** | 按台账把资源下载、校验、落进一个"清理不删、忽略不命中"的受保护目录，并随仓库入库；形态对齐既有范例 `apps/qcode-cli/dependencies/native-search/`（入库 + 逐条 sha256 + 全程不联网），不另起一套 |
 | **痛点溯源** | 痛点 A、痛点 B ／ 第 1 节                                                                                                                                                                      |
 | **词性溯源** | 名词"本地副本"+"受保护目录"+"校验和" + 动词"下载 / 校验 / 落盘 / 入库" + 规则"在 make 指令清理的时候**不做清理**"、"**随仓库上传**"、"**不在 git ignore 里**"                                  |
 | **依赖实体** | RemoteResource、ProtectedRoot（回 3.2）                                                                                                                                                        |

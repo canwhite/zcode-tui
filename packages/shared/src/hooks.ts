@@ -81,7 +81,7 @@ export interface ToolCallHookMeta {
   hookFeedback?: string;
   hookStderr?: string;
   /** Skill-related metadata */
-  "zcode/isSkill"?: boolean;
-  "zcode/skillName"?: string;
+  "qcode/isSkill"?: boolean;
+  "qcode/skillName"?: string;
   [key: string]: unknown;
 }

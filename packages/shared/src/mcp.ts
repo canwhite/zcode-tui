@@ -7,15 +7,15 @@ import type { SettingsDirectoryLocation } from "./settings-source.js";
 import type { McpServerFailureKind } from "./zcode-protocol/index.js";
 
 // CUA official plugin 身份常量（port 自 feat；UI 设置面板 + bootstrap 复用以避免字面量漂移）。
-export const ZCODE_CUA_OFFICIAL_PLUGIN_ID = "computer-use@zcode-plugins-official";
+export const QCODE_CUA_OFFICIAL_PLUGIN_ID = "computer-use@qcode-plugins-official";
 // CUA server 身份串（port 自 feat mcp.ts）：server key = 模型可见工具前缀段（刻意不带 zcode-）；
 // namespace name = official plugin 运行时命名空间 plugin:<pluginId>:<serverKey>。
-export const ZCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME = "plugin:computer-use:computer-use";
+export const QCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME = "plugin:computer-use:computer-use";
 // 插件身份 env key：resolver（adapters/src/plugins/mcp.ts）权威写入 loaded.id，manifest/user env 不可覆盖。
 // bootstrap + cli/plugin-host-command.ts 复用此常量识别 official zcode-cua plugin server，避免字面量漂移。
-export const ZCODE_PLUGIN_ID_ENV_KEY = "ZCODE_PLUGIN_ID";
+export const QCODE_PLUGIN_ID_ENV_KEY = "QCODE_PLUGIN_ID";
 
-export type McpSource = "mcp" | "zcodeagentmcp";
+export type McpSource = "mcp" | "qcodeagentmcp";
 export type CliMcpSource = Exclude<McpSource, "mcp">;
 export type McpScope = "common" | "user" | "workspace";
 export type McpFileFormat = "json";
@@ -107,7 +107,7 @@ export interface McpConfig {
   mcp: {
     mcpServers: Record<string, McpServerConfig>;
   };
-  zcodeagentmcp: CliMcpConfig;
+  qcodeagentmcp: CliMcpConfig;
 }
 
 export interface ZCodeMcpServer {
@@ -210,7 +210,7 @@ export function getMcpServerRequestHeaders(
 }
 
 // zcode-cua MCP server 识别的单一事实源。desktop 产品 broker resolver（@zcode/services 的
-// mcpBrokerInjection）与 CLI bootstrap（apps/zcode-cli 的 mcp-config）两条注入入口必须用
+// mcpBrokerInjection）与 CLI bootstrap（apps/qcode-cli 的 mcp-config）两条注入入口必须用
 // 完全一致的判定；否则同一 MCP 配置在不同入口行为不同，可能漏注入 product broker，让
 // Python/uvx 自己持有 macOS TCC 权限（违反 fail-closed 边界）。改这里即同时改两条链路。
 function zcodeCuaArgLeaf(value: string): string {
@@ -230,18 +230,18 @@ function zcodeCuaArgLeaf(value: string): string {
 function matchesZCodeCuaSpec(candidate: string): boolean {
   const c = candidate.replace(/_/g, "-");
   return (
-    c === "zcode-cua" ||
-    c.startsWith("zcode-cua[") ||
-    c.startsWith("zcode-cua@") ||
-    c.startsWith("zcode-cua==") ||
+    c === "qcode-cua" ||
+    c.startsWith("qcode-cua[") ||
+    c.startsWith("qcode-cua@") ||
+    c.startsWith("qcode-cua==") ||
     // `.` 分支同时覆盖 `zcode-cua.git` / `zcode-cua.git@v1` 与 `zcode-cua.server` 等 python 子模块。
-    c.startsWith("zcode-cua.")
+    c.startsWith("qcode-cua.")
   );
 }
 
 /**
  * MCP server 的 command 是否指向 zcode-cua。用与 args 相同的包规格判定（并比对路径叶子），
- * 覆盖 `command: "zcode-cua"`、`/opt/bin/zcode-cua`，以及把包规格直接当 command 的写法
+ * 覆盖 `command: "qcode-cua"`、`/opt/bin/zcode-cua`，以及把包规格直接当 command 的写法
  * （`zcode-cua@1.2.3` 等）。对 fail-closed 边界宁可过判也不漏判。
  */
 export function isZCodeCuaMcpCommand(command: string): boolean {

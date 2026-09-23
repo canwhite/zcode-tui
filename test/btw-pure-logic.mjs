@@ -13,13 +13,13 @@
 //
 // 放 `test/` 而不是各包里，是因为它跨 core 与 tui 两个包——放任何一边都要深引另一个包。
 
-import { MessageHistoryImpl } from "../apps/zcode-cli/packages/core/src/agent/message-history.js";
-import { withoutPendingTrailingToolCalls } from "../apps/zcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
-import { buildRuntimeProviderRequestMessages } from "../apps/zcode-cli/packages/core/src/runtime/helpers/runtime-provider-request-messages.js";
-import { resolveBtwMaxOutputTokens } from "../apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.js";
-import { createModel } from "../apps/zcode-cli/packages/adapters/src/model/model.js";
-import * as btw from "../apps/zcode-cli/packages/tui/src/app-btw.js";
-import * as keyboard from "../apps/zcode-cli/packages/tui/src/app-btw-keyboard.js";
+import { MessageHistoryImpl } from "../apps/qcode-cli/packages/core/src/agent/message-history.js";
+import { withoutPendingTrailingToolCalls } from "../apps/qcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
+import { buildRuntimeProviderRequestMessages } from "../apps/qcode-cli/packages/core/src/runtime/helpers/runtime-provider-request-messages.js";
+import { resolveBtwMaxOutputTokens } from "../apps/qcode-cli/packages/core/src/runtime/methods/btw-model-request.js";
+import { createModel } from "../apps/qcode-cli/packages/adapters/src/model/model.js";
+import * as btw from "../apps/qcode-cli/packages/tui/src/app-btw.js";
+import * as keyboard from "../apps/qcode-cli/packages/tui/src/app-btw-keyboard.js";
 
 const results = [];
 function assert(name, ok, detail) {

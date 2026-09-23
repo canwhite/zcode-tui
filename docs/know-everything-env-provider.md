@@ -4,7 +4,7 @@
 
 ## 1. 项目轮廓
 
-本次分析范围是「把厂商配置从散落的内部结构收敛到 `.env` 四字段」这一改造。改造横跨三层：**CLI 层**（`apps/zcode-cli/packages/cli/src/`：`vendor.ts` 解析与校验、`personal-vendor.ts` 个人厂商写入、`doctor.ts` 自检、`run.ts` 的 `configure` 子命令）、**领域层**（`packages/provider`：`ProviderConfigResolver`、`resolveInitialModelSelection`、`ConfigService`）、**持久化层**（`packages/provider-node`：`NodePersonalProviderConfigRepository` + 文件 codec）。
+本次分析范围是「把厂商配置从散落的内部结构收敛到 `.env` 四字段」这一改造。改造横跨三层：**CLI 层**（`apps/qcode-cli/packages/cli/src/`：`vendor.ts` 解析与校验、`personal-vendor.ts` 个人厂商写入、`doctor.ts` 自检、`run.ts` 的 `configure` 子命令）、**领域层**（`packages/provider`：`ProviderConfigResolver`、`resolveInitialModelSelection`、`ConfigService`）、**持久化层**（`packages/provider-node`：`NodePersonalProviderConfigRepository` + 文件 codec）。
 
 数据从 `.env` 进入，经解析 → 厂商解析 → 按链路分流（套餐走加密凭据库 / 其余写个人 Provider 配置）→ 落盘 → 由运行期 registry 加载并选型。改造过程中暴露的四个缺陷全部集中在**「CLI 层自己拼装领域对象」**这个接缝上。
 
@@ -14,7 +14,7 @@
 |------|------|----------|
 | Runtime | Node.js | `engines: >=22.13.0`；仓库 pin 24.14.0；实机默认 v26 |
 | Language | TypeScript | 5.9（CLI 包）/ 6.0（根） |
-| 包管理 | pnpm workspace | monorepo，含嵌套 workspace `apps/zcode-cli` |
+| 包管理 | pnpm workspace | monorepo，含嵌套 workspace `apps/qcode-cli` |
 | Build | esbuild（CLI bundle）+ tsc（各包）+ turbo | `dist/zcode.cjs` 单文件 ~30MB |
 | Framework | Ink（TUI） | TUI 与 CLI 同 bundle |
 | Persistence | JSON 文件 | `~/.zcode/v2/{provider_config,credentials}.json` |
@@ -26,7 +26,7 @@
 ## 3. 项目结构
 
 ```
-apps/zcode-cli/packages/
+apps/qcode-cli/packages/
   cli/src/
     vendor.ts            厂商索引 / 四字段解析 / 端点分流       [本轮新增]
     personal-vendor.ts   个人厂商写入（直接拼领域对象）          [本轮新增]

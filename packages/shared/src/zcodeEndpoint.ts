@@ -1,7 +1,7 @@
 import type { ZCodeEnv } from "./env.js";
 
 /**
- * 端点解析：把 `ZCODE_*` / `BIGMODEL_*` 环境变量解析成确定性的 URL 事实。
+ * 端点解析：把 `QCODE_*` / `BIGMODEL_*` 环境变量解析成确定性的 URL 事实。
  *
  * 本模块只服务**模型访问与诊断**这几条仍然存在的路径：
  * 内置 Provider 配置拉取、help 配置、官方 MCP origin、`doctor` 自检、Provider 元数据里的
@@ -12,22 +12,22 @@ import type { ZCodeEnv } from "./env.js";
  * 见 `docs/plan-remove-login-zai-coupling.md`。
  */
 
-export const DEFAULT_ZCODE_ENDPOINT_ORIGIN = "https://zcode.z.ai";
+export const DEFAULT_QCODE_ENDPOINT_ORIGIN = "https://zcode.z.ai";
 export const DEFAULT_BIGMODEL_API_ORIGIN = "https://bigmodel.cn";
 
 // 构建仅注入公开链接；Node 调用方仍可显式传 env，避免读取另一进程的配置。
-declare const __ZCODE_ENDPOINT_ENV__: Record<string, string | undefined> | undefined;
+declare const __QCODE_ENDPOINT_ENV__: Record<string, string | undefined> | undefined;
 export function pickProductEndpointEnv(
   env: Record<string, string | undefined>,
 ): Record<string, string> {
-  const keys = ["ZCODE_BASE_URL", "ZCODE_ENDPOINT_ORIGIN", "BIGMODEL_API_BASE_URL"];
+  const keys = ["QCODE_BASE_URL", "QCODE_ENDPOINT_ORIGIN", "BIGMODEL_API_BASE_URL"];
   return Object.fromEntries(
     keys.flatMap((key) => (env[key]?.trim() ? [[key, env[key]!.trim()]] : [])),
   );
 }
 export function readProductEndpointEnv(): Record<string, string | undefined> {
   return {
-    ...(typeof __ZCODE_ENDPOINT_ENV__ === "undefined" ? {} : __ZCODE_ENDPOINT_ENV__),
+    ...(typeof __QCODE_ENDPOINT_ENV__ === "undefined" ? {} : __QCODE_ENDPOINT_ENV__),
     ...pickProductEndpointEnv(typeof process === "undefined" ? {} : process.env),
   };
 }
@@ -41,14 +41,14 @@ export interface ZCodeEndpointUrls {
 
 export interface RuntimeZCodeEndpointEnv {
   [key: string]: string | undefined;
-  ZCODE_ENV?: string;
-  ZCODE_BASE_URL?: string;
-  ZCODE_ENDPOINT_ORIGIN?: string;
+  QCODE_ENV?: string;
+  QCODE_BASE_URL?: string;
+  QCODE_ENDPOINT_ORIGIN?: string;
 }
 
 export interface RuntimeBigModelApiEnv {
   [key: string]: string | undefined;
-  ZCODE_ENV?: string;
+  QCODE_ENV?: string;
   BIGMODEL_API_BASE_URL?: string;
 }
 
@@ -79,14 +79,14 @@ export function resolveZCodeEndpointOrigin(options?: {
   overrideOrigin?: string | null;
 }): string {
   const origin = options?.overrideOrigin?.trim() || options?.envBaseOrigin?.trim();
-  return origin ? normalizeZCodeEndpointOrigin(origin) : DEFAULT_ZCODE_ENDPOINT_ORIGIN;
+  return origin ? normalizeZCodeEndpointOrigin(origin) : DEFAULT_QCODE_ENDPOINT_ORIGIN;
 }
 
 export function resolveRuntimeZCodeEnv(
   env: RuntimeZCodeEndpointEnv = readProductEndpointEnv(),
 ): ZCodeEnv {
   // 产品身份仅用于既有展示与安装标识，不参与地址解析。
-  return env.ZCODE_ENV?.trim().toLowerCase() === "test" ? "test" : "production";
+  return env.QCODE_ENV?.trim().toLowerCase() === "test" ? "test" : "production";
 }
 
 export function resolveRuntimeZCodeEndpointOrigin(
@@ -95,8 +95,8 @@ export function resolveRuntimeZCodeEndpointOrigin(
 ): string {
   return resolveZCodeEndpointOrigin({
     envBaseOrigin:
-      readRuntimeEnvValue(env, "ZCODE_BASE_URL") ??
-      readRuntimeEnvValue(env, "ZCODE_ENDPOINT_ORIGIN"),
+      readRuntimeEnvValue(env, "QCODE_BASE_URL") ??
+      readRuntimeEnvValue(env, "QCODE_ENDPOINT_ORIGIN"),
     overrideOrigin: options?.overrideOrigin,
   });
 }

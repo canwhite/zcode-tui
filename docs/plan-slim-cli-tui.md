@@ -13,7 +13,7 @@
 
 - 直接触发点是安装被无关依赖堵死 —— electron 的 postinstall 需要从 GitHub 拉二进制，当前网络下 `connect ETIMEDOUT`，整个 `pnpm install` 失败，CLI/TUI 一步都走不到（见痛点 A）。
 - 产品形态上不需要桌面端，但 CLI/TUI 与桌面端/Web/Server 被放在同一个 workspace 里，没有独立获取路径，导致每次都要付出完整工作台的安装与构建代价（痛点 B）。
-- **目录级删除是不安全的**，这已经被侦察证实：`@zcode/cli` 的依赖清单里，`@zcode/shared` 与 `@zcode/provider-node` 位于**根 `packages/`**，而 `tui`/`core`/`adapters` 等在 `apps/zcode-cli/packages/`。也就是说「删掉根 packages/ 下的桌面端相关目录」不能靠直觉划分，边界必须先算出来（痛点 C）。这正是把 F-001 放在第一步的原因。
+- **目录级删除是不安全的**，这已经被侦察证实：`@zcode/cli` 的依赖清单里，`@zcode/shared` 与 `@zcode/provider-node` 位于**根 `packages/`**，而 `tui`/`core`/`adapters` 等在 `apps/qcode-cli/packages/`。也就是说「删掉根 packages/ 下的桌面端相关目录」不能靠直觉划分，边界必须先算出来（痛点 C）。这正是把 F-001 放在第一步的原因。
 
 约束：
 
@@ -45,9 +45,9 @@
 
 - **保留集有两个独立来源，必须取并集**：
   1. **依赖图** —— 从 `@zcode/cli` 与 `@zcode/tui` 的 `dependencies` + `peerDependencies` 递归求解（实测已得 16 个包）。
-  2. **源码注册表** —— `apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`：10 个官方插件通过 `rootCandidates` **在文件系统上探测目录**来加载，**不出现在任何依赖图中**。只按依赖图算保留集，必然误删插件包。
+  2. **源码注册表** —— `apps/qcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 的 `OFFICIAL_PLUGIN_DEFINITIONS`：10 个官方插件通过 `rootCandidates` **在文件系统上探测目录**来加载，**不出现在任何依赖图中**。只按依赖图算保留集，必然误删插件包。
 - **实测收敛后的边界规则**（直接采用，不再重新推断）：
-  - `apps/zcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`）**全部保留**，不删任何内容；
+  - `apps/qcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`）**全部保留**，不删任何内容；
   - 根 `packages/` **保留 5 个**：`shared`、`provider-node`、`provider`、`model-option-map`、`zcode-cua`；
   - 根 `packages/` **删除 9 个**：`client`、`desktop`、`formal-proof`、`rpc`、`server`、`services`、`ui`、`web`、`server-cli`。
 - 产出中必须逐项核对 10 个官方插件的全部 `rootCandidates`（`android-emulator-plugin`、`browser-use-plugin`、`image-search-plugin`、`ios-simulator-plugin`、`node-repl-host`、`plugin-creator-plugin`、`restore-legacy-sessions-plugin`、`skill-creator-plugin`、`zcode-cua-plugin`、`zcode-guide-plugin`）在删除后仍可解析。
@@ -57,7 +57,7 @@
 
 - 删除顺序：先删无被依赖者的叶子包，再删其上游，避免中途出现悬空引用。
 - **每删除一个包，必须同步清理以下 5 处引用**（漏一处就会在安装或类型检查阶段炸）：
-  1. `pnpm-workspace.yaml` 的 4 条 glob（`packages/*`、`apps/zcode-cli`、`apps/zcode-cli/packages/*`、`apps/zcode-cli/tools/*`）
+  1. `pnpm-workspace.yaml` 的 4 条 glob（`packages/*`、`apps/qcode-cli`、`apps/qcode-cli/packages/*`、`apps/qcode-cli/tools/*`）
   2. 根 `package.json` 中引用该包的 script：`dev:web`、`dev:server`、`prepare:desktop-runtime`、`build:bootstrap`、`bundle:desktop`、`prepare:remote-assets`
   3. 根 `package.json` 的 `typecheck` —— **硬编码枚举**了 `packages/rpc`、`packages/provider`、`packages/provider-node`、`packages/shared`、`packages/services`、`packages/client`、`packages/server`、`packages/zcode-server-cli`、`packages/ui`、`packages/web`、`packages/desktop/tsconfig.host.json`
   4. `knip.json` 的 `workspaces` 条目（当前含 `packages/desktop`、`packages/server`、`packages/services`）
@@ -67,7 +67,7 @@
 ### 4. F-005 收敛安装与构建入口
 
 - 让 `pnpm bootstrap` 成为纯 CLI/TUI 路径：去掉对桌面端的 `prepare:desktop-runtime` 调用，`build:bootstrap` 的 `--filter` 收敛到保留侧。
-- 顺带移除 `scripts/bootstrap.mjs:161` 的 `git submodule update --init --recursive apps/zcode-cli` —— `README.md` 已明确 `apps/zcode-cli` 是普通目录、非 submodule，该行是从 submodule 时代遗留的死代码（本次会话最初报错正是它；在空 index 的仓库里它会直接 `pathspec did not match` 中断整个 bootstrap）。
+- 顺带移除 `scripts/bootstrap.mjs:161` 的 `git submodule update --init --recursive apps/qcode-cli` —— `README.md` 已明确 `apps/qcode-cli` 是普通目录、非 submodule，该行是从 submodule 时代遗留的死代码（本次会话最初报错正是它；在空 index 的仓库里它会直接 `pathspec did not match` 中断整个 bootstrap）。
 - 目标：`pnpm bootstrap` 全程不出现 electron / desktop / web / server 字样的构建步骤。
 
 ### 5. F-007 从零回归验证
@@ -165,7 +165,7 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 
 | 所在位置                   | 保留包                                                                                                                    |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `apps/zcode-cli/packages/` | cli、adapters、bootstrap、contracts、core、dynamic-workflow、dynamic-workflow-runtime、i18n、shared-types、telemetry、tui |
+| `apps/qcode-cli/packages/` | cli、adapters、bootstrap、contracts、core、dynamic-workflow、dynamic-workflow-runtime、i18n、shared-types、telemetry、tui |
 | 根 `packages/`             | **shared、provider-node、provider、model-option-map、zcode-cua**                                                          |
 
 `@zcode/zcode-cua` 确实在闭包内（经 `@zcode/adapters` 引入），**必须保留**。同时实测其 `dependencies` 为空对象 `{}`，目录内全部为纯 JS（`broker-*.js`、`frame-contract.js`、`host-display-contract.js`、`index.js`）—— **零原生依赖、零桌面耦合**，保留它不会把桌面端拖回来。
@@ -186,7 +186,7 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 **Severity**: 5 | **Likelihood**: 4 | **Detectability**: 0.35
 **Risk Score**: 13.0 —— **HIGH**
 
-**Failure Scenario**：`@zcode/zcode-cua` 位于根 `packages/zcode-cua`（`private: true`，不可从 registry 补齐），但被 `apps/zcode-cli/packages/{adapters,core,node-repl-host}/package.json` 以 `workspace:*` 直接依赖。若按「CUA 是桌面端能力，属于花里胡哨」的直觉把它划入剔除侧，`@zcode/cli` 的安装直接解析失败；若只删了目录却忘了某一条引用，则表现为**安装通过、运行时缺能力**。这个案例的意义不在于它本身，而在于它证明了「按目录或语义归类」必然出错。
+**Failure Scenario**：`@zcode/zcode-cua` 位于根 `packages/zcode-cua`（`private: true`，不可从 registry 补齐），但被 `apps/qcode-cli/packages/{adapters,core,node-repl-host}/package.json` 以 `workspace:*` 直接依赖。若按「CUA 是桌面端能力，属于花里胡哨」的直觉把它划入剔除侧，`@zcode/cli` 的安装直接解析失败；若只删了目录却忘了某一条引用，则表现为**安装通过、运行时缺能力**。这个案例的意义不在于它本身，而在于它证明了「按目录或语义归类」必然出错。
 
 **Mitigation**:
 
@@ -214,12 +214,12 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 **Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.35
 **Risk Score**: 10.4
 
-**Failure Scenario**：仓库是两层 workspace —— 根 `pnpm-workspace.yaml`（4 条 glob，显式包含 `apps/zcode-cli`）+ 根 `pnpm-lock.yaml`，以及 `apps/zcode-cli/pnpm-workspace.yaml`（`packages/*`、`tools/*`）+ `apps/zcode-cli/pnpm-lock.yaml`（版本 0.16.9）。而子层的 lock 里 `@zcode/shared` 解析为 `link:../../../../packages/shared`，**跨出了子 workspace 回指根目录**。删除根包后若只修了根 lock，在 `apps/zcode-cli` 目录下安装仍会指向已删路径。典型症状是「根目录装得动、子目录装不动」或反过来的间歇性失败，且报错信息不会指向真正的原因。
+**Failure Scenario**：仓库是两层 workspace —— 根 `pnpm-workspace.yaml`（4 条 glob，显式包含 `apps/qcode-cli`）+ 根 `pnpm-lock.yaml`，以及 `apps/qcode-cli/pnpm-workspace.yaml`（`packages/*`、`tools/*`）+ `apps/qcode-cli/pnpm-lock.yaml`（版本 0.16.9）。而子层的 lock 里 `@zcode/shared` 解析为 `link:../../../../packages/shared`，**跨出了子 workspace 回指根目录**。删除根包后若只修了根 lock，在 `apps/qcode-cli` 目录下安装仍会指向已删路径。典型症状是「根目录装得动、子目录装不动」或反过来的间歇性失败，且报错信息不会指向真正的原因。
 
 **Mitigation**:
 
-- 两层配置与 lock 必须**成对更新**：根 `pnpm-workspace.yaml` + `pnpm-lock.yaml`，以及 `apps/zcode-cli/pnpm-workspace.yaml` + `apps/zcode-cli/pnpm-lock.yaml`。
-- 验证必须**在两个目录各跑一次**：仓库根与 `apps/zcode-cli`，两者都要安装成功。
+- 两层配置与 lock 必须**成对更新**：根 `pnpm-workspace.yaml` + `pnpm-lock.yaml`，以及 `apps/qcode-cli/pnpm-workspace.yaml` + `apps/qcode-cli/pnpm-lock.yaml`。
+- 验证必须**在两个目录各跑一次**：仓库根与 `apps/qcode-cli`，两者都要安装成功。
 - 删除步骤的完成判据里加上「子 workspace 的 lock 中不再出现指向被删路径的 `link:`」。
 
 ### [Risk-05] 没有 CI，本机成为唯一验证环境
@@ -304,11 +304,11 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 **Severity**: 4 | **Likelihood**: 4 | **Detectability**: 0.50
 **Risk Score**: 8.0
 
-**Failure Scenario**：pnpm 不会自动清理已被移出 workspace 的包在 `node_modules` 中的残留（更不用说本仓库是两层 workspace，`apps/zcode-cli/node_modules` 是独立的一份）。删除目录后直接在本机跑验证，可能因为残留链接仍在而一切正常；等到在干净环境重新安装时才失败。这类"本机永远绿、别人永远红"的差异最难排查。
+**Failure Scenario**：pnpm 不会自动清理已被移出 workspace 的包在 `node_modules` 中的残留（更不用说本仓库是两层 workspace，`apps/qcode-cli/node_modules` 是独立的一份）。删除目录后直接在本机跑验证，可能因为残留链接仍在而一切正常；等到在干净环境重新安装时才失败。这类"本机永远绿、别人永远红"的差异最难排查。
 
 **Mitigation**:
 
-- 第 5 步的「从零」必须是**真从零**：删除根与 `apps/zcode-cli` 两处的 `node_modules` 及构建产物后再安装。
+- 第 5 步的「从零」必须是**真从零**：删除根与 `apps/qcode-cli` 两处的 `node_modules` 及构建产物后再安装。
 - 每删除一个包后，同步清理其对应的 `node_modules` 残留，避免累积。
 - 把「干净环境安装成功」而非「本机安装成功」作为判据。
 
@@ -353,7 +353,7 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 
 **Mitigation**:
 
-- **保留侧仍依赖的补丁必须保留**：`@ai-sdk/openai-compatible@2.0.60`、`@ai-sdk/anthropic@3.0.81` 的目标包由 `apps/zcode-cli/packages/adapters` 使用（保留侧），**已保留**，补丁继续生效。
+- **保留侧仍依赖的补丁必须保留**：`@ai-sdk/openai-compatible@2.0.60`、`@ai-sdk/anthropic@3.0.81` 的目标包由 `apps/qcode-cli/packages/adapters` 使用（保留侧），**已保留**，补丁继续生效。
 - **只被删除侧使用的补丁必须一并移除**，否则 `pnpm install` 会以 `ERR_PNPM_UNUSED_PATCH` 失败。`@arms/rum-electron@0.0.3` 的目标包仅被 `packages/desktop` 使用（9 个 desktop 源文件 + 根声明），**已移除其声明与补丁文件**。
 - 教训：包管理器的 WARN 文本不构成行为证据，判断有效性要看**锁文件的真实结构**与**失败时的行为**。
 
@@ -390,15 +390,15 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 **Risk Score**: 14.0 —— **HIGH（原始分）**
 **残余 Risk Score**: 5.0 —— **降级后**
 
-**Failure Scenario**：`apps/zcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 中的 `OFFICIAL_PLUGIN_DEFINITIONS` 定义了 **10 个官方插件**（node-repl-host、computer-use、browser-use、android-emulator、image-search、ios-simulator、restore-legacy-sessions、plugin-creator、skill-creator、zcode-guide），每个通过 **`rootCandidates` 在文件系统上探测目录**来定位，**而不是通过依赖解析**。因此 `browser-use-plugin`、`node-repl-host` 这类插件包**不出现在任何 `package.json` 的依赖里**。
+**Failure Scenario**：`apps/qcode-cli/packages/bootstrap/src/app/official-plugin-definitions.ts` 中的 `OFFICIAL_PLUGIN_DEFINITIONS` 定义了 **10 个官方插件**（node-repl-host、computer-use、browser-use、android-emulator、image-search、ios-simulator、restore-legacy-sessions、plugin-creator、skill-creator、zcode-guide），每个通过 **`rootCandidates` 在文件系统上探测目录**来定位，**而不是通过依赖解析**。因此 `browser-use-plugin`、`node-repl-host` 这类插件包**不出现在任何 `package.json` 的依赖里**。
 
 任何"按依赖图算保留集"的做法都会把它们判为可删。按静态闭包删除后：安装成功、类型检查全绿、CLI 能正常启动 —— 但插件在运行时加载失败或静默缺失。用户拿到的是一个「看起来完全正常」却已经不再原原本本的 CLI。**这是本计划最核心的失败形态：所有门禁都是绿的，交付物却是错的。**
 
-**验证结论**：插件加载的权威来源已定位（源码注册表 `rootCandidates`），保留边界不再依赖推断。`apps/zcode-cli/packages/` 下另有 `superpowers-plugin`、`debug`、`swift-bridge`、`tools/prompt-trajectory`、`tools/typescript` 等同样不在任何依赖图中的包，均属于同一类盲区。
+**验证结论**：插件加载的权威来源已定位（源码注册表 `rootCandidates`），保留边界不再依赖推断。`apps/qcode-cli/packages/` 下另有 `superpowers-plugin`、`debug`、`swift-bridge`、`tools/prompt-trajectory`、`tools/typescript` 等同样不在任何依赖图中的包，均属于同一类盲区。
 
 **Mitigation**:
 
-- **保留边界改为不依赖依赖图的规则**：`apps/zcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`）**一律不删**；删除动作只针对根 `packages/` 下的包。
+- **保留边界改为不依赖依赖图的规则**：`apps/qcode-cli/` 整棵子树（`packages/`、`tools/`、`dependencies/`）**一律不删**；删除动作只针对根 `packages/` 下的包。
 - 删除清单由此收敛为根 `packages/` 的 **9 个包**：`client`、`desktop`、`formal-proof`、`rpc`、`server`、`services`、`ui`、`web`、`server-cli`。
 - 保留清单为根 `packages/` 的 **5 个包**：`shared`、`provider-node`、`provider`、`model-option-map`、`zcode-cua`。
 - 删除后逐项核对 `OFFICIAL_PLUGIN_DEFINITIONS` 的全部 `rootCandidates`，确认每一个仍可解析。
@@ -433,6 +433,6 @@ README 中的「组装」指的是另一个入口 —— `pnpm dev:web`（由 `@
 1. **依赖图**（`package.json` 的 `dependencies` / `peerDependencies` 递归闭包）
 2. **源码注册表**（`OFFICIAL_PLUGIN_DEFINITIONS` 的 `rootCandidates` 文件系统探测）
 
-两者取并集后，边界收敛成一条极简且可验证的规则 —— **`apps/zcode-cli/` 整棵子树全保留；只从根 `packages/` 删 9 个包、留 5 个包**。这也是本计划第 2 步应当交付的边界结论（而非「三态清单」那种模糊产物，因为它已被实测收敛为确定解）。
+两者取并集后，边界收敛成一条极简且可验证的规则 —— **`apps/qcode-cli/` 整棵子树全保留；只从根 `packages/` 删 9 个包、留 5 个包**。这也是本计划第 2 步应当交付的边界结论（而非「三态清单」那种模糊产物，因为它已被实测收敛为确定解）。
 
-> Next step: 执行计划第 2 步 —— 以本条结论为保留边界（`apps/zcode-cli/` 全保留 + 根 `packages/` 留 5 删 9），产出 `docs/dependency-boundary.md`；其中必须逐项核对 10 个官方插件的 `rootCandidates` 仍可解析。删除动作从根 `packages/` 的 9 个包开始。
+> Next step: 执行计划第 2 步 —— 以本条结论为保留边界（`apps/qcode-cli/` 全保留 + 根 `packages/` 留 5 删 9），产出 `docs/dependency-boundary.md`；其中必须逐项核对 10 个官方插件的 `rootCandidates` 仍可解析。删除动作从根 `packages/` 的 9 个包开始。

@@ -32,7 +32,7 @@ pnpm bootstrap
 
 `pnpm bootstrap` installs workspace dependencies and then runs `build:bootstrap`, which builds `@zcode/cli` and all of its workspace dependencies. The install path contains no desktop-side dependencies such as electron.
 
-The Agent CLI and runtime source code lives in [apps/zcode-cli/](apps/zcode-cli/) as a regular directory included when you clone this repository. No separate checkout or Git submodule initialization is required.
+The Agent CLI and runtime source code lives in [apps/qcode-cli/](apps/qcode-cli/) as a regular directory included when you clone this repository. No separate checkout or Git submodule initialization is required.
 
 Commands that can also be run individually:
 
@@ -55,7 +55,7 @@ pnpm --filter @zcode/cli dev
 
 # Build the CLI and its workspace dependencies, then run the build output
 pnpm --filter "@zcode/cli..." build
-node apps/zcode-cli/packages/cli/dist/zcode.cjs --help
+node apps/qcode-cli/packages/cli/dist/zcode.cjs --help
 ```
 
 ## Configuration
@@ -93,7 +93,7 @@ If `~/.claude` does not exist, the first run creates it and writes a short READM
 
 | Directory                                      | Responsibility                                                                          |
 | ---------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `apps/zcode-cli`                               | Agent CLI, TUI, runtime, and tools                                                      |
+| `apps/qcode-cli`                               | Agent CLI, TUI, runtime, and tools                                                      |
 | `packages/shared`, `packages/model-option-map` | Shared protocols and types, model option mapping                                        |
 | `packages/provider`, `packages/provider-node`  | Common provider capabilities and Node implementations                                   |
 | `packages/zcode-cua`                           | Computer Use interface placeholder (this build does not provide the capability)         |
@@ -132,7 +132,7 @@ Scope rule: **Z.ai's own remote resources are kept locally; generic third-party 
 | `test/vendor-scan.mjs`                                                     | Behavioural scan of vendored resources (backdoors + special-case logic), including decryption of protected payloads |
 | `third-party/resources.json`                                               | Remote-resource ledger (single source of truth)                                                                     |
 | `third-party/vendored/zhipu-official-plugin/**`                            | Vendored official plugin marketplace (manifest + 26 plugin packages + icons, ~11 MiB)                               |
-| `apps/zcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | Official CDN URL → local-copy resolution primitives                                                                 |
+| `apps/qcode-cli/packages/adapters/src/plugins/official-vendored-assets.ts` | Official CDN URL → local-copy resolution primitives                                                                 |
 
 ### Modified files
 
@@ -140,10 +140,10 @@ Scope rule: **Z.ai's own remote resources are kept locally; generic third-party 
 
 | File                                                                   | Change                                                                                                                                                               |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/zcode-cli/packages/adapters/src/plugins/zip-source.ts`           | Plugin archives are now read **local-first** (addressing only; the manifest-published sha256 check is unchanged); failed fetch produces a resource-naming diagnostic |
-| `apps/zcode-cli/packages/adapters/src/plugins/official-marketplace.ts` | Added `seedCdnPartitionFromVendoredSync` to seed the CDN partition from the vendored manifest                                                                        |
-| `apps/zcode-cli/packages/adapters/src/plugins/index.ts`                | Exported the localization resolution primitives                                                                                                                      |
-| `apps/zcode-cli/packages/bootstrap/src/app/bundled-plugins.ts`         | Seeds the CDN partition after writing the bundled one, so official plugins are listed on a first offline start                                                       |
+| `apps/qcode-cli/packages/adapters/src/plugins/zip-source.ts`           | Plugin archives are now read **local-first** (addressing only; the manifest-published sha256 check is unchanged); failed fetch produces a resource-naming diagnostic |
+| `apps/qcode-cli/packages/adapters/src/plugins/official-marketplace.ts` | Added `seedCdnPartitionFromVendoredSync` to seed the CDN partition from the vendored manifest                                                                        |
+| `apps/qcode-cli/packages/adapters/src/plugins/index.ts`                | Exported the localization resolution primitives                                                                                                                      |
+| `apps/qcode-cli/packages/bootstrap/src/app/bundled-plugins.ts`         | Seeds the CDN partition after writing the bundled one, so official plugins are listed on a first offline start                                                       |
 | `scripts/clean.mjs`                                                    | Added a protected-root assertion and a post-clean snapshot check so shipped resources are never deleted                                                              |
 | `.gitignore`                                                           | Ignores local caches of generic third-party packages while keeping the shipped localization copies tracked                                                           |
 
@@ -151,14 +151,14 @@ Scope rule: **Z.ai's own remote resources are kept locally; generic third-party 
 
 | File                                                             | Change                                                                                                                                  |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/zcode-cli/packages/cli/src/run.ts`                         | Wires in the `doctor` self-check and entry-level `.env` loading                                                                         |
-| `apps/zcode-cli/packages/cli/src/env.ts`                         | Extracted the single entry-level `.env` loader (previously each command loaded its own)                                                 |
-| `apps/zcode-cli/packages/cli/src/provider-runtime-env.ts`        | `configure` now also prepares the built-in and personal Provider Config paths                                                           |
-| `apps/zcode-cli/packages/cli/src/arguments.ts`                   | Added `configure`'s `--api-key` / `--provider`; the key can come from the environment so it never appears on the command line           |
-| `apps/zcode-cli/packages/cli/src/doctor.ts` (new in this branch) | Added an "official plugin localization" self-check reporting coverage; fails by name when copies are missing or corrupt                 |
-| `apps/zcode-cli/packages/shared-types/src/index.ts`              | Added the fields `configure` needs for non-interactive writes                                                                           |
+| `apps/qcode-cli/packages/cli/src/run.ts`                         | Wires in the `doctor` self-check and entry-level `.env` loading                                                                         |
+| `apps/qcode-cli/packages/cli/src/env.ts`                         | Extracted the single entry-level `.env` loader (previously each command loaded its own)                                                 |
+| `apps/qcode-cli/packages/cli/src/provider-runtime-env.ts`        | `configure` now also prepares the built-in and personal Provider Config paths                                                           |
+| `apps/qcode-cli/packages/cli/src/arguments.ts`                   | Added `configure`'s `--api-key` / `--provider`; the key can come from the environment so it never appears on the command line           |
+| `apps/qcode-cli/packages/cli/src/doctor.ts` (new in this branch) | Added an "official plugin localization" self-check reporting coverage; fails by name when copies are missing or corrupt                 |
+| `apps/qcode-cli/packages/shared-types/src/index.ts`              | Added the fields `configure` needs for non-interactive writes                                                                           |
 | `packages/provider/src/model-selection-config.ts`                | Distinguishes registry-order fallback from "the configured model is no longer selectable"; the two degradations are reported separately |
-| `apps/zcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts`      | Synced CLI help text (added `configure`, corrected the `doctor` description)                                                            |
+| `apps/qcode-cli/packages/i18n/src/locales/{zh-CN,en-US}.ts`      | Synced CLI help text (added `configure`, corrected the `doctor` description)                                                            |
 | `.env.example`                                                   | Reworked into a `ZCODE_VENDOR`-driven four-field vendor configuration template                                                          |
 
 **Disconnecting the platform gateway rewrite** (`painpoints/pp8.md`)
@@ -167,9 +167,9 @@ Model requests used to be rewritten to a ZCode platform gateway endpoint (`{endp
 
 | File                                                                         | Change                                                                                                                                                                      |
 | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts` | **Deleted** (endpoint rewrite, fetch wrapper, and the `OFFICIAL_CODING_PLAN_GATEWAY_ROUTES` route table)                                                                    |
-| `apps/zcode-cli/packages/adapters/src/model/model-execution.ts`              | Removed the gateway fetch wrapper; `createProviderTransportFetch` is now a plain direct connection                                                                          |
-| `apps/zcode-cli/packages/adapters/src/model/index.ts`                        | Removed the module's barrel export                                                                                                                                          |
+| `apps/qcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts` | **Deleted** (endpoint rewrite, fetch wrapper, and the `OFFICIAL_CODING_PLAN_GATEWAY_ROUTES` route table)                                                                    |
+| `apps/qcode-cli/packages/adapters/src/model/model-execution.ts`              | Removed the gateway fetch wrapper; `createProviderTransportFetch` is now a plain direct connection                                                                          |
+| `apps/qcode-cli/packages/adapters/src/model/index.ts`                        | Removed the module's barrel export                                                                                                                                          |
 | `config/provider/zcode-builtin.json`                                         | **Removed all 7 entries pointing at `zcode.z.ai`** (4 `providerRules` + 3 `providerSiteRules`) plus the 10 `builtinProviderModelRules` referencing them; `revision` 30 → 32 |
 
 > **Four behaviour changes**: (1) one fewer network hop; (2) `httpProxy` / `noProxy` are now evaluated against the **vendor** endpoint instead of the gateway address — noticeable on corporate networks; (3) the platform-side `3007` content-safety check no longer fires and its error paths become dead code; (4) **platform-side billing attribution is unverified** and must be confirmed with the platform.
@@ -196,10 +196,10 @@ The account concept is gone entirely. The **non-login Coding Plan configuration 
 
 | File                                                | Change                                                                                                                                                                                     |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `apps/zcode-cli/packages/cli/src/prompt-command.ts` | `resolveSkillCommandName` now returns the skill's **canonical name** (`findSkillEntry(...)?.name`) instead of the lower-cased `rawName`; removed the now-redundant `isResolvableSkillName` |
+| `apps/qcode-cli/packages/cli/src/prompt-command.ts` | `resolveSkillCommandName` now returns the skill's **canonical name** (`findSkillEntry(...)?.name`) instead of the lower-cased `rawName`; removed the now-redundant `isResolvableSkillName` |
 | `test/repro-pp10-skill-command.mts` (new)           | Repro gate using the **real** skill discovery and custom-command loader, so the input list is byte-identical to the TUI's                                                                  |
 
-> `package.json` and `apps/zcode-cli/package.json` also changed (the `engines.node` floor, the `configure` script, and so on), but **JSON cannot carry comments**, so no `Modified by ZCode:` header can be placed inside them — this section is the record for those. `pnpm-lock.yaml` is generated and likewise unannotated.
+> `package.json` and `apps/qcode-cli/package.json` also changed (the `engines.node` floor, the `configure` script, and so on), but **JSON cannot carry comments**, so no `Modified by ZCode:` header can be placed inside them — this section is the record for those. `pnpm-lock.yaml` is generated and likewise unannotated.
 
 The remainder are this branch's own documentation (`README*`, `AGENTS.md`, `docs/`).
 

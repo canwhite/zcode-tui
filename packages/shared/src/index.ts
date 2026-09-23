@@ -28,7 +28,7 @@ export type {
 } from "./protocol.js";
 export type { WorkspacePurpose } from "./workspacePurpose.js";
 export { DEFAULT_LOCALE } from "./protocol.js";
-export { ZCODE_VERSION, ZCODE_COMMIT, ZCODE_BUILD_TIME } from "./version.js";
+export { QCODE_VERSION, QCODE_COMMIT, QCODE_BUILD_TIME } from "./version.js";
 export type { HelloMessage, HelloAckMessage } from "./handshake.js";
 export type { ArmsRumEnv, ZCodeEnv, ZCodeProductFlavor } from "./env.js";
 export type { RemoteAssetInstallMode } from "./remoteAssetInstallMode.js";
@@ -60,14 +60,14 @@ export {
   serializeShortcutBinding,
 } from "./shortcutCommands.js";
 export {
-  ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
-  ZCODE_APP_VERSION_ENV,
-  ZCODE_BUILD_COMMIT_ID_ENV,
-  RUNTIME_ZCODE_DEBUG,
-  ZCODE_TELEMETRY_REPORT_ENDPOINT,
-  ZCODE_ARMS_RUM_ENDPOINT,
-  ZCODE_TELEMETRY_ENABLED,
+  QCODE_ENV,
+  QCODE_PRODUCT_FLAVOR,
+  QCODE_APP_VERSION_ENV,
+  QCODE_BUILD_COMMIT_ID_ENV,
+  RUNTIME_QCODE_DEBUG,
+  QCODE_TELEMETRY_REPORT_ENDPOINT,
+  QCODE_ARMS_RUM_ENDPOINT,
+  QCODE_TELEMETRY_ENABLED,
   mapZCodeEnvToArmsRumEnv,
   normalizeZCodeEnv,
   normalizeZCodeProductFlavor,
@@ -97,7 +97,7 @@ export * from "./zcode-session-task-status.js";
 export * from "./zcode-tool-projection-memory.js";
 export * from "./zcode-slash-command-help.js";
 export * from "./zcodeEndpoint.js";
-export * from "./zcode-agent-policy.js";
+export * from "./qcode-agent-policy.js";
 export * from "./zcode-media-policy.js";
 export * from "./media-preview.js";
 export * from "./plugin-display-name.js";

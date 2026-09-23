@@ -140,7 +140,7 @@ nodes:
     codeSeeds:
       - file: packages/ui/src/settings/SubagentsSection.tsx
         symbol: SubagentsSection
-      - file: apps/zcode-cli/packages/core/src/tool/handlers/agent.ts
+      - file: apps/qcode-cli/packages/core/src/tool/handlers/agent.ts
         symbol: agentHandler
   - id: state.subagent-form-draft
     kind: state-owner
@@ -179,9 +179,9 @@ nodes:
       - 引导
       - 消息队列
     codeSeeds:
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/v4-gateway.ts
         symbol: ConversationV4Gateway
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/session-flow.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/session-flow.ts
         symbol: sendText
   - id: state.conversation-projection
     kind: state-owner
@@ -316,7 +316,7 @@ nodes:
     kind: service
     label: CLI serial command admission and idempotency
     codeSeeds:
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/command-inbox.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/command-inbox.ts
         symbol: CommandInbox
     aliases:
       - busy input
@@ -327,13 +327,13 @@ nodes:
     kind: state-owner
     label: CLI authoritative projection of runtime events
     codeSeeds:
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/product-projection.ts
         symbol: ProductProjection
   - id: service.conversation-topic-publisher
     kind: service
     label: CLI conversation delta publication and subscription recovery
     codeSeeds:
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-topic-publisher.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/conversation-topic-publisher.ts
         symbol: ConversationTopicPublisher
   - id: state.composer-submission-intent
     kind: state-owner
@@ -347,13 +347,13 @@ nodes:
     kind: service
     label: CLI sendText submission handling
     codeSeeds:
-      - file: apps/zcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/session-flow.ts
+      - file: apps/qcode-cli/packages/bootstrap/src/zcode-protocol-v4/commands/handlers/session-flow.ts
         symbol: sendText
   - id: service.runtime-submission-execution
     kind: service
     label: Runtime applies the admitted submission selection at execution
     codeSeeds:
-      - file: apps/zcode-cli/packages/core/src/runtime/methods/turn-model.ts
+      - file: apps/qcode-cli/packages/core/src/runtime/methods/turn-model.ts
         symbol: applySubmissionExecutionState
 edges:
   - from: capability.model-selection

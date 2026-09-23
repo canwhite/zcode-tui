@@ -98,6 +98,7 @@ type UseTuiKeyboardControlsOptions = {
   switchMode: () => void;
   toggleSidebar: () => boolean;
   toggleSidebarSection: (section: SidebarSectionId) => boolean;
+  toggleSidebarCollapse: () => void;
 };
 
 export function useTuiKeyboardControls({
@@ -142,6 +143,7 @@ export function useTuiKeyboardControls({
   switchMode,
   toggleSidebar,
   toggleSidebarSection,
+  toggleSidebarCollapse,
 }: UseTuiKeyboardControlsOptions): void {
   const ctrlCExitGuardRef = useRef<CtrlCExitGuard>(createCtrlCExitGuard());
   const sidebarShortcutRef = useRef<SidebarShortcutState>(createSidebarShortcutState());
@@ -207,6 +209,13 @@ export function useTuiKeyboardControls({
             toggleSidebarSection,
           })
         ) {
+          resetCtrlCExitGuard(ctrlCExitGuardRef.current);
+          return;
+        }
+
+        if (key.name === "b" && key.ctrl) {
+          consumeKey(key);
+          toggleSidebarCollapse();
           resetCtrlCExitGuard(ctrlCExitGuardRef.current);
           return;
         }

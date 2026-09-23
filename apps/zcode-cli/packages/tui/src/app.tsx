@@ -382,12 +382,14 @@ export function TuiApp({
     switchMode,
     workflowExpansion: workflowRuns.expansion,
     toggleSidebar: sidebar.toggleSidebar,
+    toggleSidebarCollapse: sidebar.toggleSidebarCollapse,
     toggleSidebarSection: sidebar.toggleSidebarSection,
   });
 
   return React.createElement(AppView, {
     subagents,
     toggleSidebar: sidebar.toggleSidebar,
+    toggleSidebarCollapse: sidebar.toggleSidebarCollapse,
     activeTurnId,
     approvalQueue,
     btw: btw.state,

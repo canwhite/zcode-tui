@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 export const SIDEBAR_WIDTH = 42;
 export const SIDEBAR_HORIZONTAL_PADDING_COLUMNS = 1;
 export const SIDEBAR_CONTENT_WIDTH = SIDEBAR_WIDTH - SIDEBAR_HORIZONTAL_PADDING_COLUMNS * 2;
+export const SIDEBAR_COLLAPSED_WIDTH = 12;
 const SIDEBAR_AUTO_VISIBLE_BREAKPOINT = 120;
 export const SIDEBAR_OVERLAY_BACKGROUND = RGBA.fromInts(0, 0, 0, 70);
 
@@ -16,6 +17,7 @@ type SidebarControllerState = {
   narrowOverlayOpen: boolean;
   preference: SidebarPreference;
   sections: SidebarSectionExpansion;
+  userCollapsed: boolean;
 };
 
 export type SidebarLayout = {
@@ -23,6 +25,7 @@ export type SidebarLayout = {
   reservedWidth: number;
   visible: boolean;
   wide: boolean;
+  collapsed: boolean;
 };
 
 type SidebarController = {
@@ -31,6 +34,7 @@ type SidebarController = {
   terminalWidth: number;
   toggleSidebarSection: (section: SidebarSectionId) => boolean;
   toggleSidebar: () => boolean;
+  toggleSidebarCollapse: () => void;
 };
 
 const DEFAULT_SIDEBAR_STATE: SidebarControllerState = {
@@ -43,6 +47,7 @@ const DEFAULT_SIDEBAR_STATE: SidebarControllerState = {
     modifiedFiles: true,
     todos: true,
   },
+  userCollapsed: false,
 };
 
 export function useSidebarController(): SidebarController {
@@ -68,6 +73,9 @@ export function useSidebarController(): SidebarController {
     },
     [state],
   );
+  const toggleSidebarCollapse = useCallback(() => {
+    setState((prev) => ({ ...prev, userCollapsed: !prev.userCollapsed }));
+  }, []);
 
   return {
     layout,
@@ -75,6 +83,7 @@ export function useSidebarController(): SidebarController {
     terminalWidth,
     toggleSidebarSection,
     toggleSidebar,
+    toggleSidebarCollapse,
   };
 }
 
@@ -86,11 +95,15 @@ function sidebarLayoutForTerminal(
   const visible = state.narrowOverlayOpen || (state.preference === "auto" && wide);
   const overlay = visible && !wide;
 
+  const baseWidth = visible && !overlay ? SIDEBAR_WIDTH : 0;
+  const reservedWidth = state.userCollapsed ? Math.min(baseWidth, SIDEBAR_COLLAPSED_WIDTH) : baseWidth;
+
   return {
     overlay,
-    reservedWidth: visible && !overlay ? SIDEBAR_WIDTH : 0,
+    reservedWidth,
     visible,
     wide,
+    collapsed: state.userCollapsed,
   };
 }
 
@@ -104,6 +117,7 @@ function toggleSidebarState(
       narrowOverlayOpen: false,
       preference: "hidden",
       sections: state.sections,
+      userCollapsed: false,
     };
   }
 
@@ -111,6 +125,7 @@ function toggleSidebarState(
     narrowOverlayOpen: !layout.wide,
     preference: "auto",
     sections: state.sections,
+    userCollapsed: false,
   };
 }
 

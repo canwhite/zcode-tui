@@ -14,6 +14,7 @@ import { SidebarSectionHeader } from "./app-sidebar-section-header.js";
 import { SubagentsSection } from "./app-sidebar-subagents.js";
 import type { SubagentItem, SubagentsController } from "./app-subagents.js";
 import {
+  SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_CONTENT_WIDTH,
   SIDEBAR_HORIZONTAL_PADDING_COLUMNS,
   SIDEBAR_WIDTH,
@@ -44,6 +45,8 @@ type SidebarProps = SidebarState & {
   copy?: TuiCopy;
   developerMode?: boolean;
   onToggleSection?: (section: SidebarSectionId) => void;
+  onToggleCollapse?: () => void;
+  collapsed?: boolean;
   sectionExpansion?: SidebarSectionExpansion;
   version?: string;
 };
@@ -51,6 +54,28 @@ type SidebarProps = SidebarState & {
 export function Sidebar(props: SidebarProps): React.ReactElement {
   const copy = props.copy ?? DEFAULT_TUI_COPY;
   const developerMode = props.developerMode === true;
+  const collapsed = props.collapsed === true;
+
+  // 收缩态：只渲染展开按钮（>），固定收缩宽度
+  if (collapsed) {
+    return h(
+      "box",
+      {
+        style: {
+          backgroundColor: palette.panelAlt,
+          border: false,
+          flexDirection: "column",
+          flexShrink: 0,
+          height: "100%",
+          padding: SIDEBAR_HORIZONTAL_PADDING_COLUMNS,
+          width: SIDEBAR_COLLAPSED_WIDTH,
+        },
+      },
+      collapseToggleButton(">", props.onToggleCollapse),
+    );
+  }
+
+  // 展开态：渲染完整侧边栏，底部加收缩按钮（<）
   return h(
     "box",
     {
@@ -114,10 +139,43 @@ export function Sidebar(props: SidebarProps): React.ReactElement {
         ]
       : []),
     h("box", { style: { flexGrow: 1 } }),
+    collapseToggleButton("<", props.onToggleCollapse),
     h(
       "text",
       { style: { ...SIDEBAR_TEXT_ROW_STYLE, fg: palette.muted } },
       workspaceFooterLabel(props),
+    ),
+  );
+}
+
+function collapseToggleButton(
+  label: string,
+  onToggle?: () => void,
+): React.ReactElement {
+  return h(
+    "box",
+    {
+      key: "collapse-toggle",
+      style: {
+        flexShrink: 0,
+        width: SIDEBAR_CONTENT_WIDTH,
+      },
+    },
+    h(
+      "text",
+      {
+        onMouseUp: (event: { stopPropagation?: () => void }) => {
+          event.stopPropagation?.();
+          onToggle?.();
+        },
+        selectable: false,
+        style: {
+          ...SIDEBAR_TEXT_ROW_STYLE,
+          fg: palette.muted,
+          truncate: false,
+        },
+      },
+      label,
     ),
   );
 }

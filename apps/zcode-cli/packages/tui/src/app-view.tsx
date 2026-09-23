@@ -54,6 +54,7 @@ const h = React.createElement as (
 export function AppView(props: {
   subagents?: SubagentsController;
   toggleSidebar?: () => boolean;
+  toggleSidebarCollapse?: () => void;
   activeTurnId?: TurnId;
   approvalQueue: ApprovalPrompt[];
   btw?: BtwState;
@@ -159,6 +160,8 @@ export function AppView(props: {
         modifiedFiles: props.modifiedFiles,
         networkRequests: props.networkRequests,
         onToggleSection: props.toggleSidebarSection,
+        onToggleCollapse: props.toggleSidebarCollapse,
+        collapsed: props.sidebarLayout.collapsed,
         sectionExpansion: props.sidebarSections,
         status: props.status,
         statusDetails: props.statusDetails,

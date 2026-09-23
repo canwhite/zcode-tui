@@ -9,7 +9,7 @@
 //   node test/offline-acceptance.mjs              跑全部断言
 //   node test/offline-acceptance.mjs --with-clean 额外验证 make clean 后资源存活
 //
-// 前置：需要已构建的 CLI 产物（apps/zcode-cli/packages/cli/dist/zcode.cjs）。
+// 前置：需要已构建的 CLI 产物（apps/qcode-cli/packages/cli/dist/qcode.cjs）。
 //       未构建时本脚本直接失败并给出构建命令，不静默跳过。
 
 import { spawnSync } from "node:child_process";
@@ -20,7 +20,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/qcode.cjs");
 
 /** 封锁全部非 npm 出网：把代理指向一个必定拒绝连接的端口。 */
 const DEAD_PROXY = "http://127.0.0.1:9";
@@ -45,7 +45,7 @@ function runCli(args, { env = {}, storage } = {}) {
   const child = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: { ...process.env, ZCODE_STORAGE_DIR: storage, ...env },
+    env: { ...process.env, QCODE_STORAGE_DIR: storage, ...env },
   });
   return { status: child.status, stdout: child.stdout ?? "", stderr: child.stderr ?? "" };
 }
@@ -70,7 +70,7 @@ function readMarketplace(storage) {
     "cli",
     "plugins",
     "marketplaces",
-    "zcode-plugins-official",
+    "qcode-plugins-official",
     "marketplace.json",
   );
   if (!existsSync(path)) return undefined;
@@ -83,7 +83,7 @@ console.log("断网验收关卡\n");
 
 if (!existsSync(cliPath)) {
   console.error(`  FAIL  CLI 产物不存在：${cliPath}`);
-  console.error(`        先构建：pnpm --filter @zcode/cli build`);
+  console.error(`        先构建：pnpm --filter @qcode/cli build`);
   console.error(`        注意：bootstrap 必须单独重建（CLI 解析的是它的 dist，不是源码）`);
   process.exit(1);
 }
@@ -111,7 +111,7 @@ if (npmReachable) {
 }
 
 // A3 — 断网下市场可列出智谱插件
-const listStorage = mkdtempSync(join(tmpdir(), "zcode-accept-list-"));
+const listStorage = mkdtempSync(join(tmpdir(), "qcode-accept-list-"));
 const listed = runCli(["plugins", "list"], { env: BLOCKED_ENV, storage: listStorage });
 const marketplace = readMarketplace(listStorage);
 const zhipu = (marketplace?.plugins ?? []).filter((p) => p.source?.type === "zip");
@@ -126,7 +126,7 @@ assert(
 );
 
 // A4 — 断网下可安装（这一轮是"正向"：有本地副本，应当成功）
-const okStorage = mkdtempSync(join(tmpdir(), "zcode-accept-ok-"));
+const okStorage = mkdtempSync(join(tmpdir(), "qcode-accept-ok-"));
 const okInstall = runCli(["plugins", "install", PROBE_PLUGIN], {
   env: BLOCKED_ENV,
   storage: okStorage,
@@ -142,11 +142,11 @@ assert(
 // 这一条同时证明两件事，缺一不可：
 //   1) A4 的成功确实来自本地副本，不是缓存或回源；
 //   2) 封锁对 CLI 的取网路径真的生效——若 CLI 能出网，这里反而会"安装成功"而断言失败。
-const noVendorStorage = mkdtempSync(join(tmpdir(), "zcode-accept-novendor-"));
+const noVendorStorage = mkdtempSync(join(tmpdir(), "qcode-accept-novendor-"));
 const noVendorInstall = runCli(["plugins", "install", PROBE_PLUGIN], {
   env: {
     ...BLOCKED_ENV,
-    ZCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "zcode-no-such-vendored-root"),
+    QCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "qcode-no-such-vendored-root"),
   },
   storage: noVendorStorage,
 });

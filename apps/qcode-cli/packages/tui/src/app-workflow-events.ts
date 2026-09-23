@@ -4,7 +4,7 @@
 // 保持「只依赖 @zcode/shared」的纪律（与共享 reducer 不得反向依赖 contracts 同一姿态）；
 // 顺带让 app-events.ts 的 switch 保持在 max-lines 之内。
 import type { DynamicWorkflowRunProgressPayload } from "@qcode/contracts";
-import type { WorkflowRunProgressEnvelope } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunProgressEnvelope } from "@qcode/shared/qcode-protocol-v4";
 import { applyWorkflowProgressToMirror, type TuiWorkflowMirror } from "./app-workflow-mirror.js";
 
 export type WorkflowMirrorSetter = (

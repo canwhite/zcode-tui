@@ -4,7 +4,7 @@
 // （订阅要拿到 applySessionEvent，而后者反过来要拿本 hook 的 setter，放一起会绕成环）。
 import React from "react";
 import type { TuiCopy } from "@qcode/i18n";
-import type { WorkflowRunProgressEnvelope } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunProgressEnvelope } from "@qcode/shared/qcode-protocol-v4";
 import type { Message } from "./app-model.js";
 import type { TuiOptions } from "./types.js";
 import { useWorkflowRunSeeding } from "./app-workflow-seed.js";

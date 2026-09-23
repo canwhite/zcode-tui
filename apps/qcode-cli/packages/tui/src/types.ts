@@ -1,4 +1,4 @@
-import type { WorkflowRunProgressEnvelope } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunProgressEnvelope } from "@qcode/shared/qcode-protocol-v4";
 import type { ModelSelection, ZCodeModelOption } from "@qcode/shared";
 import type {
   CollaborationMode,

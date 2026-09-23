@@ -10,7 +10,7 @@
 // 丢掉；而归约状态还装着**还没落行**的 queued 节点，那正是「当前阶段有几个在跑」要数的东西。
 
 import type { DynamicWorkflowRunPhaseView } from "@qcode/contracts";
-import type { WorkflowRunNode, WorkflowRunState } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunNode, WorkflowRunState } from "@qcode/shared/qcode-protocol-v4";
 import type { RosterEventIndex } from "./dynamic-workflow-run-roster-events.js";
 
 /** world-read / world-run 之外的节点都按 ask 记：`kind` 只在出生事件上携带，缺席即未知。 */

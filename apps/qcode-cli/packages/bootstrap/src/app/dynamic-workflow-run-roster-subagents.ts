@@ -18,7 +18,7 @@ import type {
   DynamicWorkflowRunSubagentView,
 } from "@qcode/contracts";
 import type { ActorRecord, NodeRecord } from "@qcode/dynamic-workflow";
-import type { WorkflowRunNode, WorkflowRunState } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunNode, WorkflowRunState } from "@qcode/shared/qcode-protocol-v4";
 import {
   instanceKey,
   laterOf,

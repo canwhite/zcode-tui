@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { CommandAgentSource } from "./command-types.js";
-import type { ZCodeProvider } from "./zcode-task-types-core.js";
+import type { ZCodeProvider } from "./qcode-task-types-core.js";
 
 export const QCODE_AGENT_PROVIDER = "glm" satisfies ZCodeProvider;
 export const QCODE_AGENT_PROVIDER_LABEL = "ZCode Agent";

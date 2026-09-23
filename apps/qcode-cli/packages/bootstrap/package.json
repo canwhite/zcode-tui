@@ -11,8 +11,8 @@
       "import": "./dist/index.js"
     },
     "./v4-replay": {
-      "types": "./dist/zcode-protocol-v4/replay.d.ts",
-      "import": "./dist/zcode-protocol-v4/replay.js"
+      "types": "./dist/qcode-protocol-v4/replay.d.ts",
+      "import": "./dist/qcode-protocol-v4/replay.js"
     }
   },
   "scripts": {

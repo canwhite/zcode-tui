@@ -16,7 +16,7 @@ import type {
   DynamicWorkflowRunPort,
 } from "@qcode/contracts";
 import type { JournalStorePort } from "@qcode/dynamic-workflow";
-import { reduceWorkflowRunsState, type WorkflowRunsState } from "@qcode/shared/zcode-protocol-v4";
+import { reduceWorkflowRunsState, type WorkflowRunsState } from "@qcode/shared/qcode-protocol-v4";
 import type { DynamicWorkflowIntrospectableJournal } from "./dynamic-workflow-run-journal.js";
 import { readRunScriptPath, readRunSubagentModel } from "./dynamic-workflow-run-launch-anchor.js";
 import {

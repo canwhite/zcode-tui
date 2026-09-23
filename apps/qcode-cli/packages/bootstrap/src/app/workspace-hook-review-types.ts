@@ -7,7 +7,7 @@ import {
   type WorkspaceHookAdmissionUpdatedPayload,
 } from "@qcode/contracts";
 import type { WorkspaceHookRuntimeAdmissionPort, WorkspaceHookTrustCoordinator } from "@qcode/core";
-import type { WorkspaceHookReviewRequestPayload } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkspaceHookReviewRequestPayload } from "@qcode/shared/qcode-protocol-v4";
 
 export type WorkspaceHookReviewLifecycleEvent =
   | {

@@ -5,13 +5,13 @@
 // task-realtime.ts 保留旧协议兼容接口；本文件集中定义对应的运行时 schema。
 
 import { z } from "zod";
-import type { ZCodeTaskMigrationSource, ZCodeTaskMode } from "./zcode-task-types-core.js";
-import { zcodeAgentProviderSchema } from "./zcode-agent-policy.js";
-import { zcodePermissionResponseSchema } from "./zcode-protocol-legacy-types.js";
+import type { ZCodeTaskMigrationSource, ZCodeTaskMode } from "./qcode-task-types-core.js";
+import { qcodeAgentProviderSchema } from "./qcode-agent-policy.js";
+import { zcodePermissionResponseSchema } from "./qcode-protocol-legacy-types.js";
 // merge 冲突解决：两侧分别在相邻行新增独立 import（本分支 hook trust review
 // 决策 schema、staging telemetry error attribution schema），二者无语义交集，均保留。
-import { workspaceHookReviewDecisionSchema } from "./zcode-protocol-v4/workspace-hook-review.js";
-import { errorAttributionSchema } from "./zcode-protocol-v4/snapshot.js";
+import { workspaceHookReviewDecisionSchema } from "./qcode-protocol-v4/workspace-hook-review.js";
+import { errorAttributionSchema } from "./qcode-protocol-v4/snapshot.js";
 
 const nonEmptyString = z.string().trim().min(1);
 const zcodeTaskModeRealtimeValues = [
@@ -57,7 +57,7 @@ const taskMetaRealtimeSchema = z.object({
   mode: z.enum(zcodeTaskModeRealtimeValues),
   model: z.string().optional(),
   runtimeEpoch: z.number().int().nonnegative().optional(),
-  provider: zcodeAgentProviderSchema.optional(),
+  provider: qcodeAgentProviderSchema.optional(),
   migrationSource: z.enum(zcodeTaskMigrationSourceRealtimeValues).optional(),
   forkedFromTaskId: nonEmptyString.optional(),
   unreadAt: z.number().int().nonnegative().optional(),

@@ -146,9 +146,9 @@ export const resolveBuildAliases = ({
   ),
   // esbuild alias 按前缀改写导入路径。所有 shared subpath 必须在通用入口前精确声明，
   // 否则会被错误解析为 `src/index.ts/<subpath>` 并让 Desktop agent/SEA 打包失败。
-  "@qcode/shared/zcode-protocol-v4": resolve(
+  "@qcode/shared/qcode-protocol-v4": resolve(
     rootDirectory,
-    "../../packages/shared/src/zcode-protocol-v4/index.ts",
+    "../../packages/shared/src/qcode-protocol-v4/index.ts",
   ),
   // ModelSelection schema 改为 shared 单一事实源后新增了本子路径引用。
   // esbuild alias 按前缀改写；若不在通用入口前精确声明，会错误拼到

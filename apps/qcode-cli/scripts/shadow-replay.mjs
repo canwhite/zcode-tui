@@ -32,8 +32,8 @@ const { values: args } = parseArgs({
 const [{ createSqliteSessionStore }, hydration, projectionModule, contracts] =
   await Promise.all([
     pkg("adapters/dist/storage/index.js"),
-    pkg("bootstrap/dist/zcode-protocol-v4/transcript-hydration.js"),
-    pkg("bootstrap/dist/zcode-protocol-v4/product-projection.js"),
+    pkg("bootstrap/dist/qcode-protocol-v4/transcript-hydration.js"),
+    pkg("bootstrap/dist/qcode-protocol-v4/product-projection.js"),
     pkg("contracts/dist/index.js"),
   ]);
 const {

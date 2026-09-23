@@ -21,7 +21,7 @@ import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookReviewRequestPayload,
   WorkspaceHookTrustRevokeTarget,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 import type { WorkspaceHookRuntimeRoot } from "@qcode/shared/workspace-hook-discovery";
 import {
   WorkspaceHookReviewController,

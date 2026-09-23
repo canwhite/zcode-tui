@@ -1,4 +1,4 @@
-import type { ZCodePermissionRequest } from "./zcode-task-types-core.js";
+import type { ZCodePermissionRequest } from "./qcode-task-types-core.js";
 
 export type PermissionRequestScope = "command" | "file" | "generic";
 

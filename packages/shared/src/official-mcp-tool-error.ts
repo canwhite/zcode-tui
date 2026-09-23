@@ -6,7 +6,7 @@
  *
  * 放在 shared 是因为有三个分属不同包的消费者：
  * - `apps/zcode-cli/packages/core`：解析 MCP 结果，把 code 带进 tool result display；
- * - `packages/shared/src/zcode-protocol-v4/rows.ts`：row schema 校验该 code；
+ * - `packages/shared/src/qcode-protocol-v4/rows.ts`：row schema 校验该 code；
  * - `packages/ui`：按 code 决定输入框上方提示的文案与动作。
  * 三处必须同源，否则新增 code 时会出现一侧识别、另一侧丢弃。
  */

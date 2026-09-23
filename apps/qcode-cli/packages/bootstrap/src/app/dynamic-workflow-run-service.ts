@@ -72,7 +72,7 @@ import type {
   WorkflowSubmitPort,
 } from "@qcode/contracts";
 import type { AgentRuntime } from "@qcode/core";
-import { WORKFLOW_RUNS_LIMITS } from "@qcode/shared/zcode-protocol-v4";
+import { WORKFLOW_RUNS_LIMITS } from "@qcode/shared/qcode-protocol-v4";
 import type {
   ActorSubmitProfile,
   ActorRef,

@@ -1,4 +1,4 @@
-import type { ZCodePluginStoreListing } from "./zcode-protocol/index.js";
+import type { ZCodePluginStoreListing } from "./qcode-protocol/index.js";
 
 const CANONICAL_PLUGIN_NAME_ACRONYMS: Readonly<Record<string, string>> = {
   aws: "AWS",

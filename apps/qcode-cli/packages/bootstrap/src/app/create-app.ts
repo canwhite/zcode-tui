@@ -39,7 +39,7 @@ import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@qcode/shared
 import {
   QCODE_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 
 import { createModelAdapter } from "../model-factory.js";
 import { StartupTimer, startupNow } from "../startup-logging.js";

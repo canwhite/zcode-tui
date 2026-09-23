@@ -4,7 +4,7 @@ import {
   type WorkspaceHookBundleSnapshot,
 } from "@qcode/contracts";
 import type { WorkspaceHookReviewTarget, WorkspaceHookSnapshotEvaluation } from "@qcode/core";
-import type { WorkspaceHookReviewRequestPayload } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkspaceHookReviewRequestPayload } from "@qcode/shared/qcode-protocol-v4";
 import type { WorkspaceHookReviewHostPort } from "./workspace-hook-review-types.js";
 
 export function buildWorkspaceHookReviewRequest(input: {

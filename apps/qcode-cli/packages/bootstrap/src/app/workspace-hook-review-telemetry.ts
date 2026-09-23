@@ -7,7 +7,7 @@ import {
 import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookReviewRequestPayload,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 
 export class WorkspaceHookReviewTelemetry {
   constructor(

@@ -5,7 +5,7 @@ import {
   workspaceHookReviewRequestPayloadSchema,
   type WorkspaceHookReviewDecision,
   type WorkspaceHookReviewRequestPayload,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 
 export interface WorkspaceHookReviewTarget {
   sessionId: string;

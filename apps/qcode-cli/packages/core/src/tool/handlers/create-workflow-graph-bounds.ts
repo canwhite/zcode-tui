@@ -3,7 +3,7 @@
 // ============================================================
 // 从 create-workflow.ts 拆出：阶段词汇表让
 // handler 文件越过 max-lines 上限，而裁剪本身是一段自洽的纯逻辑——分析器全图进，契约
-// 形状出，无 I/O、无 memo、无端口。与 zcode-protocol-v4/create-workflow-display.ts 从
+// 形状出，无 I/O、无 memo、无端口。与 qcode-protocol-v4/create-workflow-display.ts 从
 // rows.ts 拆出同一先例。
 //
 // 这里装的是一张**显示图**而不再是因果图的镜像。第二层是子代理导向：step 层只剩站点表

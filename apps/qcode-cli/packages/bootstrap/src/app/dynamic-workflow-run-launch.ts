@@ -543,7 +543,7 @@ function pinnedActorModel(input: {
  *
  * 新增一个事件种类在**本函数**里是零改动的，这正是"不重塑字段名"买到的东西：`type` 取判别式、
  * payload 是其余字段，这里没有按种类的分支可漏。**但下游确实有一个按种类的 switch**：
- * `zcode-protocol-v4/product-projection.ts` 的 `applyWorkflowRunEvent` 逐种类归约，其
+ * `qcode-protocol-v4/product-projection.ts` 的 `applyWorkflowRunEvent` 逐种类归约，其
  * `eventType` 形参是 `string` 而不是 `RunEvent["type"]`，漏一支 tsc 不会报——加事件种类时
  * 要去读那个 switch，不能指望编译器。
  */

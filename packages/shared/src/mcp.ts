@@ -4,7 +4,7 @@
  */
 
 import type { SettingsDirectoryLocation } from "./settings-source.js";
-import type { McpServerFailureKind } from "./zcode-protocol/index.js";
+import type { McpServerFailureKind } from "./qcode-protocol/index.js";
 
 // CUA official plugin 身份常量（port 自 feat；UI 设置面板 + bootstrap 复用以避免字面量漂移）。
 export const QCODE_CUA_OFFICIAL_PLUGIN_ID = "computer-use@qcode-plugins-official";

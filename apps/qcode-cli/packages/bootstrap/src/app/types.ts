@@ -24,7 +24,7 @@ import type {
 import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookTrustRevokeTarget,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 import type { ZCodeModelOption } from "@qcode/shared";
 import type { EffectiveModelSelectionResult } from "@qcode/shared/model-selection";
 export type { ZCodeModelOption } from "@qcode/shared";

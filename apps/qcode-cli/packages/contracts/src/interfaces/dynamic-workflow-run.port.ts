@@ -582,12 +582,12 @@ function truncateSurrogateSafe(value: string, maxLength: number): string {
 
 /**
  * workflow run 里**任意脚本值**（顶层返回的产物、`report(item)` 的条目）→ 给模型或读者看的
- * 文本。实现已随共享 workflowRuns reducer 搬进 `@zcode/shared/zcode-protocol-v4`
+ * 文本。实现已随共享 workflowRuns reducer 搬进 `@zcode/shared/qcode-protocol-v4`
  * （workflow-artifact.ts，规则与来龙去脉见那边的注释）：`reports[].preview` 的归约下沉到
  * shared 后成了第四个消费者，而依赖方向是 contracts → shared，只能函数跟着搬。这里保留
  * re-export，既有的三个消费者（完成通知、TaskOutput 的 resultText、v4 投影）一行不改。
  */
-export { serializeWorkflowArtifact } from "@qcode/shared/zcode-protocol-v4";
+export { serializeWorkflowArtifact } from "@qcode/shared/qcode-protocol-v4";
 
 /**
  * workflow run 的窄端口。与 legacy {@link import("./workflow.port.js").WorkflowPort} 并列而非

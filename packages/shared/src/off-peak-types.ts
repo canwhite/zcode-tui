@@ -1,4 +1,4 @@
-import type { ZCodeTaskMode } from "./zcode-task-types-core.js";
+import type { ZCodeTaskMode } from "./qcode-task-types-core.js";
 import type { ModelSelection } from "./model-selection.js";
 
 // ---- 闲时任务(Off-Peak Task)领域类型 ----

@@ -3,7 +3,7 @@ import type { SkillRoot } from "@qcode/contracts";
 
 /**
  * 动态工作流灰度门在 App 装配层的两处减法。
- * 工具面的减法在 core 的 registerBuiltInTools，`/` 目录的减法在 zcode-protocol/slash-commands.ts；
+ * 工具面的减法在 core 的 registerBuiltInTools，`/` 目录的减法在 qcode-protocol/slash-commands.ts；
  * 这里只放「命令展开」和「技能发现」这两项需要 bootstrap 侧常量/路径推导的。
  */
 

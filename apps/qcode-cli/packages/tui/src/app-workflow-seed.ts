@@ -8,7 +8,7 @@
 //   3. 没有第二时钟：只在挂载与 app 更换时各查一次，不轮询、不 setInterval。
 import React from "react";
 import type { TuiCopy } from "@qcode/i18n";
-import type { WorkflowRunProgressEnvelope } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunProgressEnvelope } from "@qcode/shared/qcode-protocol-v4";
 import type { Message } from "./app-model.js";
 import type { TuiListWorkflowRuns, TuiReplayWorkflowRuns, TuiWorkflowRunSummary } from "./types.js";
 import type { TuiWorkflowRunSeed } from "./app-workflow-mirror.js";

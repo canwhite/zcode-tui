@@ -16,7 +16,7 @@ import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookReviewRequestPayload,
   WorkspaceHookTrustRevokeTarget,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 import { WorkspaceHookMutationError } from "@qcode/shared/workspace-hook-mutation";
 
 export type * from "./workspace-hook-review-types.js";

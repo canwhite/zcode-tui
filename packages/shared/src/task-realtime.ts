@@ -5,7 +5,7 @@
 // shared channels.ts（旧 host 通道表）。
 // 运行时 zod schema 与 resolveWorkspaceKey 已迁 task-realtime-core.ts（幸存面）；
 // 基础传输类型（TaskRealtimeReason/TaskStreamMirrorOp/TaskStreamWatermark 等）已迁
-// zcode-task-types-core.ts。本文件与旧 realtime 总线组同生命周期。
+// qcode-task-types-core.ts。本文件与旧 realtime 总线组同生命周期。
 import type {
   ZCodeTaskClientMode,
   ZCodeTaskRuntimeCommand,
@@ -16,9 +16,9 @@ import type {
   TaskStreamMirrorUserMessageOp,
   TaskStreamMirrorStreamEventOp,
   TaskStreamMirrorOp,
-} from "./zcode-task-types-core.js";
-import type { ZCodePermissionResponse } from "./zcode-protocol-legacy-types.js";
-import type { WorkspaceHookReviewDecision } from "./zcode-protocol-v4/workspace-hook-review.js";
+} from "./qcode-task-types-core.js";
+import type { ZCodePermissionResponse } from "./qcode-protocol-legacy-types.js";
+import type { WorkspaceHookReviewDecision } from "./qcode-protocol-v4/workspace-hook-review.js";
 
 export interface TaskRealtimeEnvelope {
   eventId: string;

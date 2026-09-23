@@ -20,7 +20,7 @@ import {
   type WorkflowRunProgressEnvelope,
   type WorkflowRunState,
   type WorkflowRunsState,
-} from "@qcode/shared/zcode-protocol-v4";
+} from "@qcode/shared/qcode-protocol-v4";
 
 /** log 尾的界：条数与单条长度都限，避免一个话多的 run 把镜像吃成无界。 */
 const TUI_WORKFLOW_LOG_TAIL_LIMITS = {

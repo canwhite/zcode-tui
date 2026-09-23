@@ -21,7 +21,7 @@ import type {
   DynamicWorkflowRunSubagentView,
 } from "@qcode/contracts";
 import type { ActorRecord, NodeRecord, StoredEvent } from "@qcode/dynamic-workflow";
-import type { WorkflowRunState } from "@qcode/shared/zcode-protocol-v4";
+import type { WorkflowRunState } from "@qcode/shared/qcode-protocol-v4";
 import { TERMINAL_RUN_STATUSES } from "./dynamic-workflow-run-observation.js";
 import {
   indexRosterEvents,

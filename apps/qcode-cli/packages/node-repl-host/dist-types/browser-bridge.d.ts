@@ -1,4 +1,4 @@
-import type { NodeReplRequestMeta, NodeReplSession } from "@zcode/core/repl";
+import type { NodeReplRequestMeta, NodeReplSession } from "@qcode/core/repl";
 export interface ActiveNodeReplCall {
     generation: number;
     requestMeta: NodeReplRequestMeta;

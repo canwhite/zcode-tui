@@ -100,7 +100,7 @@ if (check) {
     ]);
     if (!actual.equals(expected)) {
       throw new Error(
-        "Generated Bash command registry is stale. Run `pnpm --dir apps/zcode-cli registry:generate`.",
+        "Generated Bash command registry is stale. Run `pnpm --dir apps/qcode-cli registry:generate`.",
       );
     }
   } finally {

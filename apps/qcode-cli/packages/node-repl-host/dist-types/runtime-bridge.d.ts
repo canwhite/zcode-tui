@@ -1,4 +1,4 @@
-import type { BrowserClientTransport } from "@zcode/core/browser-client";
+import type { BrowserClientTransport } from "@qcode/core/browser-client";
 export declare const NODE_REPL_BROWSER_BRIDGE_SYMBOL: unique symbol;
 export declare const BROWSER_UNAVAILABLE_IN_SUBAGENT_MESSAGE = "Browser is not available in subagent";
 export interface NodeReplBrowserRuntimeBridge extends BrowserClientTransport {

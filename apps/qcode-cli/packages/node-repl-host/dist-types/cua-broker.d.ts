@@ -1,5 +1,5 @@
-import type { ComputerUseRuntime } from "@zcode/zcode-cua";
-import type { Logger } from "@zcode/contracts";
+import type { ComputerUseRuntime } from "@qcode/zcode-cua";
+import type { Logger } from "@qcode/contracts";
 import type { NodeReplCuaBrokerConnection } from "./cua-bridge.js";
 export interface NodeReplCuaBroker {
     connection: NodeReplCuaBrokerConnection;

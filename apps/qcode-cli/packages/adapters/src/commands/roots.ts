@@ -111,7 +111,7 @@ async function pathExists(path: string): Promise<boolean> {
  *
  * 用 `dirname(configHome)` 推导 `.agents` 会在自定义落点下静默读错目录。
  *
- * 不读 `~/.zcode/commands`：用户级配置面已统一到 `.claude`。
+ * 不读 `~/.qcode/commands`：用户级配置面已统一到 `.claude`。
  * 与 `skills/roots.ts` 的 `userSkillRoots` 保持**相同的形状与理由**，
  * 二者若不同步就会出现「skill 接轨了、命令没接轨」的分裂。
  */
@@ -130,7 +130,7 @@ function userCommandRoots(
  * 项目级自定义命令根。
  *
  * `baseDirectory` 是**仓库根目录**（`<repo>`），各目录名由本函数拼接。
- * 与用户级**刻意不同**：项目级 `<repo>/.zcode/commands` 是仓库内的工程配置，
+ * 与用户级**刻意不同**：项目级 `<repo>/.qcode/commands` 是仓库内的工程配置，
  * 与「个人配置放哪」是不同问题，保持原样不动。
  */
 function projectCommandRoots(baseDirectory: string, nextPriority: () => number): CustomCommandRoot[] {

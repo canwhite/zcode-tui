@@ -3,10 +3,10 @@
  *
  * 为什么有这个文件：Windows 的命令行上限是 32,767 字符，payload 不能再过 argv。harness 把
  * {@link import("./child-source.js").renderChildEntry} 渲染出的 ESM 写到
- * `<cwd>/.zcode/workflow-runs/<runId>.mjs`，spawn 时命令行只剩这条路径。
+ * `<cwd>/.qcode/workflow-runs/<runId>.mjs`，spawn 时命令行只剩这条路径。
  *
  * 裁决：
- *   - 位置 `.zcode/workflow-runs/`，与项目级 saved workflow 的 `.zcode/workflows/` 同级不混放；
+ *   - 位置 `.qcode/workflow-runs/`，与项目级 saved workflow 的 `.qcode/workflows/` 同级不混放；
  *   - 文件**保留**不删（同一 runId 原位覆写），目录兼作每次 run 实际执行体的存档；
  *   - 目录里由本模块写一份 `.gitignore`（`*`），只在缺席时写一次，绝不碰项目自己的 `.gitignore`；
  *   - 项目目录写不进（只读 checkout、cwd 不存在、`.zcode` 是个普通文件…）→ 回落到
@@ -21,7 +21,7 @@ import { join } from "node:path";
 /** harness 向调用方报告的非致命状况；bootstrap 落成 warn 日志。 */
 export interface HarnessWarning {
   kind: "entry_file_fallback";
-  /** 本想写入的项目目录（`<cwd>/.zcode/workflow-runs`）。 */
+  /** 本想写入的项目目录（`<cwd>/.qcode/workflow-runs`）。 */
   projectDir: string;
   /** 实际回落到的目录。 */
   fallbackDir: string;

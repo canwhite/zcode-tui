@@ -238,7 +238,7 @@ async function findInstructionFile(
  * 三点与项目级**刻意不同**，改动前请先读完：
  *
  * 1. 路径来源是配置家目录（经 `getUserConfigHome`，承载 `QCODE_CONFIG_HOME` 覆盖），
- *    而**不是** `home/.zcode`。用户级配置面已统一到 `.claude`，不再读 `.zcode/AGENTS.md`。
+ *    而**不是** `home/.zcode`。用户级配置面已统一到 `.claude`，不再读 `.qcode/AGENTS.md`。
  *
  * 2. 闸门与项目级共用同一个 `priorityFiles`（见 `:99` 的 `options.priorityFiles ??
  *    DEFAULT_PRIORITY_FILES`，以及 `:107` 传给 `findInstructionFile`）。

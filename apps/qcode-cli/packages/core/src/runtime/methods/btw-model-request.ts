@@ -23,10 +23,10 @@ import { createRuntimeModel } from "./runtime-model.js";
  *
  * | 通道 | 落点 | 本模块的控制手段 |
  * |------|------|------------------|
- * | ① model-io | `~/.zcode/cli/{rollout,debug}` | 非流式 `generateText` + `metadata.skipTranscript` |
- * | ② 会话事件流/转录 | `~/.zcode/cli/db/db.sqlite` → `session_entry` / `message` / `part` | 不调用 `appendEvent` / `createEvent`，不提供 `statusSink` |
- * | ③ 用量表 | `~/.zcode/cli/db/db.sqlite` → `model_usage` | 不调用 `recordModelUsageFact` |
- * | ④ JSONL 文件日志 | `~/.zcode/cli/log/` | 提问原文与答案不得作为任何 `logger.*` 的字段值 |
+ * | ① model-io | `~/.qcode/cli/{rollout,debug}` | 非流式 `generateText` + `metadata.skipTranscript` |
+ * | ② 会话事件流/转录 | `~/.qcode/cli/db/db.sqlite` → `session_entry` / `message` / `part` | 不调用 `appendEvent` / `createEvent`，不提供 `statusSink` |
+ * | ③ 用量表 | `~/.qcode/cli/db/db.sqlite` → `model_usage` | 不调用 `recordModelUsageFact` |
+ * | ④ JSONL 文件日志 | `~/.qcode/cli/log/` | 提问原文与答案不得作为任何 `logger.*` 的字段值 |
  *
  * ① 只在**非流式**路径有退出口：`runner-generate.ts` 读 `metadata?.skipTranscript`，
  * 而 `runner-stream.ts` 没有该开关。改成流式会立刻把完整会话快照与答案落进 rollout/debug。

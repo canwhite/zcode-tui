@@ -246,7 +246,7 @@ export const workspaceHookBundleSnapshotSchema = z
           canonicalPath: nonEmptyStringSchema,
           baseDir: nonEmptyStringSchema,
           discoveryOrder: nonnegativeIntegerSchema,
-          configFileKind: z.enum(["qcode.json", ".zcode/config.json", "explicit"]),
+          configFileKind: z.enum(["qcode.json", ".qcode/config.json", "explicit"]),
           explicitProjectConfig: z.boolean(),
           editable: z.boolean(),
           hooksRoot: z

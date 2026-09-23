@@ -35,7 +35,7 @@ import {
 } from "./project-config.adapter.js";
 
 export interface ConfigFactoryOptions {
-  /** Path to user config file (default: ~/.zcode/cli/config.json) */
+  /** Path to user config file (default: ~/.qcode/cli/config.json) */
   userConfigPath?: string;
   /** Path to project config file */
   projectConfigPath?: string;
@@ -128,7 +128,7 @@ export interface PluginConfigSources {
  *
  * Priority (lowest to highest):
  * 1. System defaults
- * 2. User config file (~/.zcode/cli/config.json)
+ * 2. User config file (~/.qcode/cli/config.json)
  * 3. Project config files (root to cwd, then explicit projectConfigPath)
  * 4. Environment variables (QCODE_*)
  * 5. CLI overrides
@@ -159,8 +159,8 @@ export function createConfig(options: ConfigFactoryOptions = {}): ConfigResult {
   // 2.5 `.claude` 侧的 MCP server（配置家目录接轨）
   //
   // 优先级：**高于**用户 config 文件，**低于**项目配置。理由 ——
-  // 用户级配置面已统一到 `.claude`，「不需要再去 ~/.zcode」这条决策要求
-  // `~/.claude.json` 里的 server 压过 `~/.zcode/cli/config.json` 里的同名项；
+  // 用户级配置面已统一到 `.claude`，「不需要再去 ~/.qcode」这条决策要求
+  // `~/.claude.json` 里的 server 压过 `~/.qcode/cli/config.json` 里的同名项；
   // 而项目级 `.mcp.json` 更具体，理应再压过用户级。
   // 与插件的相对顺序在更下游确定：插件先合入、本层覆盖之（见 runtime-config.ts）。
   // 最终即计划定的：项目 > 用户 > 插件。

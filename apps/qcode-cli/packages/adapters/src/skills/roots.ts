@@ -112,7 +112,7 @@ async function pathExists(path: string): Promise<boolean> {
  * `QCODE_CONFIG_HOME=/opt/x/cfg` 这类自定义落点下会静默指向 `/opt/x/.agents`
  * —— 换了落点就读错地方，且没有任何报错。两者必须分开解析。
  *
- * 不读 `~/.zcode/skills`：用户级配置面已统一到 `.claude`。
+ * 不读 `~/.qcode/skills`：用户级配置面已统一到 `.claude`。
  */
 function userSkillRoots(
   configHome: string,
@@ -132,7 +132,7 @@ function userSkillRoots(
  * `baseDirectory` 是**仓库根目录**（`<repo>`），`.claude` / `.zcode` / `.agents`
  * 由本函数拼接。
  *
- * 与用户级**刻意不同**（勿合并成一份）：项目级 `<repo>/.zcode/skills` 是仓库内的
+ * 与用户级**刻意不同**（勿合并成一份）：项目级 `<repo>/.qcode/skills` 是仓库内的
  * 工程配置，与「个人配置放哪」是不同问题，保持原样不动。
  */
 function projectSkillRoots(baseDirectory: string, nextPriority: () => number): SkillRoot[] {

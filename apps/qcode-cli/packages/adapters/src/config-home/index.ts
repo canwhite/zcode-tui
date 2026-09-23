@@ -5,7 +5,7 @@
 // 用户级**配置面**（skill / 指令 / 自定义命令）的落点解析。
 //
 // 与 `bootstrap/src/app/paths.ts` 的 `getCliStorageRoot` 刻意并列而非替代：
-// 后者指向 `~/.zcode` 下的**运行时数据树**（session db / 凭据 / provider 配置 /
+// 后者指向 `~/.qcode` 下的**运行时数据树**（session db / 凭据 / provider 配置 /
 // 日志 / rollout / memories），本模块指向 `~/.claude` 下的**配置面**。
 // 两者正交，互不派生 —— 把配置面切到 `.claude` 不应搬动任何运行时数据。
 

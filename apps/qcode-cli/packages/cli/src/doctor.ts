@@ -551,7 +551,7 @@ function checkConfigHome(env: CliEnv): DoctorCheck[] {
 
   // 存量迁移提示：严格独占已生效，旧路径下的 skill **不再被读取**。
   //
-  // 这一段刻意放在 `homeExists` 分支**之外**：既有 `~/.zcode/skills`、
+  // 这一段刻意放在 `homeExists` 分支**之外**：既有 `~/.qcode/skills`、
   // 又从未建过 `~/.claude` 的用户，正是受影响最严重的一群 ——
   // 若把提示塞进 `homeExists === true` 分支里，他们恰好收不到迁移提示，
   // skill 会静默消失，且表现与「接轨逻辑写错了」完全一致。

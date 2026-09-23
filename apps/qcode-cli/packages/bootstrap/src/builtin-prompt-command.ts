@@ -55,13 +55,13 @@ function buildInitAgentsPrompt(params: {
     `- Instruction file: ${params.targetPath}`,
     `- Existing hidden instruction candidates: ${join(params.workingDirectory, ".claude", "CLAUDE.md")}, ${join(params.workingDirectory, "AGENTS.md")}, ${join(params.workingDirectory, ".zcode", "AGENTS.md")} and ${join(params.workingDirectory, ".agents", "AGENTS.md")}`,
     "- File name must be exactly AGENTS.md.",
-    // 用户级指令已迁到 `~/.claude/CLAUDE.md`（不再有 `~/.zcode/AGENTS.md` 这一档）。
+    // 用户级指令已迁到 `~/.claude/CLAUDE.md`（不再有 `~/.qcode/AGENTS.md` 这一档）。
     // 这句护栏必须指向**现在真正生效**的那条路径，否则它形同虚设。
     "- This command targets the current workspace only. Do not write ~/.claude/CLAUDE.md.",
     additionalInstructions,
     "",
     "Process:",
-    "1. First check whether .zcode/AGENTS.md or .agents/AGENTS.md exists in the workspace. If either exists, tell the user they already have an instructions file, mention the path found, and stop without creating a new AGENTS.md.",
+    "1. First check whether .qcode/AGENTS.md or .agents/AGENTS.md exists in the workspace. If either exists, tell the user they already have an instructions file, mention the path found, and stop without creating a new AGENTS.md.",
     "2. Inspect the repository before writing. Prefer Read, Glob, Grep, and safe Bash commands such as ls, find, git status, and package-manager script inspection.",
     "3. If AGENTS.md already exists, read it first and update it with Edit instead of replacing it wholesale.",
     "4. If AGENTS.md does not exist, create it at the workspace root.",

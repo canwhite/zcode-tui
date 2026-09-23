@@ -210,7 +210,7 @@ function snapshotFromRelease(
   sourceKey: string,
 ): ProviderConfigLayerSnapshot {
   return Object.freeze({
-    revision: `zcode-builtin:${release.revision}:${sourceKey}`,
+    revision: `qcode-builtin:${release.revision}:${sourceKey}`,
     providers: release.config.providers,
     providerTemplates: release.config.providerTemplates,
     models: release.config.modelConfigRules,

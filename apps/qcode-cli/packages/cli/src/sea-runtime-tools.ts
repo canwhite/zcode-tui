@@ -46,7 +46,7 @@ interface EnsureSeaRuntimeToolsOptions {
 
 const assetPrefix = "qcode-runtime-tools/";
 const manifestAssetKey = `${assetPrefix}manifest.json`;
-const markerFileName = ".zcode-runtime-tool.json";
+const markerFileName = ".qcode-runtime-tool.json";
 const runtimeToolIds = new Set<RuntimeToolId>(["bfs", "ripgrep", "ugrep"]);
 
 export async function ensureSeaRuntimeTools(

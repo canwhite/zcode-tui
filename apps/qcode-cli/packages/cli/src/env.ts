@@ -162,7 +162,7 @@ function resolveCliRuntimeEnv(env: CliEnv, argv: readonly string[]): ZCodeRuntim
 function applyBetaStorageDefault(env: CliEnv, argv: readonly string[]): void {
   if (env.QCODE_STORAGE_DIR?.trim()) return;
   const explicitBeta = env.QCODE_BETA === "1" || env.QCODE_ENV === "beta";
-  const invokedAsBeta = argv.some((arg) => /(^|[/\\])zcode-beta(?:$|\.)/u.test(arg));
+  const invokedAsBeta = argv.some((arg) => /(^|[/\\])qcode-beta(?:$|\.)/u.test(arg));
   if (!explicitBeta && !invokedAsBeta) return;
-  env.QCODE_STORAGE_DIR = join(homedir(), ".zcode-beta");
+  env.QCODE_STORAGE_DIR = join(homedir(), ".qcode-beta");
 }

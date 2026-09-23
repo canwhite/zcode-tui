@@ -53,7 +53,7 @@ function renderLogoContent(input: { animated: boolean; frameMs?: number }): Reac
         animated: input.animated,
         baseColor: palette.accent,
         frameMs: input.frameMs,
-        key: `zcode-logo-${index}`,
+        key: `qcode-logo-${index}`,
         text: line,
       }),
     ),

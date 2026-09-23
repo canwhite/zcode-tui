@@ -173,7 +173,7 @@ export async function executeManagedPlaywrightAction(
         ),
       };
     case "elementScreenshot": {
-      const markerAttribute = "data-zcode-element-screenshot";
+      const markerAttribute = "data-qcode-element-screenshot";
       const count = await page.evaluate(
         ({ x, y, includeNonInteractable, markerAttribute }) => {
           const elements = document

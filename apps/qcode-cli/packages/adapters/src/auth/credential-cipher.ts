@@ -97,5 +97,5 @@ function resolveCredentialSecret(env: Record<string, string | undefined>): strin
     // Some packaged or sandboxed runtimes cannot resolve OS user info.
   }
 
-  return `zcode-credential-fallback:${platform()}:${homedir()}:${username}`;
+  return `qcode-credential-fallback:${platform()}:${homedir()}:${username}`;
 }

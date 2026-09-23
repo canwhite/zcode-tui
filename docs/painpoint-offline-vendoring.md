@@ -16,7 +16,7 @@
 - 痛点 D：**"离线"目前是一条没有接线的设计，而不是一个能跑的能力**。`INTRANET_MACHINE_HOST` / `ZCODE_DEPS_BASE_URL` / 内网探针（`scripts/intranetDefaults.mjs`、`packages/shared/src/intranetDefaults.ts`）定义了地址与"未配置就报错"的提示，但**下载侧没有任何代码消费它**，只有 `upload-sea-smb.mjs` 把它当上传目标用。也就是说：今天既不能靠公网（要被去掉），也不能靠内网镜像（没接线），本地化是唯一可行的方向。
 - 痛点 E：**资源没有统一台账，无法审计**。资源信息散落在 `third-party/runtime/sources.json`、`third-party/native-search/sources.json`、`scripts/native-search-tools-config.mjs`、`scripts/remote-native-search-tools-config.mjs`、`sea-targets.mjs` 里，**格式各异**（有的带 sha256 与 url，有的只有 sha256 没有下载地址，有的只有 url）。因此回答不了"全量是多少"，也就无法证明"所有"。
 - 痛点 F：**仓库里已有绕过既有规则的残留**（即用户要扫的"特例判断"的现成样本）。`.env.bak-before-vendor-migration` **被 Git 跟踪**且含一个 `BIGMODEL_API_KEY`——它绕开了 `.gitignore` 的 `.env` 规则（后缀 `.bak-before-vendor-migration` 不匹配 `.env`）；`.gitignore` 中多条规则引用的脚本（`scripts/ci/ci-repo-hygiene.mjs`、`scripts/cua-helper-sea-base.mjs`）**已不存在**；`scripts/prepare-prebuilds.sh` 更彻底——它 `exec node scripts/prepare-prebuilds.mjs`，而那个 `.mjs` **不在仓库里**，这个入口**无条件失败**。
-- 痛点 G（正面基线，须保留）：**仓库里已经有三处"本地优先 + 远端可选"的正确形态**，本地化不该另起一套，而应把它们抽象成通用能力：① `dependencies/native-search/` 的预编译包（入库 + 校验 + 联网为零）；② 插件市场的内置分片（远端失败也能列出内置插件）；③ 内置 Provider 配置 `config/provider/zcode-builtin.json`（构建期烘焙，`zcode-builtin-download.ts:38` 从 `<endpointOrigin>/api/v1/client/configs` 拉到的远端版本被明确定义为**可丢弃的缓存**，且远端配置只带 revision 单调校验、不带 checksum）。
+- 痛点 G（正面基线，须保留）：**仓库里已经有三处"本地优先 + 远端可选"的正确形态**，本地化不该另起一套，而应把它们抽象成通用能力：① `dependencies/native-search/` 的预编译包（入库 + 校验 + 联网为零）；② 插件市场的内置分片（远端失败也能列出内置插件）；③ 内置 Provider 配置 `config/provider/qcode-builtin.json`（构建期烘焙，`zcode-builtin-download.ts:38` 从 `<endpointOrigin>/api/v1/client/configs` 拉到的远端版本被明确定义为**可丢弃的缓存**，且远端配置只带 revision 单调校验、不带 checksum）。
 
 ## 2. 词性拆解
 

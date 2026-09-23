@@ -9,7 +9,7 @@ import { spawn } from "node:child_process";
 function printUsageAndExit() {
   process.stderr.write(
     [
-      "Usage: zcode-stdio-tap.mjs --workspace-key <key> [--log-dir <dir>] -- <command> [...args]",
+      "Usage: qcode-stdio-tap.mjs --workspace-key <key> [--log-dir <dir>] -- <command> [...args]",
       "",
     ].join("\n"),
   );
@@ -53,7 +53,7 @@ function parseArgs(argv) {
   return {
     command: commandAndArgs[0],
     args: commandAndArgs.slice(1),
-    logDir: logDir || join(homedir(), ".zcode", "v2", "dev", "stdio-traffic"),
+    logDir: logDir || join(homedir(), ".qcode", "v2", "dev", "stdio-traffic"),
     workspaceKey,
   };
 }
@@ -191,7 +191,7 @@ child.on("error", (error) => {
     `[tap] spawn failed: ${error.message}`,
     Buffer.byteLength(error.message),
   );
-  process.stderr.write(`[zcode-stdio-tap] spawn failed: ${error.message}\n`);
+  process.stderr.write(`[qcode-stdio-tap] spawn failed: ${error.message}\n`);
 });
 
 child.stdout.on("data", (chunk) => {

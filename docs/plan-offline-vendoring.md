@@ -64,7 +64,7 @@ Node 运行时缓存在 `dist/sea-node-cache` 之下。**注意：pre-mortem 已
 
 1. **枚举**：对全仓（`scripts/`、`packages/`、`apps/`、`config/`、根配置）扫描远程引用点，来源包括但不限于 `https?://` 字面量、`fetch(` / `curl` / `git clone`、`.npmrc` registry、`mise.toml` 工具链。输出候选清单，**先不判重、不下结论**。
 2. **定义结构**：按痛点文档 §3.2 的 `RemoteResource` 落一份机器可读台账。落点建议 `third-party/resources.json`（与既有 `third-party/*/sources.json` 同类、同目录、已被 `.gitattributes` 覆盖为 `-text`，且确认过**不在任何忽略规则下**）。
-3. **填充**：逐条补 `id` / `kind` / `url` / `sha256` / `vendored_path` / `scope(build|runtime)` / `platforms` / `size_bytes` / `consumers`。已被本地化的既有资源（`dependencies/native-search/` 的 19 个包、许可原文、`config/provider/zcode-builtin.json`）**一并登记并标记为"已就绪"**，不重复下载。
+3. **填充**：逐条补 `id` / `kind` / `url` / `sha256` / `vendored_path` / `scope(build|runtime)` / `platforms` / `size_bytes` / `consumers`。已被本地化的既有资源（`dependencies/native-search/` 的 19 个包、许可原文、`config/provider/qcode-builtin.json`）**一并登记并标记为"已就绪"**，不重复下载。
 4. **差集校验（见 Pre-Mortem R3——这是静默假通过的高危点）**：写一个校验入口，把"台账声明的资源"与"实际引用"取差集。**必须由两条独立路径产出并互相对账**：
    - 路径 A：扫源码中的获取点，覆盖**非字面量**形态——`new URL(x, base)` 拼接（`sea-targets.mjs:66` 即此形态）、`fetch(` / `curl` / `git clone` / registry 配置。
    - 路径 B：从台账反推，逐条追问"这条的消费者在哪、以什么方式消费"。

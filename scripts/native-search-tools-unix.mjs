@@ -380,7 +380,7 @@ export function buildNativeSearchToolsUnix({
     // 误进入固定 release。下载源码前先锁住 producer 环境，产物阶段再由 readelf gate 复核。
     verifyLinuxNativeSearchBuildEnvironment(config);
   }
-  const workDir = mkdtempSync(join(tmpdir(), "zcode-native-search-build-"));
+  const workDir = mkdtempSync(join(tmpdir(), "qcode-native-search-build-"));
   const prefix = join(workDir, "prefix");
   const env = {
     ...processEnv,

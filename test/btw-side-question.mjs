@@ -20,7 +20,7 @@
 //
 //   一条完整的空闲态验收流程：
 //     1) node test/btw-side-question.mjs --snapshot --question "ZZBTW-PROBE-<随机串>"
-//     2) 另开终端跑 `pnpm --filter @zcode/cli dev`，**只**输入 `/btw ZZBTW-PROBE-<随机串>`，然后退出
+//     2) 另开终端跑 `pnpm --filter @qcode/cli dev`，**只**输入 `/btw ZZBTW-PROBE-<随机串>`，然后退出
 //     3) node test/btw-side-question.mjs --verify --question "ZZBTW-PROBE-<随机串>" --mode idle
 //
 // 前置：需要已构建的 CLI 产物。未构建时**直接失败并给出构建命令**，不静默跳过。
@@ -32,12 +32,12 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
 const btwSourcePath = join(
   repoRoot,
-  "apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.ts",
+  "apps/qcode-cli/packages/core/src/runtime/methods/btw-model-request.ts",
 );
-const zcodeCliHome = join(homedir(), ".zcode", "cli");
+const zcodeCliHome = join(homedir(), ".qcode", "cli");
 
 /** ① model-io（rollout/debug）与 ④ JSONL 文件日志（log）——三个平级目录，漏一个就会「快照全绿而已落盘」。 */
 const WATCHED_DIRECTORIES = ["rollout", "debug", "log"];
@@ -88,8 +88,8 @@ const option = (name) => {
 
 if (!existsSync(cliPath)) {
   fail(
-    `缺少构建产物：${cliPath}\n请先构建：pnpm --filter "@zcode/cli..." build\n` +
-      "（注意：pnpm --filter @zcode/cli build 不会重建 adapters / core / tui）",
+    `缺少构建产物：${cliPath}\n请先构建：pnpm --filter "@qcode/cli..." build\n` +
+      "（注意：pnpm --filter @qcode/cli build 不会重建 adapters / core / tui）",
   );
 }
 
@@ -244,7 +244,7 @@ function runCliSurfaceAssertions() {
 // ---------------------------------------------------------------------------
 
 function statePath() {
-  return option("--state") ?? join(tmpdir(), "zcode-btw-verify.json");
+  return option("--state") ?? join(tmpdir(), "qcode-btw-verify.json");
 }
 
 function listFilesRecursively(rootDirectory) {

@@ -6,20 +6,20 @@
 // 裁剪坏了会 400，窗口数学坏了会截断，归属坏了会把过期回调写进已关闭的浮层。
 //
 // 这些断言直接 import **源码里的纯函数**（不是源码文本），所以它们证伪的是行为，不是字面量。
-// 之所以能直接 import：`@zcode/shared` 等 workspace 包把 `exports` 指向 `.ts` 源文件，
-// 只有 tsx 能解析这种形态（`node` 不能，`zcode.cjs` 是 esbuild 内联后的产物）。
+// 之所以能直接 import：`@qcode/shared` 等 workspace 包把 `exports` 指向 `.ts` 源文件，
+// 只有 tsx 能解析这种形态（`node` 不能，`qcode.cjs` 是 esbuild 内联后的产物）。
 //
 // 用法：npx tsx test/btw-pure-logic.mjs
 //
 // 放 `test/` 而不是各包里，是因为它跨 core 与 tui 两个包——放任何一边都要深引另一个包。
 
-import { MessageHistoryImpl } from "../apps/zcode-cli/packages/core/src/agent/message-history.js";
-import { withoutPendingTrailingToolCalls } from "../apps/zcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
-import { buildRuntimeProviderRequestMessages } from "../apps/zcode-cli/packages/core/src/runtime/helpers/runtime-provider-request-messages.js";
-import { resolveBtwMaxOutputTokens } from "../apps/zcode-cli/packages/core/src/runtime/methods/btw-model-request.js";
-import { createModel } from "../apps/zcode-cli/packages/adapters/src/model/model.js";
-import * as btw from "../apps/zcode-cli/packages/tui/src/app-btw.js";
-import * as keyboard from "../apps/zcode-cli/packages/tui/src/app-btw-keyboard.js";
+import { MessageHistoryImpl } from "../apps/qcode-cli/packages/core/src/agent/message-history.js";
+import { withoutPendingTrailingToolCalls } from "../apps/qcode-cli/packages/core/src/runtime/helpers/pending-tool-calls.js";
+import { buildRuntimeProviderRequestMessages } from "../apps/qcode-cli/packages/core/src/runtime/helpers/runtime-provider-request-messages.js";
+import { resolveBtwMaxOutputTokens } from "../apps/qcode-cli/packages/core/src/runtime/methods/btw-model-request.js";
+import { createModel } from "../apps/qcode-cli/packages/adapters/src/model/model.js";
+import * as btw from "../apps/qcode-cli/packages/tui/src/app-btw.js";
+import * as keyboard from "../apps/qcode-cli/packages/tui/src/app-btw-keyboard.js";
 
 const results = [];
 function assert(name, ok, detail) {

@@ -16,7 +16,7 @@ run = "mise exec -- node scripts/mise-run.mjs pnpm bootstrap"
 
 [tasks.dev]
 description = "Start the Agent CLI / TUI from source."
-run = "mise exec -- node scripts/mise-run.mjs pnpm --filter @zcode/cli dev"
+run = "mise exec -- node scripts/mise-run.mjs pnpm --filter @qcode/cli dev"
 
 [tasks.typecheck]
 description = "Run the root TypeScript project references check."

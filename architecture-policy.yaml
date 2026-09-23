@@ -12,8 +12,8 @@ modules:
   - id: provider-node
     roots: [packages/provider-node/src]
     managed: false
-  - id: zcode-cli
-    roots: [apps/zcode-cli]
+  - id: qcode-cli
+    roots: [apps/qcode-cli]
     managed: false
 
 global:

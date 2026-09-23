@@ -42,7 +42,7 @@ ZCODE_VENDOR_MODEL=GLM-5.3
 
 | 事实 | 证据 |
 |------|------|
-| **MODEL → 厂商不是函数**：63/165 个模型名有歧义 | 由 `config/provider/zcode-builtin.json` 计算：`GLM-5.3` 命中 10 个候选（zai 系 5 + bigmodel 系 5），`kimi-k3` 命中 3 个 |
+| **MODEL → 厂商不是函数**：63/165 个模型名有歧义 | 由 `config/provider/qcode-builtin.json` 计算：`GLM-5.3` 命中 10 个候选（zai 系 5 + bigmodel 系 5），`kimi-k3` 命中 3 个 |
 | Coding Plan 与普通 API Key **base url 完全相同** | `bigmodel-api` 与 `bigmodel-standard-api` 的 `api.baseUrl` 都是 `https://open.bigmodel.cn/api/anthropic` 系列，URL 无法区分二者 |
 | 个人层**禁止**声明 `account:` 前缀 provider 的 access | `packages/provider/src/config/rule-data-schema.ts` 的 `superRefine`：`"固定 Account Provider 的 Access 只能由 ZCode Built-in Config 声明"` |
 | 因此 Coding Plan 的 key **不能**落在个人 Provider Config | 它走共享凭据库（`~/.zcode/v2/credentials.json`，`createZCodeCredentialCipher` 加密） |

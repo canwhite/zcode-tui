@@ -17,7 +17,7 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { runGenerateText } from "../apps/zcode-cli/packages/adapters/src/model/runner-generate.js";
+import { runGenerateText } from "../apps/qcode-cli/packages/adapters/src/model/runner-generate.js";
 
 const results = [];
 function assert(name, ok, detail) {
@@ -90,7 +90,7 @@ async function runOnce({ debugDir, metadata }) {
   return fake.calls.length;
 }
 
-const root = mkdtempSync(join(tmpdir(), "zcode-btw-io-"));
+const root = mkdtempSync(join(tmpdir(), "qcode-btw-io-"));
 try {
   const withoutSkipDir = join(root, "without-skip");
   const withSkipDir = join(root, "with-skip");

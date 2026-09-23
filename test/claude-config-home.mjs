@@ -9,7 +9,7 @@
 // 用法：
 //   node test/claude-config-home.mjs
 //
-// 前置：需要已构建的 CLI 产物（apps/zcode-cli/packages/cli/dist/zcode.cjs）。
+// 前置：需要已构建的 CLI 产物（apps/qcode-cli/packages/cli/dist/zcode.cjs）。
 //       未构建时本脚本直接失败并给出构建命令，不静默跳过。
 
 import { spawnSync } from "node:child_process";
@@ -19,7 +19,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/qcode-cli/packages/cli/dist/zcode.cjs");
 
 /** fixture 里的 skill 名。刻意取一个真实环境中不可能存在的名字，避免与真家目录混淆。 */
 const PROBE_SKILL = "zz-probe-skill";
@@ -67,7 +67,7 @@ import { ensureUserConfigHome, CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV }
 import { mkdtempSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-const t = () => mkdtempSync(join(tmpdir(), "zcode-boot-"));
+const t = () => mkdtempSync(join(tmpdir(), "qcode-boot-"));
 const env = (h, extra = {}) => ({ HOME: h, ZCODE_CONFIG_HOME: join(h, ".claude"), ...extra });
 const out = {};
 
@@ -106,7 +106,7 @@ console.log(JSON.stringify(out));
     process.execPath,
     ["--import", "tsx", "--input-type=module", "-e", script],
     {
-      cwd: join(repoRoot, "apps/zcode-cli/packages/adapters"),
+      cwd: join(repoRoot, "apps/qcode-cli/packages/adapters"),
       encoding: "utf8",
       env: { ...process.env },
       timeout: 120_000,
@@ -134,7 +134,7 @@ import { createConfig } from "./src/config/config-factory.js";
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-const root = mkdtempSync(join(tmpdir(), "zcode-mcp-prec-"));
+const root = mkdtempSync(join(tmpdir(), "qcode-mcp-prec-"));
 const home = join(root, ".claude"); mkdirSync(home, { recursive: true });
 const ws = join(root, "ws"); mkdirSync(ws, { recursive: true });
 const cfgs = join(root, "cfgs"); mkdirSync(cfgs, { recursive: true });
@@ -189,7 +189,7 @@ console.log(JSON.stringify({
     process.execPath,
     ["--import", "tsx", "--input-type=module", "-e", script],
     {
-      cwd: join(repoRoot, "apps/zcode-cli/packages/adapters"),
+      cwd: join(repoRoot, "apps/qcode-cli/packages/adapters"),
       encoding: "utf8",
       env: { ...process.env },
       timeout: 120_000,
@@ -217,11 +217,11 @@ function listSkillsJson(configHome) {
 }
 
 if (!existsSync(cliPath)) {
-  console.error(`未找到构建产物：${cliPath}\n请先执行：pnpm --filter "@zcode/cli..." build`);
+  console.error(`未找到构建产物：${cliPath}\n请先执行：pnpm --filter "@qcode/cli..." build`);
   process.exit(1);
 }
 
-const fixture = mkdtempSync(join(tmpdir(), "zcode-config-home-"));
+const fixture = mkdtempSync(join(tmpdir(), "qcode-config-home-"));
 writeSkill(fixture, PROBE_SKILL, "Probe skill used to verify config home resolution.");
 writeSkill(fixture, SHADOW_SKILL, "Probe skill that collides with a builtin command name.");
 // 一个自定义命令：命令是**平铺的 .md 文件**，与 skill 的「目录含 SKILL.md」判据不同。
@@ -262,7 +262,7 @@ try {
   );
 
   assert(
-    "用户级不再读取 .zcode/skills",
+    "用户级不再读取 .qcode/skills",
     !(isolated?.skills ?? []).some((s) => s.scope === "user" && s.source === "zcode"),
     `实际: ${JSON.stringify(isolated?.skills?.filter((s) => s.source === "zcode"))}`,
   );
@@ -307,7 +307,7 @@ try {
   const doctor = runCli(["doctor"], { env: { ZCODE_CONFIG_HOME: fixture } });
   // 自定义命令必须与 skill **同步**接轨 —— 只改一边就会留下
   // 「skill 接轨了、命令没接轨」的分裂，而这从 skill 侧完全看不出来。
-  const cmdFixture = mkdtempSync(join(tmpdir(), "zcode-cmd-"));
+  const cmdFixture = mkdtempSync(join(tmpdir(), "qcode-cmd-"));
   const cmdDir = join(cmdFixture, "commands");
   mkdirSync(cmdDir, { recursive: true });
   writeFileSync(
@@ -338,8 +338,8 @@ try {
 
   // 旧位置仍有 skill 时必须提醒 —— 否则那些 skill 会静默消失，
   // 与「接轨逻辑写错了」表现完全一致。
-  const legacyHome = mkdtempSync(join(tmpdir(), "zcode-config-home-legacy-"));
-  const legacySkills = join(legacyHome, ".zcode", "skills");
+  const legacyHome = mkdtempSync(join(tmpdir(), "qcode-config-home-legacy-"));
+  const legacySkills = join(legacyHome, ".qcode", "skills");
   mkdirSync(join(legacySkills, "legacy-probe"), { recursive: true });
   writeFileSync(
     join(legacySkills, "legacy-probe", "SKILL.md"),

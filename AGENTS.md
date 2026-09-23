@@ -18,7 +18,7 @@
 | 类型检查         | `pnpm typecheck`                           |
 | Lint             | `pnpm lint` / `pnpm lint:fix`              |
 | 格式检查         | `pnpm fmt:check`                           |
-| CLI / TUI 开发   | `pnpm --filter @zcode/cli dev`             |
+| CLI / TUI 开发   | `pnpm --filter @qcode/cli dev`             |
 | 提交前检查       | `pnpm verify:pre-push`（Lint 与架构检查）  |
 | 架构检查         | `pnpm architecture:check --changed`        |
 | 模块阅读包       | `pnpm architecture:context <module-id>`    |
@@ -38,15 +38,15 @@
 
 改这块时注意：
 
-- **落点不得落进任何 `.gitignore`**。`apps/zcode-cli/.gitignore` 有一条裸 `vendor` 规则，`apps/zcode-cli/**/vendor*` 会被**静默忽略**——本地一切正常，克隆到断网机器才全线失败。入库前跑 `vendor-resources.mjs assert`。
-- **改 `@zcode/bootstrap` 必须单独重建它**。`@zcode/cli` 打包时解析的是 bootstrap 的 `dist` 而非源码；只重建 adapters 与 cli 会让改动"没进产物却也不报错"。
-- **`@zcode/contracts` 的 `exports` 指向 `.ts` 源码**，只有打包器能解析，因此这条链路无法用 node/tsx 直接单测，验证要走真实产物（`pnpm --filter @zcode/cli build` 后用 `ZCODE_STORAGE_DIR` 隔离跑 CLI）。
-- 排障：`ZCODE_DEBUG_VENDOR=1` 会打印本地副本根的解析过程；`ZCODE_VENDORED_ASSETS_ROOT` 可显式指定副本位置。`zcode doctor` 会报出本地化覆盖率。
+- **落点不得落进任何 `.gitignore`**。`apps/qcode-cli/.gitignore` 有一条裸 `vendor` 规则，`apps/qcode-cli/**/vendor*` 会被**静默忽略**——本地一切正常，克隆到断网机器才全线失败。入库前跑 `vendor-resources.mjs assert`。
+- **改 `@qcode/bootstrap` 必须单独重建它**。`@qcode/cli` 打包时解析的是 bootstrap 的 `dist` 而非源码；只重建 adapters 与 cli 会让改动"没进产物却也不报错"。
+- **`@qcode/contracts` 的 `exports` 指向 `.ts` 源码**，只有打包器能解析，因此这条链路无法用 node/tsx 直接单测，验证要走真实产物（`pnpm --filter @qcode/cli build` 后用 `QCODE_STORAGE_DIR` 隔离跑 CLI）。
+- 排障：`QCODE_DEBUG_VENDOR=1` 会打印本地副本根的解析过程；`QCODE_VENDORED_ASSETS_ROOT` 可显式指定副本位置。`qcode doctor` 会报出本地化覆盖率。
 
-- `apps/zcode-cli`：Agent CLI、TUI 与运行时；其 `packages/`、`tools/`、`dependencies/` 整棵子树均在保留边界内。
+- `apps/qcode-cli`：Agent CLI、TUI 与运行时；其 `packages/`、`tools/`、`dependencies/` 整棵子树均在保留边界内。
 - `packages/shared`、`packages/model-option-map`：共享协议与类型、模型选项映射。
 - `packages/provider`、`packages/provider-node`：Provider 公共能力与 Node 实现。
-- `packages/zcode-cua`：Computer Use 接口占位包；本构建不提供该能力，调用会返回不可用。
+- `packages/qcode-cua`：Computer Use 接口占位包；本构建不提供该能力，调用会返回不可用。
 - `docs/dependency-boundary.md`：保留 / 剔除边界及判定依据。
 
 ## 实现与验证
@@ -62,7 +62,7 @@
 
 ## 进程、协议与远程控制
 
-- CLI 通过 stdio 与 Agent 通信。协议改动同步更新 `packages/shared/src/zcode-protocol/index.ts`，提供严格类型与运行时校验。
+- CLI 通过 stdio 与 Agent 通信。协议改动同步更新 `packages/shared/src/qcode-protocol/index.ts`，提供严格类型与运行时校验。
 - 已接受的 busy/running 输入由 CLI/runtime `CommandInbox` 串行 admission。
 - 保留 owner/lease 与 stale run 防护，不能仅根据单一路径删除边界判断。
 

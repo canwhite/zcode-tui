@@ -54,5 +54,5 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": ["dist-release", ".agents/skills", "apps/zcode-cli", "docs/electron"]
+  "ignorePatterns": ["dist-release", ".agents/skills", "apps/qcode-cli", "docs/electron"]
 }

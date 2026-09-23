@@ -10,7 +10,7 @@
 
 |              | "删登录"                                                                                           | "与 zcode.z.ai 有关"                                                                                                                        |
 | ------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 承载体       | `auth-login*.ts`、`cli-oauth.ts`、`login-command.ts`、`tui-auth.ts`、`login-flow.ts`、命令注册四处 | `official-coding-plan-gateway.ts:22-31`、`config/provider/zcode-builtin.json:747/810/832/854`、`cli-oauth.ts:4`、`coding-plan-api-key.ts:4` |
+| 承载体       | `auth-login*.ts`、`cli-oauth.ts`、`login-command.ts`、`tui-auth.ts`、`login-flow.ts`、命令注册四处 | `official-coding-plan-gateway.ts:22-31`、`config/provider/qcode-builtin.json:747/810/832/854`、`cli-oauth.ts:4`、`coding-plan-api-key.ts:4` |
 | 性质         | 产品面（多出的命令与文案）                                                                         | **运行时网络行为**（静默改道 + 平台侧权益校验）                                                                                             |
 | 需登录才生效 | 是                                                                                                 | **否 —— 普通 API Key 也会命中**                                                                                                             |
 
@@ -20,7 +20,7 @@
 
 拆解稿曾提出"账号型套餐厂商失去取得凭据的唯一途径"，并据此建议把默认值改为 `bigmodel-standard`。**该建议错误，已撤回**，理由有二：
 
-1. **`bigmodel-standard` 不是 coding plan**。`config/provider/zcode-builtin.json` 中 `bigmodel-standard-api` 的端点是 `https://open.bigmodel.cn/api/paas/v4`（OpenAI 协议、按量付费），而 coding plan 的端点是 `https://open.bigmodel.cn/api/anthropic`。改默认值会把用户**整个移出套餐**。
+1. **`bigmodel-standard` 不是 coding plan**。`config/provider/qcode-builtin.json` 中 `bigmodel-standard-api` 的端点是 `https://open.bigmodel.cn/api/paas/v4`（OpenAI 协议、按量付费），而 coding plan 的端点是 `https://open.bigmodel.cn/api/anthropic`。改默认值会把用户**整个移出套餐**。
 2. **coding plan 本来就不需要登录**。内置清单中 `bigmodel-api` / `zai-api` 两个 **template** 的端点正是 coding plan 端点，其 `access.type` 为 `zhipu-coding-plan-api-key`，`apiKeyManagementUrl` 指向套餐控制台页面 —— 即"用户自行提供一串 key"。且 `auth-login.ts:258-280` 的 `configureCodingPlanApiKey` **接受用户直传的明文 key**（`options.apiKey`），用 key 的哈希派生账号身份后落盘，**全程不涉及 OAuth**。
 
 **结论：coding plan 厂商保留为默认值，`.env.example` 的 `ZCODE_VENDOR=bigmodel` 不动。** 真正需要保住的是 `configureCodingPlanApiKey` 这条**非登录**写入链；需要移除的只是 OAuth 授权链。这使 F-003 的拆除面收窄，F-005 从"补缺口"变为"保住既有能力"。
@@ -93,7 +93,7 @@
 
 - `apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts`：移除对官方端点的改写。注意该文件同时导出 `resolveOfficialCodingPlanGatewayUrl` / `createOfficialCodingPlanGatewayFetch`，需连带处理其调用方（模型发送链上的 fetch 包装点）。
 - 保留 `EndpointRouting` 语义但令 `viaGateway` 恒为 `false`，作为指标「请求经 zcode.z.ai 占比」的观测点。
-- **本步不触碰 `config/provider/zcode-builtin.json`**（那 4 处指向 `zcode.z.ai` 的端点属 Step 8）。由 pre-mortem 修正：原稿曾建议同批处理，但那会让 Step 1 的"单独 revert 即可恢复原转发路径"失效 —— 回滚会把清单也一并回退，产生难以归因的中间态。
+- **本步不触碰 `config/provider/qcode-builtin.json`**（那 4 处指向 `zcode.z.ai` 的端点属 Step 8）。由 pre-mortem 修正：原稿曾建议同批处理，但那会让 Step 1 的"单独 revert 即可恢复原转发路径"失效 —— 回滚会把清单也一并回退，产生难以归因的中间态。
 - **代理语义变更需显式记录**：该 fetch 包装的注释明确"应放在用户 HTTP 代理 fetch 之前，使 httpProxy / noProxy 规则按实际发送的网关地址判定"。移除改写后，代理规则将**按 provider 端点判定** —— 对企业网络用户是可感知的行为变化，需在提交信息与 README 中写明。
 
 **Step 2 — F-001 移除登录命令面**
@@ -158,7 +158,7 @@
 
 **Step 8 — F-103 解除内置配置中的官方端点硬编码**
 
-- `config/provider/zcode-builtin.json:747/810/832/854`：`account:{zai,bigmodel}-start-plan` 与 `account:{zai,bigmodel}-offpeak-idle-plan` 的 baseUrl 为 `https://zcode.z.ai/api/v1/zcode-plan/anthropic` 与 `/api/v1/off-peak/anthropic`。这 4 条**必须移除或改造** —— 否则用户仍会在清单里选到指向 zcode.z.ai 的端点。
+- `config/provider/qcode-builtin.json:747/810/832/854`：`account:{zai,bigmodel}-start-plan` 与 `account:{zai,bigmodel}-offpeak-idle-plan` 的 baseUrl 为 `https://zcode.z.ai/api/v1/zcode-plan/anthropic` 与 `/api/v1/off-peak/anthropic`。这 4 条**必须移除或改造** —— 否则用户仍会在清单里选到指向 zcode.z.ai 的端点。
 - 若 Step 1 已同批处理，本步只做**残留复查**：
   `grep -rn "zcode\.z\.ai" config/ apps/ packages/ --include="*.json" --include="*.ts"`，逐条判定是否属本次范围（注意 `cdn-zcode.z.ai` 是**不同主机**、插件市场用，不在范围）。
 

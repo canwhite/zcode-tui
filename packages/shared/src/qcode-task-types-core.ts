@@ -566,7 +566,7 @@ export interface ZCodeToolCall {
   skillMetadata?: {
     qualifiedName?: string;
     pluginId?: string;
-    source?: "agents" | "zcode" | "bundled" | "plugin" | "remote";
+    source?: "agents" | "qcode" | "bundled" | "plugin" | "remote";
   };
 }
 export interface ZCodeToolCallUpdate {
@@ -595,7 +595,7 @@ export interface ZCodeToolCallUpdate {
   skillMetadata?: {
     qualifiedName?: string;
     pluginId?: string;
-    source?: "agents" | "zcode" | "bundled" | "plugin" | "remote";
+    source?: "agents" | "qcode" | "bundled" | "plugin" | "remote";
   };
 }
 export interface ZCodePlan {

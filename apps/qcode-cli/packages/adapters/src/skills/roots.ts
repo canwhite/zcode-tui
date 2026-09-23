@@ -8,7 +8,7 @@ const HOME_PREFIX = "~/";
 const PRIORITY_STEP = 10;
 const SKILLS_DIR = "skills";
 const CLAUDE_DIR = CONFIG_HOME_DIR;
-const QCODE_DIR = ".zcode";
+const QCODE_DIR = ".qcode";
 const AGENTS_DIR = ".agents";
 
 export interface SkillRootResolutionOptions {

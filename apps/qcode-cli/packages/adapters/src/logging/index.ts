@@ -220,7 +220,7 @@ export function createNodeLoggerFactory(options: NodeLoggerFactoryOptions = {}):
 }
 
 export function getDefaultLogDir(): string {
-  return join(homedir(), ".zcode", "cli", "log");
+  return join(homedir(), ".qcode", "cli", "log");
 }
 
 function getDefaultMinLevel(env: NodeJS.ProcessEnv | undefined): LogLevel {
@@ -245,5 +245,5 @@ function ensureLogDir(logDir: string): void {
 }
 
 function getLogFileName(): string {
-  return `zcode-${formatLocalLogDate(new Date())}.jsonl`;
+  return `qcode-${formatLocalLogDate(new Date())}.jsonl`;
 }

@@ -259,7 +259,7 @@ export const PlatformChannels = {
   SetResourceUsageSamplingActive: "qcode:set-resource-usage-sampling-active",
   /** 打开资源管理器窗口（其他窗口触发） */
   OpenResourceManager: "qcode:open-resource-manager",
-  /** 资源管理器「存储」tab：开始扫描本机 .zcode 占用（main 持有 StorageService，Worker 线程遍历） */
+  /** 资源管理器「存储」tab：开始扫描本机 .qcode 占用（main 持有 StorageService，Worker 线程遍历） */
   StorageStartScan: "qcode:storage-start-scan",
   /** 资源管理器「存储」tab：取消扫描 */
   StorageCancelScan: "qcode:storage-cancel-scan",

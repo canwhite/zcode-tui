@@ -6,7 +6,7 @@ import type { Logger } from "@qcode/contracts";
 export const LOG_RETENTION_DAYS = 7;
 export const LOG_CLEANUP_STARTUP_DELAY_MS = 60_000;
 
-const LOG_FILE_NAME_PATTERN = /^zcode-(\d{4})-(\d{2})-(\d{2})\.jsonl$/;
+const LOG_FILE_NAME_PATTERN = /^qcode-(\d{4})-(\d{2})-(\d{2})\.jsonl$/;
 const MIN_RETENTION_DAYS = 1;
 
 export interface LogRetentionCleanupOptions {

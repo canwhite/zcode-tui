@@ -12,7 +12,7 @@ const CLAUDE_DIR = CONFIG_HOME_DIR;
 const GIT_MARKER = ".git";
 const HOME_PREFIX = "~/";
 const PRIORITY_STEP = 10;
-const QCODE_DIR = ".zcode";
+const QCODE_DIR = ".qcode";
 const AGENTS_DIR = ".agents";
 
 export interface CustomCommandRootResolutionOptions {

@@ -90,7 +90,7 @@ if (generatedBytes > MAX_GENERATED_BYTES) {
 }
 
 if (check) {
-  const temporaryDirectory = await mkdtemp(join(tmpdir(), "zcode-bash-registry-"));
+  const temporaryDirectory = await mkdtemp(join(tmpdir(), "qcode-bash-registry-"));
   const temporaryOutput = join(temporaryDirectory, "bash-command-registry.ts");
   try {
     await writeFile(temporaryOutput, generated);

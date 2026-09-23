@@ -284,7 +284,7 @@ function createWorkflowChildRuntime(
     options.childSessionId,
     {
       ...deps.runtimeConfig,
-      agentName: options.workflowKind === "expert" ? "zcode-expert" : "qcode-workflow",
+      agentName: options.workflowKind === "expert" ? "qcode-expert" : "qcode-workflow",
       mode: "yolo",
       modelSelection: deps.runtime.getSessionModelSelection(),
       parentSessionId: deps.sessionId,
@@ -345,7 +345,7 @@ function createWorkflowChildRuntime(
       // 客户端找不到的 session 上、response 永不回来。
       ...deps.runtime.createChildClientPorts({
         agentId: options.childSessionId,
-        agentType: options.workflowKind === "expert" ? "zcode-expert" : "qcode-workflow",
+        agentType: options.workflowKind === "expert" ? "qcode-expert" : "qcode-workflow",
         childSessionId: options.childSessionId,
         description: `${options.workflowKind} workflow agent`,
         ...(options.childTraceContext.turnId === undefined

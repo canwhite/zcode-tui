@@ -90,13 +90,13 @@ export const ServiceChannels = {
   /** 跨窗口广播 */
   Broadcast: "broadcast",
   /** ZCode task wrapper 服务 */
-  ZCodeTask: "zcode-task",
+  ZCodeTask: "qcode-task",
   /** 窗口 Host 聚合 workspace/task 投影与列表写路由 */
   WindowController: "window-controller",
   /** ZCode Protocol agent 服务 */
-  ZCodeAgent: "zcode-agent",
+  ZCodeAgent: "qcode-agent",
   /** ZCode session 应用服务 */
-  ZCodeSession: "zcode-session",
+  ZCodeSession: "qcode-session",
   /** 会话分享发布、预览与 continuation API 编排 */
   ConversationShare: "conversation-share",
   /** 文件系统监视服务 */
@@ -157,15 +157,15 @@ export type ServiceChannelName = (typeof ServiceChannels)[keyof typeof ServiceCh
 /** Electron IPC 频道名。仅在 preload ↔ main 之间使用。 */
 export const PlatformChannels = {
   /** 打开系统目录选择框 */
-  SelectDirectory: "zcode:select-directory",
+  SelectDirectory: "qcode:select-directory",
   /** 打开系统文件选择框 */
-  SelectFile: "zcode:select-file",
+  SelectFile: "qcode:select-file",
   /** 打开系统多文件选择框 */
-  SelectFiles: "zcode:select-files",
+  SelectFiles: "qcode:select-files",
   /** Renderer → Main：写入宿主 ~/.zcode 临时文本附件 */
-  CreateTempTextAttachment: "zcode:create-temp-text-attachment",
+  CreateTempTextAttachment: "qcode:create-temp-text-attachment",
   /** Renderer → Main：通过原生另存为对话框保存文件 */
-  SaveFile: "zcode:save-file",
+  SaveFile: "qcode:save-file",
   /** Renderer → Main：用 Chromium 打印引擎把当前页面 print 媒体版面导出为 PDF */
   PrintToPdf: "zcode:print-to-pdf",
   /** Main → Renderer：转发远程连接过程日志 */

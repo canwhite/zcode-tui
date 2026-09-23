@@ -48,7 +48,7 @@ const limit = args.limit ? Number(args.limit) : Infinity;
 
 let dbPath = sourceDbPath;
 if (!args["no-copy"]) {
-  const tempDir = mkdtempSync(join(tmpdir(), "zcode-shadow-replay-"));
+  const tempDir = mkdtempSync(join(tmpdir(), "qcode-shadow-replay-"));
   dbPath = join(tempDir, basename(sourceDbPath));
   copyFileSync(sourceDbPath, dbPath);
   for (const suffix of ["-wal", "-shm"]) {

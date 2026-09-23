@@ -140,7 +140,7 @@ function sanitizeZCodeEndpointOrigin(value: unknown): unknown {
     return value;
   }
   const raw = value as Record<string, unknown>;
-  if (!("zcodeEndpointOrigin" in raw)) {
+  if (!("qcodeEndpointOrigin" in raw)) {
     return value;
   }
   const parsed = zcodeEndpointOriginSchema.safeParse(raw.zcodeEndpointOrigin);

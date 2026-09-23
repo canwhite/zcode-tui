@@ -1,5 +1,5 @@
 {
-  "name": "@zcode/swift-bridge",
+  "name": "@qcode/swift-bridge",
   "version": "0.1.0",
   "private": true,
   "description": "Swift interop layer (placeholder)",
@@ -18,6 +18,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@zcode/shared-types": "workspace:*"
+    "@qcode/shared-types": "workspace:*"
   }
 }

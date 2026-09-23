@@ -1,5 +1,5 @@
 {
-  "name": "@zcode/shared",
+  "name": "@qcode/shared",
   "private": true,
   "type": "module",
   "exports": {
@@ -28,7 +28,7 @@
     "lint:fix": "oxlint --fix"
   },
   "dependencies": {
-    "@zcode/model-option-map": "workspace:*",
+    "@qcode/model-option-map": "workspace:*",
     "zod": "4.6.5"
   },
   "devDependencies": {

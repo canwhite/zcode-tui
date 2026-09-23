@@ -1,5 +1,5 @@
 {
-  "name": "@zcode/dynamic-workflow-runtime",
+  "name": "@qcode/dynamic-workflow-runtime",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,7 +20,7 @@
     "lint:fix": "oxlint --write src"
   },
   "dependencies": {
-    "@zcode/dynamic-workflow": "workspace:*"
+    "@qcode/dynamic-workflow": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.0.0"

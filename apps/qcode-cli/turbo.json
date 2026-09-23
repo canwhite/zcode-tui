@@ -9,7 +9,7 @@
     },
     "build:desktop-agent": {
       "dependsOn": [
-        "@qcode/shared-types#build",
+        "@qcode/shared#build",
         "@qcode/contracts#build",
         "@qcode/dynamic-workflow#build",
         "@qcode/core#build",

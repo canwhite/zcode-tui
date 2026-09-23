@@ -1,5 +1,5 @@
 {
-  "name": "@zcode/bootstrap",
+  "name": "@qcode/bootstrap",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -23,16 +23,16 @@
     "lint:fix": "oxlint --write src"
   },
   "dependencies": {
-    "@zcode/adapters": "workspace:*",
-    "@zcode/contracts": "workspace:*",
-    "@zcode/core": "workspace:*",
-    "@zcode/dynamic-workflow": "workspace:*",
-    "@zcode/dynamic-workflow-runtime": "workspace:*",
-    "@zcode/i18n": "workspace:*",
-    "@zcode/provider": "workspace:*",
-    "@zcode/provider-node": "workspace:*",
-    "@zcode/shared": "workspace:*",
-    "@zcode/telemetry": "workspace:*",
+    "@qcode/adapters": "workspace:*",
+    "@qcode/contracts": "workspace:*",
+    "@qcode/core": "workspace:*",
+    "@qcode/dynamic-workflow": "workspace:*",
+    "@qcode/dynamic-workflow-runtime": "workspace:*",
+    "@qcode/i18n": "workspace:*",
+    "@qcode/provider": "workspace:*",
+    "@qcode/provider-node": "workspace:*",
+    "@qcode/shared": "workspace:*",
+    "@qcode/telemetry": "workspace:*",
     "diff": "^9.0.0",
     "zod": "4.6.5"
   },

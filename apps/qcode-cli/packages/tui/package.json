@@ -1,5 +1,5 @@
 {
-  "name": "@zcode/tui",
+  "name": "@qcode/tui",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -21,9 +21,9 @@
   "dependencies": {
     "@mbears/opentui-core": "0.2.15",
     "@mbears/opentui-react": "0.2.15",
-    "@zcode/contracts": "workspace:*",
-    "@zcode/i18n": "workspace:*",
-    "@zcode/shared": "workspace:*",
+    "@qcode/contracts": "workspace:*",
+    "@qcode/i18n": "workspace:*",
+    "@qcode/shared": "workspace:*",
     "react": "19.2.5",
     "react-devtools-core": "7.0.1",
     "shiki": "^4.1.0",

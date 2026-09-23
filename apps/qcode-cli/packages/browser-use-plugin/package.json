@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@zcode/browser-use-plugin",
+  "name": "@qcode/browser-use-plugin",
   "version": "0.5.1",
   "private": true,
   "description": "作为官方 ZCode 内置插件发布的 Browser Use skill 与 client runtime；node_repl MCP server 由 @zcode/node-repl-host 提供。",
@@ -15,17 +15,17 @@
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
-    "@zcode/contracts": "workspace:*",
-    "@zcode/core": "workspace:*",
-    "@zcode/node-repl-host": "workspace:*",
-    "@zcode/shared": "workspace:*",
+    "@qcode/contracts": "workspace:*",
+    "@qcode/core": "workspace:*",
+    "@qcode/node-repl-host": "workspace:*",
+    "@qcode/shared": "workspace:*",
     "zod": "4.6.5"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",
     "@types/node": "^24.0.0",
-    "@zcode/adapters": "workspace:*",
-    "@zcode/bootstrap": "workspace:*",
+    "@qcode/adapters": "workspace:*",
+    "@qcode/bootstrap": "workspace:*",
     "esbuild": "^0.25.0",
     "playwright-core": "1.59.1",
     "typescript": "^5.9.0"

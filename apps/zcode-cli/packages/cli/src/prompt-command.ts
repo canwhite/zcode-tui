@@ -2,6 +2,7 @@ import { extname } from "node:path";
 import { formatJson, type PresentationSurface } from "@zcode/core";
 import type { RunContext, GlobalOptions } from "@zcode/shared-types";
 import { loadBootstrapModule } from "./bootstrap-loader.js";
+import { CLI_COMMAND_NAME } from "./process-name.js";
 import {
   buildManualSkillPrompt,
   createCommandCenter,
@@ -715,7 +716,7 @@ function writeHeadlessWorkspaceHookTrustDiagnostic(
       ...status.items
         .filter((item) => item.configuredEnabled && item.trustState !== "trusted_persistent")
         .map((item) => `pending digest: ${item.hookDeclarationDigest}`),
-      `Review with: zcode hooks trust review --workspace ${JSON.stringify(status.workspaceIdentity)}`,
+      `Review with: ${CLI_COMMAND_NAME} hooks trust review --workspace ${JSON.stringify(status.workspaceIdentity)}`,
     ].join("\n") + "\n",
   );
 }

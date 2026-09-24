@@ -268,7 +268,7 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
       label: "模型配置",
       status: "warn",
       detail: `尚无个人 Provider 配置：${path}`,
-      fix: "运行 zcode configure --provider bigmodel --api-key <key>，或在 TUI 的设置里填入 Key",
+      fix: `运行 ${CLI_COMMAND_NAME} configure --provider bigmodel --api-key <key>，或在 TUI 的设置里填入 Key`,
     };
   }
 
@@ -283,7 +283,7 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
       label: "模型配置",
       status: "warn",
       detail: `${path} 中没有默认模型选择`,
-      fix: "运行 zcode configure 预置默认模型，或在 TUI 中切换模型",
+      fix: `运行 ${CLI_COMMAND_NAME} configure 预置默认模型，或在 TUI 中切换模型`,
     };
   }
   // 存储的选择可能指向一个**本版本已移除**的账号型 Provider（例如随 pp8 移除的
@@ -302,7 +302,7 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
         label: "模型配置",
         status: "warn",
         detail: `${path} 的默认模型指向已不存在的 Provider：${selectedProviderId}`,
-        fix: "该 Provider 可能已随版本移除（如 start-plan / off-peak 平台套餐）。请运行 zcode configure 重新预置，或在 TUI 中切换模型",
+        fix: `该 Provider 可能已随版本移除（如 start-plan / off-peak 平台套餐）。请运行 ${CLI_COMMAND_NAME} configure 重新预置，或在 TUI 中切换模型`,
       };
     }
   }
@@ -388,7 +388,7 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
     label: "厂商声明",
     status: "warn",
     detail: `${summary}（当前生效：${activeProviderId}）`,
-    fix: "声明与生效不一致：重新执行 make install 或 zcode configure；若仍不一致，说明该厂商配置未被运行期加载",
+    fix: `声明与生效不一致：重新执行 make install 或 ${CLI_COMMAND_NAME} configure；若仍不一致，说明该厂商配置未被运行期加载`,
   };
 }
 
@@ -574,7 +574,7 @@ function checkConfigHome(env: CliEnv): DoctorCheck[] {
 }
 
 /**
- * 汇总安装自检结论。`zcode doctor` 与 `make install` 的收口自检共用这一份实现，
+ * 汇总安装自检结论。`qcode doctor` 与 `make install` 的收口自检共用这一份实现，
  * 避免出现两套判定标准。
  */
 

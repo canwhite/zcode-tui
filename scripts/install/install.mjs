@@ -37,7 +37,7 @@ function hasVendorConfig() {
 }
 
 /**
- * 跑 zcode 自检。复用 CLI 自身的 doctor，而不是在这里重写一套判定标准。
+ * 跑 qcode 自检。复用 CLI 自身的 doctor，而不是在这里重写一套判定标准。
  *
  * spawn-command 的 runCommand 在非零退出时抛异常，因此这里必须显式捕获——
  * 自检失败是把退出码透传出去，不是让安装脚本崩栈。
@@ -104,15 +104,15 @@ function install() {
     // 新开的终端生效，不能让用户以为当前窗口就能直接用。
     switch (exposed.shellPath?.status) {
       case "added":
-        log(`\n[install] 完成。${exposed.shellPath.path} 已更新，新开一个终端后输入 zcode 即可使用。`);
+        log(`\n[install] 完成。${exposed.shellPath.path} 已更新，新开一个终端后输入 qcode 即可使用。`);
         break;
       case "already":
       // shellPath 为 undefined 表示 bin 目录本就在 PATH 里，新终端直接可用。
       case undefined:
-        log("\n[install] 完成。在终端输入 zcode 即可使用。");
+        log("\n[install] 完成。在终端输入 qcode 即可使用。");
         break;
       default:
-        log("\n[install] 完成。按上面的指引把 PATH 加好之后，在终端输入 zcode 即可使用。");
+        log("\n[install] 完成。按上面的指引把 PATH 加好之后，在终端输入 qcode 即可使用。");
         break;
     }
   } else {
@@ -122,7 +122,7 @@ function install() {
 }
 
 /**
- * 裁剪白名单：只含确认「运行 zcode 不需要、也不是后续构建所需」的包。
+ * 裁剪白名单：只含确认「运行 qcode 不需要、也不是后续构建所需」的包。
  *
  * 为什么不用 `pnpm install --prod`：那会一并移除 esbuild / typescript 等构建与
  * 类型检查依赖，使后续 `make install` 与 `pnpm typecheck` 直接失败——裁剪的收益

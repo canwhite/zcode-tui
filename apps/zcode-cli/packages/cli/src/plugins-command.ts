@@ -1,4 +1,5 @@
 import { formatJson } from "@zcode/core";
+import { CLI_COMMAND_NAME } from "./process-name.js";
 import type { GlobalOptions, RunContext } from "@zcode/shared-types";
 import type { SetZCodePluginEnabledResult, ZCodePluginInstallData } from "@zcode/bootstrap";
 import {
@@ -38,7 +39,7 @@ export type {
   PluginsCommandOverrides,
 } from "./plugins-command-shared.js";
 
-const PLUGINS_COMMAND_USAGE = `Usage: zcode plugins <command> [options]
+const PLUGINS_COMMAND_USAGE = `Usage: ${CLI_COMMAND_NAME} plugins <command> [options]
 
 Commands:
   list [--json] [--available]                  List installed plugins; --available also lists the marketplace catalog
@@ -55,7 +56,7 @@ Commands:
   marketplace remove <name>                    Remove a configured marketplace
   marketplace update [name]                    Refresh one marketplace, or all when omitted
 
-Scopes: user (default), project. \`zcode plugin\` is an alias of \`zcode plugins\`.`;
+Scopes: user (default), project. \`${CLI_COMMAND_NAME} plugin\` is an alias of \`${CLI_COMMAND_NAME} plugins\`.`;
 
 export async function runPluginsCommand(
   ctx: RunContext,
@@ -204,7 +205,7 @@ async function runPluginsUpdateCommand(
   ctx.stdout.write(
     version && version === result.previousVersion
       ? `Plugin ${pluginId} is already up to date (${version}).\n`
-      : `Updated plugin ${pluginId} from ${result.previousVersion || "unknown"} to ${version || "unknown"}. Restart zcode to apply.\n`,
+      : `Updated plugin ${pluginId} from ${result.previousVersion || "unknown"} to ${version || "unknown"}. Restart ${CLI_COMMAND_NAME} to apply.\n`,
   );
   writeWarnings(ctx, result.diagnostics);
   return 0;

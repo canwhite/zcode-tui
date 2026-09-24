@@ -1,4 +1,5 @@
 import { formatJson } from "@zcode/core";
+import { CLI_COMMAND_NAME } from "./process-name.js";
 import type { Logger } from "@zcode/contracts";
 import type { RunContext, GlobalOptions } from "@zcode/shared-types";
 import type {
@@ -23,7 +24,7 @@ interface SkillsCommandDependencies {
   loadBootstrapModule?: () => Promise<BootstrapModule>;
 }
 
-const SKILLS_COMMAND_USAGE = "Usage: zcode skills [list|inspect <name>]";
+const SKILLS_COMMAND_USAGE = `Usage: ${CLI_COMMAND_NAME} skills [list|inspect <name>]`;
 
 export const runSkillsCommand = async (
   ctx: RunContext,

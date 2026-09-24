@@ -1,4 +1,5 @@
 import { formatJson } from "@zcode/core";
+import { CLI_COMMAND_NAME } from "./process-name.js";
 import type { Logger } from "@zcode/contracts";
 import type { GlobalOptions, RunContext } from "@zcode/shared-types";
 import type {
@@ -27,7 +28,7 @@ interface CommandsCommandDependencies {
   logger?: Logger;
 }
 
-const COMMANDS_COMMAND_USAGE = "Usage: zcode commands [list|inspect <name>]";
+const COMMANDS_COMMAND_USAGE = `Usage: ${CLI_COMMAND_NAME} commands [list|inspect <name>]`;
 
 export async function runCommandsCommand(
   ctx: RunContext,

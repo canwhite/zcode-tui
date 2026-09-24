@@ -169,7 +169,7 @@ const normalizeBrowserUse = (value: string | undefined): GlobalOptions["browserU
 
 const normalizePresentationSurface = (value: string | undefined): PresentationSurface => {
   if (value === undefined || value.toLowerCase() === "terminal") return "terminal";
-  if (value.toLowerCase() === "desktop") return "zcode_desktop";
+  if (value.toLowerCase() === "desktop") return "qcode_desktop";
   throw new Error(`Unsupported --surface value: ${value}. Supported surfaces: terminal, desktop.`);
 };
 

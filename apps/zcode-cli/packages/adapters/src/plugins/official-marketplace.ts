@@ -75,11 +75,9 @@ export function seedCdnPartitionFromVendoredSync(storageRoot: string): boolean {
     // 损坏本身由 `node scripts/vendor-resources.mjs verify` 负责报出。
     return false;
   }
-  if (
-    !isRecord(manifest) ||
-    ![ZCODE_OFFICIAL_PLUGIN_MARKETPLACE, "zcode-plugins-official"].includes(manifest.name as string)
-  )
-    return false;
+  // 不校验 manifest.name：vendored marketplace.json 来自 CDN，内容由上游管理。
+  // 只要求是有效 record 且含 plugins 数组（空数组也是有效市场）。
+  if (!isRecord(manifest)) return false;
 
   writeCdnOfficialMarketplacePartitionSync({ manifest, storageRoot });
   return true;

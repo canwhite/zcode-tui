@@ -109,10 +109,6 @@ export function normalizeBaseUrl(value: string): string {
  * `personal-vendor.ts` 复用同一套定位逻辑——两处各找一次路径必然分叉。
  */
 export function readBuiltinConfigDocument(explicitPath?: string): unknown | undefined {
-  return readBuiltinConfigFile(explicitPath);
-}
-
-function readBuiltinConfigFile(explicitPath?: string): unknown | undefined {
   const candidates: string[] = [];
   const add = (candidate: string | undefined) => {
     if (candidate && !candidates.includes(candidate)) candidates.push(candidate);
@@ -168,7 +164,7 @@ interface RawRule {
 
 /** 从内置配置构建厂商清单。内置配置不可读时返回空数组，不抛错。 */
 export function readBuiltinVendors(explicitPath?: string): BuiltinVendor[] {
-  const parsed = readBuiltinConfigFile(explicitPath) as
+  const parsed = readBuiltinConfigDocument(explicitPath) as
     | { config?: { providerConfigRules?: { templateRules?: RawRule[]; providerRules?: RawRule[] } } }
     | undefined;
   const rules = parsed?.config?.providerConfigRules;

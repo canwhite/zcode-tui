@@ -170,7 +170,10 @@ export function resolveSharedZCodeCredentialsPath(
   const env = options.env ?? process.env;
   // 必须与个人 Provider 配置用同一套读取规则（新名优先、旧名兜底），否则只设一个键时
   // 凭据与本配置会落到两个不同的根目录——一半生效且不报错。
-  const baseDir = options.baseDir ?? readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
+  // 显式 baseDir 为空串时按未设置处理：空串会 join 出相对路径，把凭据写进当前目录。
+  const baseDir = options.baseDir?.length
+    ? options.baseDir
+    : (readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir());
   return join(resolveUserPath(baseDir), ".zcode", "v2", "credentials.json");
 }
 

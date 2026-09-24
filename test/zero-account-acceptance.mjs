@@ -254,6 +254,36 @@ function collectZcodeHostRefs(node, path, out) {
   }
 }
 
+// —— 7. 安装脚本与运行期的厂商键名必须同源 ——
+// 这一关是**为已经发生过的缺陷立的**：改名把 vendor.ts 的键改成了 QCODE_*，
+// 而 install.mjs 的 hasVendorConfig() 仍读 ZCODE_*，于是它恒为 false、
+// `qcode configure` 每次安装都被静默跳过——安装"成功"，声明的厂商却从没被写进去。
+// 同源断言比"再读一遍代码"可靠：改名漏改一处就会红。
+{
+  const vendorSource = readFileSync(
+    join(repoRoot, "apps/zcode-cli/packages/cli/src/vendor.ts"),
+    "utf8",
+  );
+  const installSource = readFileSync(join(repoRoot, "scripts/install/install.mjs"), "utf8");
+
+  const declaredBlock = vendorSource.match(/VENDOR_ENV_KEYS\s*=\s*\{([\s\S]*?)\}\s*as const/);
+  const declaredKeys = declaredBlock
+    ? [...declaredBlock[1].matchAll(/"([A-Z][A-Z0-9_]*)"\)?/g)].map((m) => m[1])
+    : [];
+  const hasVendorConfigBlock = installSource.match(/function hasVendorConfig\(\)\s*\{([\s\S]*?)\n\}/);
+  const usedKeys = hasVendorConfigBlock
+    ? [...hasVendorConfigBlock[1].matchAll(/read\("([A-Z][A-Z0-9_]*)"\)/g)].map((m) => m[1])
+    : [];
+
+  assert(
+    "安装脚本的厂商键名来自 vendor.ts 的 VENDOR_ENV_KEYS（改名不再漏改）",
+    declaredKeys.length > 0 &&
+      usedKeys.length > 0 &&
+      usedKeys.every((key) => declaredKeys.includes(key)),
+    `install.mjs 读 ${usedKeys.join(", ") || "(未解析到)"}；vendor.ts 声明 ${declaredKeys.join(", ") || "(未解析到)"}`,
+  );
+}
+
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} 通过`);
 if (failed.length > 0) {

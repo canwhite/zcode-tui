@@ -3,6 +3,7 @@ import {
   type SharedZCodeCredentialStore,
 } from "@zcode/adapters";
 import type { EnvRecord } from "@zcode/adapters/model";
+import { ModelConfigRules } from "@zcode/provider";
 import {
   NodeModelSelectionConfigRepository,
   NodePersonalProviderConfigRepository,
@@ -108,13 +109,17 @@ function resolveCodingPlanModelId(
 ): string {
   const wanted = requested?.trim();
   if (!wanted) return provider.modelId;
-  if (!provider.modelIds.includes(wanted)) {
-    throw new ZCodeCliProviderConfigError(
-      "config_update_failed",
-      `套餐 ${provider.providerId} 不支持模型 ${wanted}；可用模型：${provider.modelIds.join(", ")}`,
-    );
-  }
-  return wanted;
+  if (provider.modelIds.includes(wanted)) return wanted;
+  // 只差大小写时不能判"不支持"：报错里两个串几乎一样（GLM-5.3-flash vs GLM-5.3-Flash），
+  // 是最难看出问题在哪的一类提示。规则与 CLI 侧 `vendor.ts` 的 `matchListedModel` 一致——
+  // 精确优先，其次唯一的大小写不敏感匹配；命中多条视为歧义，照常报错。
+  const lowered = wanted.toLowerCase();
+  const matches = provider.modelIds.filter((candidate) => candidate.toLowerCase() === lowered);
+  if (matches.length === 1) return matches[0]!;
+  throw new ZCodeCliProviderConfigError(
+    "config_update_failed",
+    `套餐 ${provider.providerId} 不支持模型 ${wanted}；可用模型：${provider.modelIds.join(", ")}`,
+  );
 }
 
 /**
@@ -128,8 +133,12 @@ function resolveCodingPlanModelId(
 function resolveCodingPlanReasoningLevel(
   provider: StandaloneCodingPlanProvider,
   modelId: string,
+  personalModels: ModelConfigRules,
 ): string {
-  const modelConfig = provider.modelRules.resolve({
+  // 合成规则必须与运行期一致（`resolver.ts` 用 `composeEffective(内置, 个人精确规则)`）：
+  // 只看内置规则时，个人层若为这个模型覆盖过档位取值，这里会算出一个运行期不接受的档位，
+  // 写下去的默认选择同样会被判不可选、同样静默回退——正是本次要根除的失败形态。
+  const modelConfig = ModelConfigRules.composeEffective(provider.modelRules, personalModels).resolve({
     providerId: provider.providerId,
     modelId,
     apiType: provider.apiType,
@@ -159,14 +168,9 @@ async function persistStandaloneCodingPlanConnection(input: {
   const configuredProvider = await resolveStandaloneCodingPlanProvider(input.providerId, input.env);
   const providerId = configuredProvider.providerId;
   const modelId = resolveCodingPlanModelId(configuredProvider, input.modelId);
-  const reasoningLevel = resolveCodingPlanReasoningLevel(configuredProvider, modelId);
   const credentialKey = standaloneAccountProviderCredentialKey({
     providerId,
     accountIdentity: input.accountIdentity,
-  });
-  await input.credentialStore.saveMany({
-    [standaloneAccountIdentityCredentialKey(providerId)]: input.accountIdentity,
-    [credentialKey]: input.apiKey,
   });
   const path =
     input.personalProviderConfigPath ??
@@ -180,6 +184,18 @@ async function persistStandaloneCodingPlanConnection(input: {
   });
   const repository = new NodeModelSelectionConfigRepository({ personalRepository });
   try {
+    // 先读个人层再定档位：档位要按"内置 ++ 个人精确规则"解析，与运行期同一套合成。
+    const personalModels = (await personalRepository.read()).models;
+    const reasoningLevel = resolveCodingPlanReasoningLevel(
+      configuredProvider,
+      modelId,
+      personalModels,
+    );
+    // 凭据先落库、再改默认指针：确保 key 可用之后才让选择指向它。
+    await input.credentialStore.saveMany({
+      [standaloneAccountIdentityCredentialKey(providerId)]: input.accountIdentity,
+      [credentialKey]: input.apiKey,
+    });
     // 必须带 options.reasoningLevel：运行期 `validateModelSelectionOptions` 对缺档位的
     // selection 无条件判 `reasoning-level-missing`，而 `resolveInitialModelSelection` 遇到
     // 不可选的默认值**不报错**，直接回退到 Registry 顺序里的第一个模型。

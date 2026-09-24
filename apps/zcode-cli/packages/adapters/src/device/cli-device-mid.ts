@@ -54,7 +54,10 @@ export function ensureCliDeviceMid(options: EnsureCliDeviceMidOptions = {}): Pro
 function resolveCliTelemetryStateFile(options: EnsureCliDeviceMidOptions): string {
   const env = options.env ?? process.env;
   // 遥测状态与凭据必须落在同一个根：读取规则与 shared-credentials 保持一致。
-  const baseDir = options.baseDir ?? readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
+  // 显式 baseDir 为空串时按未设置处理：空串会 join 出相对路径，把状态写进当前目录。
+  const baseDir = options.baseDir?.length
+    ? options.baseDir
+    : (readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir());
   return join(resolveUserPath(baseDir), ".zcode", "v2", "telemetry-state.json");
 }
 

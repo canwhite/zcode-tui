@@ -1,7 +1,6 @@
 // Modified by ZCode: 新增「官方插件本地化」自检项：报出本地化覆盖率，副本缺失或损坏时指名失败。
 // 变更清单与依据见 README.md「本分支的改动」与 docs/plan-offline-vendoring.md。
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { homedir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import {
   BASE_URL_ENV_KEYS,
@@ -9,11 +8,7 @@ import {
   resolveRuntimeZCodeEndpointOrigin,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
 } from "@zcode/shared";
-import {
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
-  PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-} from "@zcode/provider-node";
+import { ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV } from "@zcode/provider-node";
 import {
   CONFIG_HOME_COMMANDS_DIR,
   CONFIG_HOME_INSTRUCTION_FILE,
@@ -29,7 +24,7 @@ import {
 import type { CliEnv } from "./env.js";
 import { CLI_COMMAND_NAME } from "./process-name.js";
 import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
-import { providerIdFromBaseUrl } from "./personal-vendor.js";
+import { providerIdFromBaseUrl, resolvePersonalConfigPath } from "./personal-vendor.js";
 
 export type DoctorCheckStatus = "pass" | "warn" | "fail";
 
@@ -258,11 +253,15 @@ function readActiveModelSelection(
   return config.defaultModelSelection as { providerId?: string; modelId?: string } | undefined;
 }
 
+/**
+ * 与写入方（`personal-vendor.ts` 的 `resolvePersonalConfigPath`）共用同一套落点解析。
+ *
+ * 曾各自实现一份，doctor 那份只看 `ZCODE_PERSONAL_PROVIDER_CONFIG_FILE` 与 `homedir()`：
+ * 设了 `QCODE_DATA_BASE_DIR` 时，运行期写在数据目录、doctor 却去读家目录的那份，
+ * 于是自检报告的是**另一个文件**的状态——诊断工具给错结论比不给结论更糟。
+ */
 function resolveDoctorPersonalConfigPath(env: CliEnv): string {
-  return (
-    env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ||
-    join(homedir(), ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME)
-  );
+  return resolvePersonalConfigPath(env);
 }
 
 function checkProviderSelection(env: CliEnv): DoctorCheck {
@@ -281,7 +280,7 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
   const file = readJsonFile(path);
   const config = (file?.config ?? {}) as Record<string, unknown>;
   const selection = config.defaultModelSelection as
-    | { modelId?: string; providerId?: string }
+    | { modelId?: string; providerId?: string; options?: { reasoningLevel?: unknown } }
     | undefined;
   if (!selection?.modelId) {
     return {
@@ -311,6 +310,21 @@ function checkProviderSelection(env: CliEnv): DoctorCheck {
         fix: `该 Provider 可能已随版本移除（如 start-plan / off-peak 平台套餐）。请运行 ${CLI_COMMAND_NAME} configure 重新预置，或在 TUI 中切换模型`,
       };
     }
+  }
+
+  // 选择**是否可选**：运行期 `validateModelSelectionOptions` 对缺 `options.reasoningLevel`
+  // 的选择无条件判 `reasoning-level-missing`，而 `resolveInitialModelSelection` 遇到不可选的
+  // 默认值**不报错**，直接改用内置顺序里的第一个模型。持久化文件本身看不出这个差别 ——
+  // "写进去了但没生效"能长期潜伏，根因就在这里，所以必须显式比对。
+  const reasoningLevel = selection.options?.reasoningLevel;
+  if (typeof reasoningLevel !== "string" || reasoningLevel.length === 0) {
+    return {
+      id: "config.model",
+      label: "模型配置",
+      status: "warn",
+      detail: `${path} 的默认模型缺少思考档位（${selectedProviderId ?? DEFAULT_PROVIDER_ID}/${selection.modelId}）`,
+      fix: `运行期会判它不可选并静默回退到别的模型。请重新执行 ${CLI_COMMAND_NAME} configure 预置默认模型`,
+    };
   }
 
   return {

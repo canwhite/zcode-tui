@@ -65,8 +65,10 @@ export async function prepareCliProviderRuntimeEnv(
   const explicitZCodeBuiltin = options.env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const explicitPersonal = options.env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   // 新名优先、旧名兜底：这里派生的路径要与凭据库、遥测状态落点一致。
-  const dataBaseDir =
-    options.dataBaseDir ?? readRenamedEnv(options.env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
+  // 显式 dataBaseDir 为空串时按未设置处理，理由同 shared-credentials：空串会产出相对路径。
+  const dataBaseDir = options.dataBaseDir?.length
+    ? options.dataBaseDir
+    : (readRenamedEnv(options.env, DATA_BASE_DIR_ENV_KEYS) ?? homedir());
   if (explicitZCodeBuiltin && explicitPersonal) {
     return {
       [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitZCodeBuiltin,

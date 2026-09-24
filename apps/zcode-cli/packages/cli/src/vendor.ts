@@ -102,6 +102,16 @@ export function normalizeBaseUrl(value: string): string {
   }
 }
 
+/**
+ * 读取随包/仓库内置配置的原始文档（未解析）。
+ *
+ * 本模块自己只需要其中的厂商清单；写入默认模型时还要用到模型规则，故导出给
+ * `personal-vendor.ts` 复用同一套定位逻辑——两处各找一次路径必然分叉。
+ */
+export function readBuiltinConfigDocument(explicitPath?: string): unknown | undefined {
+  return readBuiltinConfigFile(explicitPath);
+}
+
 function readBuiltinConfigFile(explicitPath?: string): unknown | undefined {
   const candidates: string[] = [];
   const add = (candidate: string | undefined) => {
@@ -293,6 +303,20 @@ export function findCodingPlanByBaseUrl(
   return matches[0];
 }
 
+/**
+ * 在厂商模型清单里定位用户写的模型，返回**清单中的规范写法**。
+ *
+ * 精确匹配优先；不中时退一步做唯一的大小写不敏感匹配（`GLM-5.3-flash` → `GLM-5.3-Flash`）。
+ * 这与同文件 `findVendorByName` 对厂商名的处理一致——厂商名大小写不敏感，模型名没有理由更严。
+ * 命中多条（清单里真有只差大小写的两项）视为歧义，返回 undefined 交由调用方报错：不猜。
+ */
+function matchListedModel(modelIds: readonly string[], model: string): string | undefined {
+  if (modelIds.includes(model)) return model;
+  const lowered = model.toLowerCase();
+  const matches = modelIds.filter((candidate) => candidate.toLowerCase() === lowered);
+  return matches.length === 1 ? matches[0] : undefined;
+}
+
 export function resolveVendor(
   config: { vendorName?: string; baseUrl?: string; model: string },
   vendors: readonly BuiltinVendor[],
@@ -336,7 +360,8 @@ export function resolveVendor(
   }
 
   // 有清单但不含该模型 = 用户写错；没有清单 = 自定义场景，放行。
-  if (vendor.modelIds.length > 0 && !vendor.modelIds.includes(config.model)) {
+  const listedModel = matchListedModel(vendor.modelIds, config.model);
+  if (vendor.modelIds.length > 0 && listedModel === undefined) {
     return {
       ok: false,
       reason: `厂商 ${vendor.id} 不支持模型 ${config.model}`,
@@ -344,5 +369,7 @@ export function resolveVendor(
     };
   }
 
-  return { ok: true, resolved: { vendor, isCustom: false, model: config.model } };
+  // 命中时把**清单里的规范写法**传下去，而不是用户原文：模型名会被写进 Provider 配置
+  // 与默认模型选择，规范化后落盘、doctor 显示与请求用的是同一个串。
+  return { ok: true, resolved: { vendor, isCustom: false, model: listedModel ?? config.model } };
 }

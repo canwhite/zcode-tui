@@ -4,6 +4,9 @@ import type {
   EnvRecord,
 } from "@zcode/adapters/model";
 import {
+  BASE_URL_ENV_KEYS,
+  ENDPOINT_ORIGIN_ENV_KEYS,
+  readRenamedEnv,
   resolveRuntimeZCodeEnv,
   resolveRuntimeZCodeEndpointOrigin,
   ZCODE_APP_VERSION_ENV,
@@ -75,7 +78,7 @@ function buildCliZCodeSourceHeaders(
  * `HTTP-Referer`）。用于避免隐式回落到内置默认端点。
  */
 function resolveConfiguredEndpointOrigin(env: EnvRecord): string | undefined {
-  const explicit = env.ZCODE_BASE_URL?.trim() || env.ZCODE_ENDPOINT_ORIGIN?.trim();
+  const explicit = readRenamedEnv(env, BASE_URL_ENV_KEYS) ?? readRenamedEnv(env, ENDPOINT_ORIGIN_ENV_KEYS);
   if (!explicit) return undefined;
   try {
     return resolveRuntimeZCodeEndpointOrigin(env);

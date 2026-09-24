@@ -3,6 +3,7 @@ import type { SharedZCodeCredentialStore } from "@zcode/adapters/auth";
 import type { ProviderRuntimeHeadersPort } from "@zcode/core";
 import {
   createAccountProviderConfigSnapshot,
+  ModelConfigRules,
   ProviderConfig,
   ProviderConfigMap,
   ZhipuAccountAccessConfig,
@@ -15,10 +16,22 @@ import {
 } from "@zcode/provider-node";
 import type { ProviderFamilyDomain } from "@zcode/shared";
 
-interface StandaloneCodingPlanProvider {
+export interface StandaloneCodingPlanProvider {
   readonly family: ProviderFamilyDomain;
+  /** 模板默认模型：`builtinModelIds` 里首个非空项。用户未声明 MODEL 时用它。 */
   readonly modelId: string;
+  /** 该套餐声明的完整模型清单；用于校验用户显式声明的 MODEL，不能只看首个。 */
+  readonly modelIds: readonly string[];
   readonly providerId: string;
+  /**
+   * 解析某个模型的实际配置（如思考档位）所需的两样东西：内置模型规则 + 该 provider 的
+   * 解析身份。**不要**在调用方另写一份档位判断——档位取值来自 modelRules 的匹配结果，
+   * 不同模型并不相同（如 GLM-5.3 系是 `["low","high","max"]`，通用规则是
+   * `["disabled","enabled"]`），写死任何常量都会写出一个不可选的默认模型。
+   */
+  readonly modelRules: ModelConfigRules;
+  readonly apiType: string;
+  readonly baseUrl: string;
 }
 
 export async function readStandaloneCodingPlanProviders(
@@ -29,7 +42,10 @@ export async function readStandaloneCodingPlanProviders(
 
 async function readStandaloneCodingPlanCatalog(
   env: Readonly<Record<string, string | undefined>>,
-  config?: Pick<ProviderConfigLayerSnapshot, "revision" | "providers">,
+  // `models` 可选：运行期只按 provider 清单构建账号状态，不需要模型规则；
+  // 需要在写入默认模型前解析档位的调用方（`configure`）必须传入。
+  config?: Pick<ProviderConfigLayerSnapshot, "revision" | "providers"> &
+    Partial<Pick<ProviderConfigLayerSnapshot, "models">>,
 ): Promise<{
   readonly zcodeBuiltinRevision: string;
   readonly providers: readonly StandaloneCodingPlanProvider[];
@@ -39,12 +55,27 @@ async function readStandaloneCodingPlanCatalog(
       zcodeBuiltinRevision: config.revision,
       providers: config.providers.entries().flatMap(([providerId, provider]) => {
         const access = provider.access;
-        const modelId = provider.builtinModelIds?.find((candidate) => candidate.trim())?.trim();
+        const modelIds = (provider.builtinModelIds ?? [])
+          .map((candidate) => candidate.trim())
+          .filter((candidate) => candidate.length > 0);
+        const api = provider.api;
         return access?.type === "zhipu-account" &&
           access.mode === "individual-coding-plan" &&
           access.accountType &&
-          modelId
-          ? [{ family: access.accountType, modelId, providerId }]
+          api?.type &&
+          modelIds.length > 0
+          ? [
+              {
+                family: access.accountType,
+                modelId: modelIds[0]!,
+                modelIds,
+                providerId,
+                // 套餐型 provider 在内置配置里不声明 templateId，故模板规则不参与解析。
+                modelRules: config.models ?? ModelConfigRules.empty(),
+                apiType: api.type,
+                baseUrl: api.baseUrl ?? "",
+              },
+            ]
           : [];
       }),
     };

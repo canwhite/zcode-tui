@@ -1,4 +1,5 @@
 import type { ZCodeEnv } from "./env.js";
+import { BASE_URL_ENV_KEYS, ENDPOINT_ORIGIN_ENV_KEYS, readRenamedEnv } from "./env-keys.js";
 
 /**
  * 端点解析：把 `ZCODE_*` / `BIGMODEL_*` 环境变量解析成确定性的 URL 事实。
@@ -20,7 +21,14 @@ declare const __ZCODE_ENDPOINT_ENV__: Record<string, string | undefined> | undef
 export function pickProductEndpointEnv(
   env: Record<string, string | undefined>,
 ): Record<string, string> {
-  const keys = ["ZCODE_BASE_URL", "ZCODE_ENDPOINT_ORIGIN", "BIGMODEL_API_BASE_URL"];
+  const keys = [
+    // 端点覆盖入口改名后的规范名放前面；旧名保留在白名单里，兼容已设置它们的部署。
+    "QCODE_BASE_URL",
+    "ZCODE_BASE_URL",
+    "QCODE_ENDPOINT_ORIGIN",
+    "ZCODE_ENDPOINT_ORIGIN",
+    "BIGMODEL_API_BASE_URL",
+  ];
   return Object.fromEntries(
     keys.flatMap((key) => (env[key]?.trim() ? [[key, env[key]!.trim()]] : [])),
   );
@@ -42,6 +50,10 @@ export interface ZCodeEndpointUrls {
 export interface RuntimeZCodeEndpointEnv {
   [key: string]: string | undefined;
   ZCODE_ENV?: string;
+  /** 端点覆盖的规范名（改名后）。 */
+  QCODE_BASE_URL?: string;
+  QCODE_ENDPOINT_ORIGIN?: string;
+  /** 旧名，仅供兼容读取。 */
   ZCODE_BASE_URL?: string;
   ZCODE_ENDPOINT_ORIGIN?: string;
 }
@@ -94,9 +106,9 @@ export function resolveRuntimeZCodeEndpointOrigin(
   options?: { overrideOrigin?: string | null },
 ): string {
   return resolveZCodeEndpointOrigin({
+    // 每个入口都新名优先、旧名兜底，见 `env-keys.ts` 的改名规则。
     envBaseOrigin:
-      readRuntimeEnvValue(env, "ZCODE_BASE_URL") ??
-      readRuntimeEnvValue(env, "ZCODE_ENDPOINT_ORIGIN"),
+      readRenamedEnv(env, BASE_URL_ENV_KEYS) ?? readRenamedEnv(env, ENDPOINT_ORIGIN_ENV_KEYS),
     overrideOrigin: options?.overrideOrigin,
   });
 }

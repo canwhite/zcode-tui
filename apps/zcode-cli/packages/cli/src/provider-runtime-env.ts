@@ -14,7 +14,12 @@ import {
   ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   type ZCodeBuiltinRefreshEvent,
 } from "@zcode/provider-node";
-import { resolveRuntimeZCodeEndpointOrigin, ZCODE_VERSION } from "@zcode/shared";
+import {
+  DATA_BASE_DIR_ENV_KEYS,
+  readRenamedEnv,
+  resolveRuntimeZCodeEndpointOrigin,
+  ZCODE_VERSION,
+} from "@zcode/shared";
 import type { CliEnv } from "./env.js";
 
 export const SEA_ZCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "zcode-provider/zcode-builtin.json";
@@ -59,7 +64,9 @@ export async function prepareCliProviderRuntimeEnv(
 
   const explicitZCodeBuiltin = options.env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const explicitPersonal = options.env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
-  const dataBaseDir = options.dataBaseDir ?? options.env.QCODE_DATA_BASE_DIR?.trim() ?? homedir();
+  // 新名优先、旧名兜底：这里派生的路径要与凭据库、遥测状态落点一致。
+  const dataBaseDir =
+    options.dataBaseDir ?? readRenamedEnv(options.env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
   if (explicitZCodeBuiltin && explicitPersonal) {
     return {
       [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitZCodeBuiltin,

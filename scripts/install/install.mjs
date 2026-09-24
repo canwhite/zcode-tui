@@ -33,7 +33,10 @@ function hasVendorConfig() {
   const entries = parseEnvEntries(readFileSync(envPath, "utf8"));
   const read = (key) => entries.find((candidate) => candidate.key === key)?.value ?? "";
   // 内置厂商写 VENDOR；自建端点写 BASE_URL。两者居其一即视为已配置。
-  return Boolean(read("ZCODE_VENDOR") || read("ZCODE_VENDOR_BASE_URL"));
+  // 键名必须与 `apps/zcode-cli/packages/cli/src/vendor.ts` 的 VENDOR_ENV_KEYS 一致。
+  // 两者不一致时本函数恒为 false，configure 会被静默跳过——安装看起来成功，
+  // 但 .env 声明的厂商从没被写进去。改名前请同步 grep `QCODE_VENDOR`。
+  return Boolean(read("QCODE_VENDOR") || read("QCODE_VENDOR_BASE_URL"));
 }
 
 /**
@@ -77,7 +80,7 @@ function install() {
   ensureEnvFile(log);
 
   if (!hasVendorConfig()) {
-    log("[configure] .env 中未声明厂商（ZCODE_VENDOR 或 ZCODE_VENDOR_BASE_URL），跳过。");
+    log("[configure] .env 中未声明厂商（QCODE_VENDOR 或 QCODE_VENDOR_BASE_URL），跳过。");
     log("[configure] 填好后重新执行 make install，或在 TUI 设置里填入 Key。");
   } else {
     // 让 CLI 自己读 .env 解析厂商——入口已统一加载，这里不要重复解析一遍。

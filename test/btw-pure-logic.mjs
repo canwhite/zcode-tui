@@ -7,7 +7,7 @@
 //
 // 这些断言直接 import **源码里的纯函数**（不是源码文本），所以它们证伪的是行为，不是字面量。
 // 之所以能直接 import：`@zcode/shared` 等 workspace 包把 `exports` 指向 `.ts` 源文件，
-// 只有 tsx 能解析这种形态（`node` 不能，`zcode.cjs` 是 esbuild 内联后的产物）。
+// 只有 tsx 能解析这种形态（`node` 不能，`qcode.cjs` 是 esbuild 内联后的产物）。
 //
 // 用法：npx tsx test/btw-pure-logic.mjs
 //

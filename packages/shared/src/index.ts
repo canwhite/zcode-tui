@@ -75,6 +75,15 @@ export {
 export * from "./errors.js";
 export type { SessionCreateSource } from "./sessionCreateSource.js";
 export { resolveSafeEndpointHostname } from "./endpointHostname.js";
+export {
+  BASE_URL_ENV_KEYS,
+  CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV_KEYS,
+  CONFIG_HOME_ENV_KEYS,
+  DATA_BASE_DIR_ENV_KEYS,
+  ENDPOINT_ORIGIN_ENV_KEYS,
+  readRenamedEnv,
+} from "./env-keys.js";
+export type { RenamedEnvKeys } from "./env-keys.js";
 export * from "./rendererActionTrace.js";
 export * from "./validation.js";
 export * from "./api.js";

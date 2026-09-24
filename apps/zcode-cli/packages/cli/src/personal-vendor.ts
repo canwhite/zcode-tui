@@ -6,6 +6,7 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
   ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   decodeProviderConfigFile,
+  decodeZCodeBuiltinRelease,
   encodeProviderConfigFile,
 } from "@zcode/provider-node";
 import {
@@ -16,8 +17,10 @@ import {
   ProviderConfigMap,
   type ProviderApiType,
 } from "@zcode/provider";
+import { DATA_BASE_DIR_ENV_KEYS, readRenamedEnv } from "@zcode/shared";
 import { atomicWritePrivateTextFile } from "@zcode/shared/node";
 import type { CliEnv } from "./env.js";
+import { readBuiltinConfigDocument } from "./vendor.js";
 
 /**
  * 把非套餐厂商写进个人 Provider 配置。
@@ -46,7 +49,9 @@ export interface WritePersonalVendorResult {
 export function resolvePersonalConfigPath(env: CliEnv): string {
   const explicit = env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (explicit) return explicit;
-  const dataBaseDir = env.QCODE_DATA_BASE_DIR?.trim() || homedir();
+  // 与凭据库、遥测状态同一套读取规则（新名优先、旧名兜底），否则只设一个键时
+  // 这几种数据会落到不同的根目录。
+  const dataBaseDir = readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
   return join(dataBaseDir, ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
 }
 
@@ -71,12 +76,44 @@ export function providerIdFromBaseUrl(baseUrl: string): string {
 const DEFAULT_API_TYPE = "anthropic-messages";
 
 /**
- * 默认档位。取值依据：内置 modelConfigRules 对通用模型的
- * `optionSpecs.reasoningLevel.values` 为 `["disabled", "enabled"]`，
- * 而 `completeNewModelSelection` 取 `.at(-1)` 作为最高档 —— 即 `enabled`。
- * 选用完全相同的取值，保证与运行期的补全结果一致。
+ * 取该模型实际支持的最高思考档位；解析不出来时返回 undefined。
+ *
+ * 取值必须与运行期同源：内置模型规则 ++ 个人精确规则（`composeEffective`），再按身份解析，
+ * 最后取 `.at(-1)` —— 也就是 `completeNewModelSelection` 的口径。
+ *
+ * **不能写常量**。历史实现写死 `"enabled"`，依据是"通用模型档位是 `["disabled","enabled"]`"；
+ * 但档位是**按模型**匹配的，GLM-5.3 系的规则给出的是 `["low","high","max"]`，于是写下去的
+ * `"enabled"` 被判 `reasoning-level-not-supported`，该默认模型在运行期被静默丢弃、回退到
+ * Registry 顺序 —— 用户看到的就是"配了却没生效"。
  */
-const DEFAULT_REASONING_LEVEL = "enabled";
+function resolvePersonalReasoningLevel(input: {
+  providerId: string;
+  modelId: string;
+  apiType: string;
+  baseUrl: string;
+  personalModels: ModelConfigRules;
+}): string | undefined {
+  try {
+    const document = readBuiltinConfigDocument();
+    if (document === undefined) return undefined;
+    const rules = ModelConfigRules.composeEffective(
+      decodeZCodeBuiltinRelease(document).config.modelConfigRules,
+      input.personalModels,
+    );
+    return rules
+      .resolve({
+        providerId: input.providerId,
+        modelId: input.modelId,
+        apiType: input.apiType,
+        baseUrl: input.baseUrl,
+      })
+      .optionSpecs?.reasoningLevel?.values?.at(-1);
+  } catch {
+    // 内置配置不可读或格式不符时退化为"不写档位"：安装链路不能因此失败。
+    // 宁可不写（运行期自行回退），也不能写一个该模型不支持的档位。
+    return undefined;
+  }
+}
 
 /**
  * 写入或更新一条个人厂商记录。
@@ -130,6 +167,14 @@ export async function writePersonalVendor(
   // 必须交给 codec 编码，而不是手拼 JSON：它负责把领域对象规范化为磁盘格式。
   // 手工拼装会绕过这层规范化，产出解码不了的文档——repository 遇到解码失败会
   // **静默降级为空配置**，表现为"写入成功但运行期完全看不到这个厂商"。
+  const reasoningLevel = resolvePersonalReasoningLevel({
+    providerId,
+    modelId: input.model,
+    apiType: (input.apiType ?? DEFAULT_API_TYPE) as ProviderApiType,
+    baseUrl: input.baseUrl,
+    personalModels: current.models,
+  });
+
   const nextFile = encodeProviderConfigFile({
     providers,
     models: current.models,
@@ -141,11 +186,12 @@ export async function writePersonalVendor(
     // selection 直接判 `reasoning-level-missing` 不可选，而启动时的
     // `isSelectable` 正是走这条校验。写一条没有档位的 selection，等于写了一条
     // 永远"不可选"的默认值——运行期会静默回退到别的厂商。
-    // 这里与运行期的 `completeNewModelSelection` 保持一致：取该模型支持档位的最高档。
+    // 档位取自该模型的实际规则（见 `resolvePersonalReasoningLevel`）；解析不出来时不写，
+    // 而不是填一个可能不被支持的档位。
     defaultModelSelection: {
       providerId,
       modelId: input.model,
-      options: { reasoningLevel: DEFAULT_REASONING_LEVEL },
+      ...(reasoningLevel ? { options: { reasoningLevel } } : {}),
     },
   } as Parameters<typeof encodeProviderConfigFile>[0]);
 

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { DATA_BASE_DIR_ENV_KEYS, readRenamedEnv } from "@zcode/shared";
 import { atomicWritePrivateTextFile, backupCorruptFile, withFileLock } from "@zcode/shared/node";
 import { createZCodeCredentialCipher, type ZCodeCredentialCipher } from "./credential-cipher.js";
 
@@ -17,7 +18,6 @@ import { createZCodeCredentialCipher, type ZCodeCredentialCipher } from "./crede
  * 老用户磁盘上若仍留有这些键，本模块**不读取、不参与解析、也不主动删除**。
  */
 
-const ZCODE_DATA_BASE_DIR_ENV_KEY = "ZCODE_DATA_BASE_DIR";
 const credentialChangeListeners = new Map<
   string,
   Set<() => void | Promise<void>>
@@ -168,7 +168,9 @@ export function resolveSharedZCodeCredentialsPath(
   }
 
   const env = options.env ?? process.env;
-  const baseDir = options.baseDir ?? env[ZCODE_DATA_BASE_DIR_ENV_KEY] ?? homedir();
+  // 必须与个人 Provider 配置用同一套读取规则（新名优先、旧名兜底），否则只设一个键时
+  // 凭据与本配置会落到两个不同的根目录——一半生效且不报错。
+  const baseDir = options.baseDir ?? readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
   return join(resolveUserPath(baseDir), ".zcode", "v2", "credentials.json");
 }
 

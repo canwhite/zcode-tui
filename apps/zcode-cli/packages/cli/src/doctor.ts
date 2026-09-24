@@ -3,7 +3,12 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
-import { resolveRuntimeZCodeEndpointOrigin, DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "@zcode/shared";
+import {
+  BASE_URL_ENV_KEYS,
+  readRenamedEnv,
+  resolveRuntimeZCodeEndpointOrigin,
+  DEFAULT_ZCODE_ENDPOINT_ORIGIN,
+} from "@zcode/shared";
 import {
   ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
   ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
@@ -217,22 +222,23 @@ function checkEnvSource(gate: DoctorGateOptions): DoctorCheck {
 }
 
 function checkEndpoint(env: CliEnv): DoctorCheck {
-  const configured = env.ZCODE_BASE_URL?.trim();
+  // 提示里给**规范名**（改名后的 QCODE_），否则用户照抄会写一个文档里没有的键。
+  const configured = readRenamedEnv(env, BASE_URL_ENV_KEYS);
   const origin = resolveRuntimeZCodeEndpointOrigin(env);
   if (!configured && origin === DEFAULT_ZCODE_ENDPOINT_ORIGIN) {
     return {
       id: "config.endpoint",
       label: "端点解析",
       status: "warn",
-      detail: `${origin}（未配置 ZCODE_BASE_URL，使用内置默认值）`,
-      fix: "如需指向自建服务，请在 .env 中显式设置 ZCODE_BASE_URL",
+      detail: `${origin}（未配置 ${BASE_URL_ENV_KEYS.current}，使用内置默认值）`,
+      fix: `如需指向自建服务，请在 .env 中显式设置 ${BASE_URL_ENV_KEYS.current}`,
     };
   }
   return {
     id: "config.endpoint",
     label: "端点解析",
     status: "pass",
-    detail: `${origin}${configured ? "（来自 ZCODE_BASE_URL）" : ""}`,
+    detail: `${origin}${configured ? `（来自 ${BASE_URL_ENV_KEYS.current}）` : ""}`,
   };
 }
 

@@ -25,7 +25,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs");
+const cliPath = join(repoRoot, "apps/zcode-cli/packages/cli/dist/qcode.cjs");
 const builtinConfigPath = join(repoRoot, "config", "provider", "zcode-builtin.json");
 
 /** 网关改写独有、直连不可能产生的路径串。删掉改写后产物里不应再出现。 */
@@ -152,12 +152,15 @@ function collectZcodeHostRefs(node, path, out) {
     // 因此必须隔离掉宿主机的 .env 影响。
     const res = runCli(["configure", "--provider", "deepseek", "--api-key", "acceptance-probe"], {
       env: {
-        ZCODE_DATA_BASE_DIR: storage,
+        QCODE_DATA_BASE_DIR: storage,
         // 只留 model（deepseek 的内置模型之一），其余清空以隔离宿主机 .env。
-        ZCODE_VENDOR: "",
-        ZCODE_VENDOR_BASE_URL: "",
-        ZCODE_VENDOR_MODEL: "deepseek-flash",
-        ZCODE_VENDOR_API_KEY: "",
+        // 键名必须是 **QCODE_** 这套：`loadCliDotenv` 是 `override: false`，只有"同名键
+        // 在 process.env 里已存在"才压得住 .env；清错名字等于没清，宿主机 .env 的
+        // BASE_URL 会漏进来并（正确地）触发端点不一致报错。
+        QCODE_VENDOR: "",
+        QCODE_VENDOR_BASE_URL: "",
+        QCODE_VENDOR_MODEL: "deepseek-flash",
+        QCODE_VENDOR_API_KEY: "",
       },
     });
     const combined = `${res.stdout}${res.stderr}`;
@@ -189,17 +192,19 @@ function collectZcodeHostRefs(node, path, out) {
           "bigmodel",
           "--api-key",
           "acceptance-plan-probe",
+          // 故意用清单里的**第二个**模型：清单首个是 GLM-5.3，用它做断言无法区分
+          // "按声明生效"与"丢弃声明、取清单首个"。
           "--configure-model",
-          "GLM-5.3",
+          "GLM-5.3-Flash",
         ],
         {
           env: {
-            ZCODE_DATA_BASE_DIR: planStorage,
+            QCODE_DATA_BASE_DIR: planStorage,
             // 隔离宿主机 .env：该分支要求厂商名与端点自洽，宿主的 BASE_URL 会冲突。
-            ZCODE_VENDOR: "",
-            ZCODE_VENDOR_BASE_URL: "",
-            ZCODE_VENDOR_MODEL: "",
-            ZCODE_VENDOR_API_KEY: "",
+            QCODE_VENDOR: "",
+            QCODE_VENDOR_BASE_URL: "",
+            QCODE_VENDOR_MODEL: "",
+            QCODE_VENDOR_API_KEY: "",
           },
         },
       );
@@ -219,6 +224,27 @@ function collectZcodeHostRefs(node, path, out) {
           planKeys.every((k) => k.startsWith("account-provider:")) &&
           planKeys.every((k) => !k.startsWith("oauth:") && k !== "zcodejwttoken"),
         `落盘键：${planKeys.join(", ") || "(无)"}`,
+      );
+
+      // 套餐分支的两个静默失败点，静态检查都看不见：
+      //   a) 声明了 MODEL 却被丢弃（写清单首个）——配置看着成功，默认模型却是别的；
+      //   b) 写出的选择缺 options.reasoningLevel——运行期 `validateModelSelectionOptions`
+      //      判 `reasoning-level-missing`，`resolveInitialModelSelection` 不报错，
+      //      直接回退到 Registry 顺序里的第一个模型。
+      const planConfigPath = join(planStorage, ".zcode", "v2", "provider_config.json");
+      const planSelection = existsSync(planConfigPath)
+        ? JSON.parse(readFileSync(planConfigPath, "utf8"))?.config?.defaultModelSelection
+        : undefined;
+      assert(
+        "套餐分支：默认模型跟随声明的 MODEL（而非套餐清单首个）",
+        planSelection?.modelId === "GLM-5.3-Flash",
+        `实际：${JSON.stringify(planSelection)}`,
+      );
+      assert(
+        "套餐分支：写出的默认选择带思考档位（否则运行期判不可选并静默回退）",
+        typeof planSelection?.options?.reasoningLevel === "string" &&
+          planSelection.options.reasoningLevel.length > 0,
+        `实际：${JSON.stringify(planSelection)}`,
       );
     } finally {
       rmSync(planStorage, { recursive: true, force: true });

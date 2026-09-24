@@ -169,7 +169,9 @@ const normalizeBrowserUse = (value: string | undefined): GlobalOptions["browserU
 
 const normalizePresentationSurface = (value: string | undefined): PresentationSurface => {
   if (value === undefined || value.toLowerCase() === "terminal") return "terminal";
-  if (value.toLowerCase() === "desktop") return "qcode_desktop";
+  // 取值必须是 `PresentationSurface` 的成员 `"zcode_desktop"`：它是与桌面端共享的内部协议标识，
+  // `core/src/context/builder.ts` 按它分支。改名成 qcode_ 会让该分支永远不成立。
+  if (value.toLowerCase() === "desktop") return "zcode_desktop";
   throw new Error(`Unsupported --surface value: ${value}. Supported surfaces: terminal, desktop.`);
 };
 
@@ -356,7 +358,14 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
       }
       const configure =
         deps.configureCodingPlanApiKey ?? (await loadBootstrapModule()).configureCodingPlanApiKey;
-      const result = await configure({ apiKey: parsed.config.apiKey, env, providerId });
+      // 把 .env 声明的模型一起写进去。套餐凭据落库本身与模型无关，但**默认模型**必须跟着
+      // 声明走（契约：显式字段优先于模板值）；否则写进去的是清单首个模型，与 .env 不一致。
+      const result = await configure({
+        apiKey: parsed.config.apiKey,
+        env,
+        providerId,
+        modelId: model,
+      });
       if (options.json) {
         ctx.stdout.write(
           formatJson({ kind: "coding-plan", vendor: planVendor.id, endpoint: baseUrl, model: result.model }),

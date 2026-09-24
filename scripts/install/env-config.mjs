@@ -12,8 +12,15 @@ import { repoRoot } from "./toolchain.mjs";
 export const envPath = join(repoRoot, ".env");
 const examplePath = join(repoRoot, ".env.example");
 
-/** 缺少这些键，用户就无法“只改 env 就用起来”。 */
-export const REQUIRED_KEYS = ["BIGMODEL_API_KEY"];
+/**
+ * 缺少这些键，用户就无法“只改 env 就用起来”。
+ *
+ * 取值来自四字段契约（`docs/plan-vendor-config-write.md`）：厂商与 key 是下限，
+ * 内置厂商的端点由 VENDOR 带出、模型可省略。原先这里查的是 `BIGMODEL_API_KEY`——
+ * 那是契约明确废掉的"Coding Plan 专用入口"（"统一为一个 API_KEY 字段，没有特例"），
+ * 于是它既报了一个不存在的键为空，又漏检了真正必填的那个。
+ */
+export const REQUIRED_KEYS = ["QCODE_VENDOR_API_KEY"];
 
 /**
  * 解析 `KEY=VALUE` 形态的行，保留注释与空行顺序。

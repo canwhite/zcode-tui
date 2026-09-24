@@ -1,12 +1,11 @@
 import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
-import { createUuid } from "@zcode/shared";
+import { createUuid, DATA_BASE_DIR_ENV_KEYS, readRenamedEnv } from "@zcode/shared";
 
 const LOCK_RETRY_DELAY_MS = 10;
 const LOCK_RETRY_COUNT = 200;
 const LOCK_STALE_MS = 5 * 60 * 1000;
-const ZCODE_DATA_BASE_DIR_ENV_KEY = "ZCODE_DATA_BASE_DIR";
 
 interface TelemetryState {
   deviceMid?: unknown;
@@ -54,9 +53,8 @@ export function ensureCliDeviceMid(options: EnsureCliDeviceMidOptions = {}): Pro
 
 function resolveCliTelemetryStateFile(options: EnsureCliDeviceMidOptions): string {
   const env = options.env ?? process.env;
-  const configuredBaseDir =
-    options.baseDir ?? env[ZCODE_DATA_BASE_DIR_ENV_KEY]?.trim() ?? homedir();
-  const baseDir = configuredBaseDir.length > 0 ? configuredBaseDir : homedir();
+  // 遥测状态与凭据必须落在同一个根：读取规则与 shared-credentials 保持一致。
+  const baseDir = options.baseDir ?? readRenamedEnv(env, DATA_BASE_DIR_ENV_KEYS) ?? homedir();
   return join(resolveUserPath(baseDir), ".zcode", "v2", "telemetry-state.json");
 }
 

@@ -10,6 +10,11 @@
 // 两者正交，互不派生 —— 把配置面切到 `.claude` 不应搬动任何运行时数据。
 
 import { mkdir, stat, writeFile } from "node:fs/promises";
+import {
+  CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV_KEYS,
+  CONFIG_HOME_ENV_KEYS,
+  readRenamedEnv,
+} from "@zcode/shared";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -41,12 +46,15 @@ export function resolveUserHomeDir(env: NodeJS.ProcessEnv = process.env): string
  *
  * 只解析路径，**不创建目录**。需要自举时显式调用 {@link ensureUserConfigHome}。
  *
- * `ZCODE_CONFIG_HOME` 可覆盖落点 —— 与既有的 `ZCODE_STORAGE_DIR` 同一惯例，
- * 供测试与隔离环境使用。
+ * `QCODE_CONFIG_HOME` 可覆盖落点（兼容旧名 `ZCODE_CONFIG_HOME`）—— 与既有的
+ * `QCODE_STORAGE_DIR` 同一惯例，供测试与隔离环境使用。
+ *
+ * 注意 `.env.example` 里宣传的就是 `QCODE_` 这个名；只读旧名会让照抄模板的用户
+ * 设了一个不生效的键。
  */
 export function getUserConfigHome(env: NodeJS.ProcessEnv = process.env): string {
-  const override = env.ZCODE_CONFIG_HOME?.trim();
-  if (override && override.length > 0) {
+  const override = readRenamedEnv(env, CONFIG_HOME_ENV_KEYS);
+  if (override) {
     return resolve(override);
   }
   return join(resolveUserHomeDir(env), CONFIG_HOME_DIR);
@@ -69,8 +77,12 @@ export async function isUserConfigHomeAvailable(
   return await pathExists(getUserConfigHome(env));
 }
 
-/** 关闭自举的开关。设成 `1` / `true` 即只读不写。 */
-export const CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV = "ZCODE_NO_CONFIG_HOME_BOOTSTRAP";
+/**
+ * 关闭自举的开关。设成 `1` / `true` 即只读不写。
+ *
+ * 取值来自共享键表（`.env.example` 宣传的那个名）；读取时兼容旧名。
+ */
+export const CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV = CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV_KEYS.current;
 
 export interface ConfigHomeBootstrapOutcome {
   /** 家目录绝对路径。 */
@@ -171,6 +183,6 @@ export async function ensureUserConfigHome(
 }
 
 function isBootstrapOptedOut(env: NodeJS.ProcessEnv): boolean {
-  const value = env[CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV]?.trim().toLowerCase();
+  const value = readRenamedEnv(env, CONFIG_HOME_BOOTSTRAP_OPT_OUT_ENV_KEYS)?.toLowerCase();
   return value === "1" || value === "true";
 }

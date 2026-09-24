@@ -118,3 +118,7 @@ After a fix, do not apply single-case patches. Zoom out and scan globally:
 
 **Why:** Local fixes accumulate technical debt; similar issues recur.
 **How to apply:** After every fix, ask "where else does this problem exist?" — stop only when you can confidently answer "this one place only".
+
+
+## PS: About find error reasons
+Call the "diagnose" skill to identify the problem and use it as a regular method for root cause analysis of the issue.

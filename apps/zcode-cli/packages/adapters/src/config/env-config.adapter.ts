@@ -9,7 +9,8 @@ interface EnvConfigOptions {
 const DEFAULT_PREFIX = "ZCODE_";
 
 /**
- * Parse ZCODE_* environment variables into config
+ * Parse ZCODE_* and QCODE_* environment variables into config.
+ * QCODE_* 是面向用户的外部接口，ZCODE_* 是内部约定。两者都支持以保持向后兼容。
  */
 export function parseEnvConfig(
   env: Record<string, string | undefined> = process.env,
@@ -19,9 +20,21 @@ export function parseEnvConfig(
   const config: RuntimeConfigPatch = {};
 
   for (const [key, value] of Object.entries(env)) {
-    if (!key.startsWith(prefix) || value === undefined) continue;
+    if (value === undefined) continue;
 
-    const configKey = key.slice(prefix.length);
+    let configKey: string | undefined;
+
+    // ZCODE_* 前缀（内部约定）
+    if (key.startsWith(prefix)) {
+      configKey = key.slice(prefix.length);
+    }
+    // QCODE_* 前缀（面向用户的外部接口）
+    else if (key.startsWith("QCODE_")) {
+      configKey = key.slice("QCODE_".length);
+    } else {
+      continue;
+    }
+
     // Storage config
     if (configKey === "STORAGE_DIR") {
       if (!config.storage) config.storage = {};

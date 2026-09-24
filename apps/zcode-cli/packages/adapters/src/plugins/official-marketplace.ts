@@ -75,7 +75,11 @@ export function seedCdnPartitionFromVendoredSync(storageRoot: string): boolean {
     // 损坏本身由 `node scripts/vendor-resources.mjs verify` 负责报出。
     return false;
   }
-  if (!isRecord(manifest) || manifest.name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE) return false;
+  if (
+    !isRecord(manifest) ||
+    ![ZCODE_OFFICIAL_PLUGIN_MARKETPLACE, "zcode-plugins-official"].includes(manifest.name as string)
+  )
+    return false;
 
   writeCdnOfficialMarketplacePartitionSync({ manifest, storageRoot });
   return true;
@@ -162,7 +166,11 @@ function isStrictDescendant(parentPath: string, childPath: string): boolean {
 }
 
 function assertOfficialManifest(manifest: Record<string, unknown>): void {
-  if (manifest.name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
+  const name = manifest.name;
+  if (
+    name !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE &&
+    name !== "zcode-plugins-official"
+  ) {
     throw new Error(
       `Official marketplace manifest must be named ${ZCODE_OFFICIAL_PLUGIN_MARKETPLACE}`,
     );

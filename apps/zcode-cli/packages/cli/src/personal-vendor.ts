@@ -46,7 +46,7 @@ export interface WritePersonalVendorResult {
 export function resolvePersonalConfigPath(env: CliEnv): string {
   const explicit = env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (explicit) return explicit;
-  const dataBaseDir = env.ZCODE_DATA_BASE_DIR?.trim() || homedir();
+  const dataBaseDir = env.QCODE_DATA_BASE_DIR?.trim() || homedir();
   return join(dataBaseDir, ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
 }
 

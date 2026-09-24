@@ -323,7 +323,7 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
     if (!parsed.ok) {
       // 未配置厂商是合法状态，不算失败：跳过即可，由安装流程决定是否提示。
       if (parsed.notConfigured) {
-        ctx.stdout.write("未配置厂商（.env 中缺少 ZCODE_VENDOR_* 字段），跳过。\n");
+        ctx.stdout.write("未配置厂商（.env 中缺少 QCODE_VENDOR_* 字段），跳过。\n");
         return 0;
       }
       ctx.stderr.write(`${parsed.reason}\n`);
@@ -369,14 +369,14 @@ const runConfigure = async (ctx: RunContext, options: GlobalOptions, deps: RunDe
     }
 
     // 自定义端点的模型不做清单校验（本就没有清单，见 resolveVendor），但**声明里
-    // 可能残留着内置厂商的模型**——换 base url 却忘了改 ZCODE_VENDOR_MODEL。
+    // 可能残留着内置厂商的模型**——换 base url 却忘了改 QCODE_VENDOR_MODEL。
     // 这会写出一个"端点 A + 模型 B"的组合，且不报错，直到发请求才失败。
     if (!parsed.config.vendorName) {
       const owner = vendors.find((candidate) => candidate.modelIds.includes(model));
       if (owner) {
         ctx.stderr.write(
           `提示：模型 ${model} 是内置厂商 ${owner.id} 的模型，但你配置的是自建端点 ${baseUrl}。\n` +
-            `      如果确实要用该端点，请把 ZCODE_VENDOR_MODEL 改成该端点支持的模型名。\n`,
+            `      如果确实要用该端点，请把 QCODE_VENDOR_MODEL 改成该端点支持的模型名。\n`,
         );
       }
     }

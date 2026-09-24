@@ -333,8 +333,8 @@ function checkVendorDeclaration(env: CliEnv, activeProviderId: string | undefine
         status: "warn",
         detail: activeId
           ? `未在 .env 中声明厂商；当前生效由已有配置决定：${activeId}`
-          : "未在 .env 中声明厂商（ZCODE_VENDOR_* 缺失）",
-        fix: "如需由 .env 驱动厂商，请填写 ZCODE_VENDOR 与 ZCODE_VENDOR_API_KEY",
+          : "未在 .env 中声明厂商（QCODE_VENDOR_* 缺失）",
+        fix: "如需由 .env 驱动厂商，请填写 QCODE_VENDOR 与 QCODE_VENDOR_API_KEY",
       };
     }
     return {

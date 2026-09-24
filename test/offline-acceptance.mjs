@@ -45,7 +45,7 @@ function runCli(args, { env = {}, storage } = {}) {
   const child = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: { ...process.env, ZCODE_STORAGE_DIR: storage, ...env },
+    env: { ...process.env, QCODE_STORAGE_DIR: storage, ...env },
   });
   return { status: child.status, stdout: child.stdout ?? "", stderr: child.stderr ?? "" };
 }
@@ -111,7 +111,7 @@ if (npmReachable) {
 }
 
 // A3 — 断网下市场可列出智谱插件
-const listStorage = mkdtempSync(join(tmpdir(), "zcode-accept-list-"));
+const listStorage = mkdtempSync(join(tmpdir(), "qcode-accept-list-"));
 const listed = runCli(["plugins", "list"], { env: BLOCKED_ENV, storage: listStorage });
 const marketplace = readMarketplace(listStorage);
 const zhipu = (marketplace?.plugins ?? []).filter((p) => p.source?.type === "zip");
@@ -126,7 +126,7 @@ assert(
 );
 
 // A4 — 断网下可安装（这一轮是"正向"：有本地副本，应当成功）
-const okStorage = mkdtempSync(join(tmpdir(), "zcode-accept-ok-"));
+const okStorage = mkdtempSync(join(tmpdir(), "qcode-accept-ok-"));
 const okInstall = runCli(["plugins", "install", PROBE_PLUGIN], {
   env: BLOCKED_ENV,
   storage: okStorage,
@@ -142,11 +142,11 @@ assert(
 // 这一条同时证明两件事，缺一不可：
 //   1) A4 的成功确实来自本地副本，不是缓存或回源；
 //   2) 封锁对 CLI 的取网路径真的生效——若 CLI 能出网，这里反而会"安装成功"而断言失败。
-const noVendorStorage = mkdtempSync(join(tmpdir(), "zcode-accept-novendor-"));
+const noVendorStorage = mkdtempSync(join(tmpdir(), "qcode-accept-novendor-"));
 const noVendorInstall = runCli(["plugins", "install", PROBE_PLUGIN], {
   env: {
     ...BLOCKED_ENV,
-    ZCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "zcode-no-such-vendored-root"),
+    QCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "qcode-no-such-vendored-root"),
   },
   storage: noVendorStorage,
 });

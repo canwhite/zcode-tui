@@ -3,7 +3,7 @@ import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises"
 import { existsSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 
-export const seaOfficialPluginAssetPrefix = "zcode-official-plugins/";
+export const seaOfficialPluginAssetPrefix = "qcode-official-plugins/";
 export const seaOfficialPluginManifestAssetKey = `${seaOfficialPluginAssetPrefix}manifest.json`;
 const browserUseRequiredRuntimePaths = [
   "scripts/browser-client.mjs",
@@ -21,7 +21,7 @@ export const officialSeaPlugins = [
   {
     // node_repl 宿主：Browser Use 与 Computer Use 共用的运行时产物，自己不是面向用户的插件
     // （无 skill、无市场 listing）。它必须始终随发布物嵌入，否则任一能力启用时都没有宿主可跑。
-    marketplace: "zcode-plugins-official",
+    marketplace: "qcode-plugins-official",
     name: "node-repl-host",
     packageName: "@zcode/node-repl-host",
     requiresRuntime: true,
@@ -31,7 +31,7 @@ export const officialSeaPlugins = [
   },
   {
 
-    marketplace: "zcode-plugins-official",
+    marketplace: "qcode-plugins-official",
     name: "browser-use",
     packageName: "@zcode/browser-use-plugin",
     requiresRuntime: true,

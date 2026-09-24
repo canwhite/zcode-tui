@@ -249,6 +249,7 @@ function countVisibleMarketplacePlugins(
 
 export function resolveZCodePlugins(options: ResolveZCodePluginsOptions = {}): PluginLoadOutcome {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
+  ensureDefaultPluginMarketplaces(pluginStorageRoot);
 
   return discoverNodePluginsSync({
     config: configResult.config.plugins,
@@ -291,7 +292,7 @@ export function getZCodePluginsOverview(
   const installedIds = new Set(installed.map((record) => record.id));
 
   // 每个市场的 manifest 只读一次：同时取 entries（目录条目）与 featured（策展名单）。
-  // zcode-plugins-official 的内置与 CDN 分片已在 adapter 层合并为唯一 canonical manifest。
+  // qcode-plugins-official 的内置与 CDN 分片已在 adapter 层合并为唯一 canonical manifest。
   const catalogs: Array<{
     summary: ZCodeMarketplaceSummaryData;
     entries: PluginMarketplaceEntry[];
@@ -757,7 +758,7 @@ export async function uninstallZCodeMarketplacePlugin(
   return withPluginStorageLock(pluginStorageRoot, async () => {
     const pluginId = resolvePluginIdForMutation(options);
 
-    // 官方 CDN marketplace 与内置插件共享 zcode-plugins-official id 空间，且其缓存
+    // 官方 CDN marketplace 与内置插件共享 qcode-plugins-official id 空间，且其缓存
     // 也位于 official cache 下。若先看 runtime source="official"，会把已有
     // installed_plugins.json 记录的 CDN 插件误判成内置插件，只写 suppression 却不删安装记录，
     // 导致 UI 永远保持 installed、无法重装。持久化安装记录是 marketplace 所有权的权威证据，

@@ -92,7 +92,7 @@ export async function resolveSuggestedPluginReference(
   ) {
     return unavailable(
       "plugin_suggested_reference_untrusted_source",
-      "推荐插件不是受信任的官方 zcode-plugins-official 来源",
+      "推荐插件不是受信任的官方 qcode-plugins-official 来源",
     );
   }
 
@@ -163,7 +163,7 @@ export async function resolveSuggestedPluginReference(
       // 刷新超时必须中止底层网络/进程；仅结束协议等待会让旧 operation 继续改写目录快照。
       refreshTimeout = setTimeout(() => {
         refreshTimedOut = true;
-        const timeoutError = new Error("刷新 zcode-plugins-official 超时（10000 ms）");
+        const timeoutError = new Error("刷新 qcode-plugins-official 超时（10000 ms）");
         timeoutError.name = "TimeoutError";
         refreshController.abort(timeoutError);
         reject(timeoutError);

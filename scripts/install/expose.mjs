@@ -30,10 +30,10 @@ export const cliEntry = join(
   "packages",
   "cli",
   "dist",
-  "zcode.cjs",
+  "qcode.cjs",
 );
 
-const launcherName = "zcode";
+const launcherName = "qcode";
 
 /** 回落到用户级目录：不依赖 sudo，也不受 pnpm 全局目录配置影响。 */
 function fallbackBinDir() {

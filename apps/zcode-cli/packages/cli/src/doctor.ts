@@ -22,6 +22,7 @@ import {
   ZHIPU_OFFICIAL_ASSET_BASE_URL,
 } from "@zcode/adapters";
 import type { CliEnv } from "./env.js";
+import { CLI_COMMAND_NAME } from "./process-name.js";
 import { parseVendorConfig, readBuiltinVendors, resolveVendor } from "./vendor.js";
 import { providerIdFromBaseUrl } from "./personal-vendor.js";
 
@@ -182,17 +183,17 @@ function checkToolchain(env: CliEnv, repoRoot: string | undefined): DoctorCheck[
 }
 
 function checkCommandReachable(env: CliEnv): DoctorCheck {
-  const resolved = firstOnPath("zcode", env.PATH);
+  const resolved = firstOnPath(CLI_COMMAND_NAME, env.PATH);
   if (!resolved) {
     return {
       id: "install.command",
-      label: "zcode 命令可达",
+      label: `${CLI_COMMAND_NAME} 命令可达`,
       status: "fail",
-      detail: "PATH 中找不到 zcode",
+      detail: `PATH 中找不到 ${CLI_COMMAND_NAME}`,
       fix: "运行 make install 完成全局安装，或把全局 bin 目录加入 PATH",
     };
   }
-  return { id: "install.command", label: "zcode 命令可达", status: "pass", detail: resolved };
+  return { id: "install.command", label: `${CLI_COMMAND_NAME} 命令可达`, status: "pass", detail: resolved };
 }
 
 function checkEnvSource(gate: DoctorGateOptions): DoctorCheck {

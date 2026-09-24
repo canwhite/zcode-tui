@@ -1,0 +1,11 @@
+{
+  "archiveSha256": "696f73eaff50d3c3de8a8ee36746a89693dd6ff0d010b05cd3b4b3eb2a369781",
+  "binaryName": "bfs",
+  "platform": "darwin-arm64",
+  "provider": "native-search-tool",
+  "release": "v4.1.1-1",
+  "sha256": "82c2c3a539e9971ae694d8168c1bb2d05ebf22be2b59e6f6a727024d1f6a324c",
+  "source": "producer",
+  "toolId": "bfs",
+  "version": "4.1.1"
+}

@@ -1,0 +1,11 @@
+{
+  "archiveSha256": "84ff9b227b9aad651be0ac4cf7802a190015bfba3dfa6b015cc7aa89dd8c5c2b",
+  "binaryName": "rg",
+  "platform": "darwin-arm64",
+  "provider": "native-search-tool",
+  "release": "v14.1.1-1",
+  "sha256": "7c0ab82213ef8ebfa2467b26d55af9b36b6452f73072acdd4596261b99708f55",
+  "source": "official",
+  "toolId": "ripgrep",
+  "version": "14.1.1"
+}

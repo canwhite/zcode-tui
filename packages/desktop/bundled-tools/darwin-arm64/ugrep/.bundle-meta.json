@@ -1,0 +1,11 @@
+{
+  "archiveSha256": "01ea803e3fc3b94e796a9376e4d062a5490fe08e5760c6173e72b8f31546a4f3",
+  "binaryName": "ugrep",
+  "platform": "darwin-arm64",
+  "provider": "native-search-tool",
+  "release": "v7.8.4-1",
+  "sha256": "d6f7836e99a05300c6e903dcef37221fd0c2e176fc399a1168efd3068a8c35ba",
+  "source": "producer",
+  "toolId": "ugrep",
+  "version": "7.8.4"
+}

@@ -234,7 +234,7 @@ const smokeTestHostTarget = async (target, binaryPath) => {
     try {
       const env = {
         ...process.env,
-        ZCODE_STORAGE_DIR: storageRoot,
+        QCODE_STORAGE_DIR: storageRoot,
       };
       delete env.ZCODE_BFS_BINARY;
       delete env.ZCODE_RG_BINARY;

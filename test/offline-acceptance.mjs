@@ -45,7 +45,7 @@ function runCli(args, { env = {}, storage } = {}) {
   const child = spawnSync(process.execPath, [cliPath, ...args], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: { ...process.env, QCODE_STORAGE_DIR: storage, ...env },
+    env: { ...process.env, ZCODE_STORAGE_DIR: storage, ...env },
   });
   return { status: child.status, stdout: child.stdout ?? "", stderr: child.stderr ?? "" };
 }
@@ -146,7 +146,7 @@ const noVendorStorage = mkdtempSync(join(tmpdir(), "qcode-accept-novendor-"));
 const noVendorInstall = runCli(["plugins", "install", PROBE_PLUGIN], {
   env: {
     ...BLOCKED_ENV,
-    QCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "qcode-no-such-vendored-root"),
+    ZCODE_VENDORED_ASSETS_ROOT: join(tmpdir(), "zcode-no-such-vendored-root"),
   },
   storage: noVendorStorage,
 });

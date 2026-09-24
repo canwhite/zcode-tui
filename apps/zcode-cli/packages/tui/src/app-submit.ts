@@ -33,8 +33,10 @@ import type {
 } from "./types.js";
 
 const LOCAL_USER_MESSAGE_ID_PREFIX = "local-user";
+const AGENT_MESSAGE_ID_PREFIX = "agent";
 
 let localUserMessageSequence = 0;
+let agentMessageSequence = 0;
 
 export function appendAgentResult(
   current: Message[],
@@ -63,6 +65,7 @@ export function appendAgentResult(
     ...finalized,
     {
       content: result.response,
+      id: `${AGENT_MESSAGE_ID_PREFIX}-${++agentMessageSequence}`,
       role: "agent",
     },
   ];

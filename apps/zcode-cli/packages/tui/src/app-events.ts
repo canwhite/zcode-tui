@@ -31,6 +31,10 @@ import { applyCompactTimelineEvent, applyCompactTurnErrorEvent } from "./app-com
 import { applyWorkflowProgressEvent, type WorkflowMirrorSetter } from "./app-workflow-events.js";
 import { asRecord, formatNumber, numberField, stringField } from "./state.js";
 
+const ASSISTANT_MESSAGE_ID_PREFIX = "assistant-event";
+
+let assistantMessageSequence = 0;
+
 type SessionEventHandlers = {
   setActiveTurnId: (turnId: TurnId | undefined) => void;
   setCacheStats: React.Dispatch<React.SetStateAction<CacheStats | undefined>>;
@@ -256,6 +260,7 @@ function applyAssistantMessageEvent(
     ...current,
     {
       content,
+      id: `${ASSISTANT_MESSAGE_ID_PREFIX}-${++assistantMessageSequence}`,
       role: "agent",
     },
   ]);

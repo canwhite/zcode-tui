@@ -48,9 +48,11 @@ permission-status:
 	@sqlite3 $(PERMISSION_DB) "SELECT scope_id, value FROM local_setting WHERE key = 'mode' AND scope = 'project';" 2>/dev/null || echo "未找到配置"
 
 permission-allow:
+	@sqlite3 $(PERMISSION_DB) "UPDATE local_setting SET value = '{\"mode\":\"allow\"}' WHERE key = 'mode' AND scope = 'project' AND scope_id = 'proj_users-doing';" 2>/dev/null
 	@sqlite3 $(PERMISSION_DB) "UPDATE local_setting SET value = '{\"mode\":\"allow\"}' WHERE key = 'mode' AND scope = 'project' AND scope_id = '$(PERMISSION_SCOPE)';" 2>/dev/null
 	@echo "已切换为: allow（默认允许所有操作）"
 
 permission-edit:
+	@sqlite3 $(PERMISSION_DB) "UPDATE local_setting SET value = '{\"mode\":\"edit\"}' WHERE key = 'mode' AND scope = 'project' AND scope_id = 'proj_users-doing';" 2>/dev/null
 	@sqlite3 $(PERMISSION_DB) "UPDATE local_setting SET value = '{\"mode\":\"edit\"}' WHERE key = 'mode' AND scope = 'project' AND scope_id = '$(PERMISSION_SCOPE)';" 2>/dev/null
 	@echo "已切换为: edit（每次编辑需要确认）"

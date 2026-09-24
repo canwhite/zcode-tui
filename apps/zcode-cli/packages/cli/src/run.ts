@@ -668,7 +668,7 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     env,
     logger:
       deps.logger ??
-      createNodeLoggerFactory({ env }).createLogger("zcode").child({ module: "cli" }),
+      createNodeLoggerFactory({ env }).createLogger("qcode").child({ module: "cli" }),
     // 入口已统一加载，这里保持既有回调签名但不再重复读文件，避免二次解析。
     loadDotenv: (dotenvOptions = {}) => {
       applyCliRuntimeEnvSanitization(dotenvOptions.env ?? env);

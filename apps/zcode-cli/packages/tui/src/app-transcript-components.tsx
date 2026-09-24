@@ -83,7 +83,7 @@ export function ContentPane({
             copy,
             expandedWorkflowRunIds,
             index,
-            key: `${index}-${message.role}`,
+            key: message.id ?? `${index}-${message.role}`,
             message,
             terminalWidth,
             workflowCardsByToolCallId,
